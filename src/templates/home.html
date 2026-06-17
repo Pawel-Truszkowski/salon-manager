@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-
+{% load static %}
 {% block content %}
 
 <section id="hero" class="rb-hero d-flex align-items-center justify-content-center text-center">
@@ -8,7 +8,7 @@
   <div class="rb-hero-frame d-none d-md-block"></div>
   <div class="rb-hero-frame-inner d-none d-md-block"></div>
   <div class="rb-hero-content position-relative">
-    <img src="img/Logo_Royal_Beauty.PNG" alt="Royal Beauty Studio Urody" class="rb-hero-logo mb-4" />
+    <img src="{% static 'img/Logo_Royal_Beauty.PNG' %}" alt="Royal Beauty Studio Urody" class="rb-hero-logo mb-4" />
     <div class="rb-divider-line mb-4">
       <span class="rb-line"></span>
       <span class="rb-divider-text">Elegancja &middot; Luksus &middot; Piękno</span>
