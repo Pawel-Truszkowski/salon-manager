@@ -171,7 +171,7 @@ body {
   min-height: 100vh;
   background-size: cover;
   background-position: center;
-  background-image: url("https://images.unsplash.com/photo-1595871151608-bc7abd1caca3?w=1800&h=1200&fit=crop&auto=format");
+  background-image: url("../img/hero.jpg");
 }
 .rb-hero-overlay {
   position: absolute;

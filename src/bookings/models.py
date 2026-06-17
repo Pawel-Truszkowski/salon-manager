@@ -1,6 +1,6 @@
 from django.db import models
 
-from src.services.models import Service, Employee
+from services.models import Service, Employee
 
 
 class Appointment(models.Model):
