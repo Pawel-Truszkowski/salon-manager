@@ -7,10 +7,12 @@ window.addEventListener(
   },
   { passive: true },
 );
+
 function scrollToTop(e) {
   e.preventDefault();
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
+
 document.querySelectorAll('a[href^="#"]').forEach(function (a) {
   a.addEventListener("click", function (e) {
     var t = document.querySelector(this.getAttribute("href"));
@@ -25,166 +27,18 @@ document.querySelectorAll('a[href^="#"]').forEach(function (a) {
       bootstrap.Collapse.getInstance(m).hide();
   });
 });
-var servicesData = {
-  twarz: [
-    {
-      name: "Zabieg limfatyczny",
-      desc: "Intensywne ujędrnienie i odmłodzenie skóry",
-      price: "350 zł",
-      duration: "90 min",
-    },
-    {
-      name: "Mezoterapia igłowa",
-      desc: "Odżywienie skóry koktajlami witaminowymi",
-      price: "280 zł",
-      duration: "60 min",
-    },
-    {
-      name: "Peeling chemiczny",
-      desc: "Głęboka regeneracja i wyrównanie kolorytu",
-      price: "220 zł",
-      duration: "60 min",
-    },
-    {
-      name: "Makijaż wieczorowy",
-      desc: "Glamour look na wyjątkowe okazje",
-      price: "180 zł",
-      duration: "75 min",
-    },
-  ],
-  rzesy: [
-    {
-      name: "Przedłużanie rzęs 1:1",
-      desc: "Klasyczna metoda dla naturalnego efektu",
-      price: "180 zł",
-      duration: "120 min",
-    },
-    {
-      name: "Objętość 2D–6D",
-      desc: "Intensywny, teatralny wygląd",
-      price: "250 zł",
-      duration: "150 min",
-    },
-    {
-      name: "Lifting rzęs",
-      desc: "Podkręcenie i laminowanie",
-      price: "130 zł",
-      duration: "60 min",
-    },
-    {
-      name: "Regulacja i henna brwi",
-      desc: "Modelowanie idealnego łuku",
-      price: "90 zł",
-      duration: "45 min",
-    },
-  ],
-  dlonie: [
-    {
-      name: "Manicure hybrydowy",
-      desc: "Trwały kolor do 4 tygodni",
-      price: "110 zł",
-      duration: "60 min",
-    },
-    {
-      name: "Pedicure spa",
-      desc: "Relaksująca pielęgnacja stóp",
-      price: "150 zł",
-      duration: "75 min",
-    },
-    {
-      name: "Przedłużanie paznokci",
-      desc: "Żel lub akryl, dowolny kształt",
-      price: "180 zł",
-      duration: "120 min",
-    },
-    {
-      name: "Nail art premium",
-      desc: "Unikalne wzory i zdobienia",
-      price: "150 zł+",
-      duration: "90 min",
-    },
-  ],
-  cialo: [
-    {
-      name: "Masaż relaksacyjny",
-      desc: "Uwolnienie napięcia i głęboki relaks",
-      price: "200 zł",
-      duration: "60 min",
-    },
-    {
-      name: "Peeling ciała",
-      desc: "Wygładzenie i rozświetlenie skóry",
-      price: "160 zł",
-      duration: "60 min",
-    },
-    {
-      name: "Depilacja woskiem",
-      desc: "Gładka skóra na długo",
-      price: "80–200 zł",
-      duration: "30–60 min",
-    },
-    {
-      name: "Owijanie algowe",
-      desc: "Detoks i intensywne nawilżenie",
-      price: "220 zł",
-      duration: "90 min",
-    },
-  ],
-  pielegnacja: [
-    {
-      name: "Mikrodermabrazja",
-      desc: "Mechaniczne złuszczanie i wygładzenie",
-      price: "200 zł",
-      duration: "60 min",
-    },
-    {
-      name: "Oczyszczanie ultradźwiękowe",
-      desc: "Głębokie oczyszczenie porów",
-      price: "170 zł",
-      duration: "45 min",
-    },
-    {
-      name: "Maska algowa",
-      desc: "Intensywne nawilżenie i kojenie",
-      price: "140 zł",
-      duration: "45 min",
-    },
-    {
-      name: "Zabieg anti-aging",
-      desc: "Redukcja zmarszczek i poprawa napięcia",
-      price: "310 zł",
-      duration: "75 min",
-    },
-  ],
-  solarium: [
-    {
-      name: "Opalenizna natryskowa",
-      desc: "Naturalny złocisty efekt bez słońca",
-      price: "120 zł",
-      duration: "30 min",
-    },
-    {
-      name: "Solarium premium",
-      desc: "Kolagenolampy dla skóry i urody",
-      price: "60 zł",
-      duration: "15 min",
-    },
-    {
-      name: "Pielęgnacja po opalaniu",
-      desc: "Intensywne nawilżenie i utrwalenie koloru",
-      price: "90 zł",
-      duration: "30 min",
-    },
-    {
-      name: "Pakiet opalenizna + ciało",
-      desc: "Kompletny rytuał złotej skóry",
-      price: "280 zł",
-      duration: "90 min",
-    },
-  ],
-};
-function renderServices(c) {
-  document.getElementById("servicesGrid").innerHTML = servicesData[c]
+
+var servicesData = {};
+var activeCategory = "twarz";
+
+function renderServices(category) {
+  var grid = document.getElementById("servicesGrid");
+  var items = servicesData[category];
+  if (!items || items.length === 0) {
+    grid.innerHTML = '<div class="col-12 text-center py-5"><p class="rb-body-text">Brak usług w tej kategorii.</p></div>';
+    return;
+  }
+  grid.innerHTML = items
     .map(function (s) {
       return (
         '<div class="col-sm-6 col-lg-3"><div class="rb-service-card h-100 d-flex flex-column"><h3 class="rb-service-name">' +
@@ -200,6 +54,7 @@ function renderServices(c) {
     })
     .join("");
 }
+
 document.getElementById("serviceTabs").addEventListener("click", function (e) {
   var b = e.target.closest(".rb-tab-btn");
   if (!b) return;
@@ -207,9 +62,28 @@ document.getElementById("serviceTabs").addEventListener("click", function (e) {
     x.classList.remove("active");
   });
   b.classList.add("active");
-  renderServices(b.dataset.category);
+  activeCategory = b.dataset.category;
+  renderServices(activeCategory);
 });
-renderServices("twarz");
+
+fetch("/api/services/")
+  .then(function (r) { return r.json(); })
+  .then(function (data) {
+    data.forEach(function (s) {
+      var cat = s.category;
+      if (!servicesData[cat]) servicesData[cat] = [];
+      servicesData[cat].push({
+        name: s.name,
+        desc: s.description || "",
+        price: parseFloat(s.price).toFixed(0) + " zł",
+        duration: s.duration + " min",
+      });
+    });
+    renderServices(activeCategory);
+  })
+  .catch(function () {
+    renderServices(activeCategory);
+  });
 function openLightbox(el) {
   document.getElementById("lightboxImg").src = el.querySelector("img").src;
   document.getElementById("lightbox").classList.add("open");
