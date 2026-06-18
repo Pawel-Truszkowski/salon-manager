@@ -2,8 +2,17 @@ from django.db import models
 
 
 class Service(models.Model):
+    CATEGORY_CHOICES = [
+        ('twarz', 'Twarz'),
+        ('rzesy', 'Rzęsy & Brwi'),
+        ('dlonie', 'Dłonie & Stopy'),
+        ('cialo', 'Ciało'),
+        ('pielegnacja', 'Pielęgnacja'),
+        ('solarium', 'Opalenizna'),
+    ]
+
     name = models.CharField(max_length=100, unique=True)
-    category = models.CharField(max_length=100)
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES)
     description = models.TextField(null=True, blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     duration = models.IntegerField(help_text="Duration in minutes")
