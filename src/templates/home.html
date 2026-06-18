@@ -1,0 +1,266 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+<section id="hero" class="rb-hero d-flex align-items-center justify-content-center text-center">
+  <div class="rb-hero-overlay"></div>
+  <div class="rb-hero-overlay-bottom"></div>
+  <div class="rb-hero-frame d-none d-md-block"></div>
+  <div class="rb-hero-frame-inner d-none d-md-block"></div>
+  <div class="rb-hero-content position-relative">
+    <img src="{% static 'img/Logo_Royal_Beauty.PNG' %}" alt="Royal Beauty Studio Urody" class="rb-hero-logo mb-4" />
+    <div class="rb-divider-line mb-4">
+      <span class="rb-line"></span>
+      <span class="rb-divider-text">Elegancja &middot; Luksus &middot; Piękno</span>
+      <span class="rb-line"></span>
+    </div>
+    <p class="rb-hero-subtitle mb-5">
+      Odkryj wyjątkowe doświadczenie piękna w sercu miasta.<br>
+      Podkreślamy Twoją naturalną elegancję z mistrzowską precyzją.
+    </p>
+    <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center">
+      <a href="#rezerwacja" class="btn rb-btn-gold">Zarezerwuj wizytę</a>
+      <a href="#uslugi" class="btn rb-btn-outline-dark">Nasze usługi</a>
+    </div>
+  </div>
+  <a href="#o-nas" class="rb-hero-scroll-btn"><i class="bi bi-chevron-down"></i></a>
+</section>
+
+<section id="o-nas" class="rb-section rb-bg-beige">
+  <div class="container-xl px-4 px-lg-5">
+    <div class="row align-items-center g-5">
+      <div class="col-md-6">
+        <div class="rb-about-img-wrap position-relative">
+          <img src="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=800&h=1000&fit=crop&auto=format" alt="Zabieg twarzy" class="rb-about-img w-100" />
+          <div class="rb-about-badge d-none d-md-flex flex-column align-items-center justify-content-center">
+            <span class="rb-badge-num">10+</span>
+            <span class="rb-badge-label">lat doświadczenia</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <p class="rb-label">O nas</p>
+        <h2 class="rb-heading mb-3">Sztuka piękna<br><em class="rb-gold">w każdym detalu</em></h2>
+        <div class="rb-gold-line mb-4"></div>
+        <p class="rb-body-text mb-3">Royal Beauty to przestrzeń stworzona dla kobiet, które cenią luksus, dyskrecję i profesjonalizm. Nasz salon łączy ponadczasową elegancję z najnowszymi trendami w świecie urody.</p>
+        <p class="rb-body-text mb-5">Każda wizyta to rytuał — od momentu przekroczenia progu do ostatniego akcentu. Używamy wyłącznie produktów premium, a nasz zespół specjalistów dba o każdy szczegół Twojego wyglądu.</p>
+        <div class="row g-3">
+          <div class="col-4"><div class="rb-stat"><span class="rb-stat-num">3000+</span><span class="rb-stat-label">Zadowolonych klientek</span></div></div>
+          <div class="col-4"><div class="rb-stat"><span class="rb-stat-num">15</span><span class="rb-stat-label">Ekspertów urody</span></div></div>
+          <div class="col-4"><div class="rb-stat"><span class="rb-stat-num">50+</span><span class="rb-stat-label">Usług premium</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="uslugi" class="rb-section rb-bg-sand">
+  <div class="container-xl px-4 px-lg-5">
+    <div class="text-center mb-5">
+      <p class="rb-label">Oferta</p>
+      <h2 class="rb-heading">Nasze <em class="rb-gold">usługi</em></h2>
+      <div class="rb-gold-line mx-auto mt-3"></div>
+    </div>
+    <div class="d-flex flex-wrap justify-content-center gap-2 mb-5" id="serviceTabs">
+      <button class="btn rb-tab-btn active" data-category="twarz"><i class="bi bi-stars me-1"></i>Twarz</button>
+      <button class="btn rb-tab-btn" data-category="rzesy"><i class="bi bi-eye me-1"></i>Rzęsy &amp; Brwi</button>
+      <button class="btn rb-tab-btn" data-category="dlonie"><i class="bi bi-hand-index me-1"></i>Dłonie &amp; Stopy</button>
+      <button class="btn rb-tab-btn" data-category="cialo"><i class="bi bi-flower1 me-1"></i>Ciało</button>
+      <button class="btn rb-tab-btn" data-category="pielegnacja"><i class="bi bi-droplet me-1"></i>Pielęgnacja</button>
+      <button class="btn rb-tab-btn" data-category="solarium"><i class="bi bi-sun me-1"></i>Opalenizna</button>
+    </div>
+    <div id="servicesGrid" class="row g-0 rb-services-grid"></div>
+    <div class="text-center mt-5">
+      <a href="#rezerwacja" class="btn rb-btn-outline-dark">Zarezerwuj usługę</a>
+    </div>
+  </div>
+</section>
+
+<section id="galeria" class="rb-section rb-bg-beige">
+  <div class="container-xl px-4 px-lg-5">
+    <div class="text-center mb-5">
+      <p class="rb-label">Galeria</p>
+      <h2 class="rb-heading">Nasze <em class="rb-gold">wnętrza</em></h2>
+      <div class="rb-gold-line mx-auto mt-3"></div>
+    </div>
+    <div class="rb-gallery-grid">
+      <div class="rb-gallery-item rb-gallery-large" onclick="openLightbox(this)">
+        <img src="https://images.unsplash.com/photo-1595871151608-bc7abd1caca3?w=800&h=800&fit=crop&auto=format" alt="Wnętrze salonu" />
+        <div class="rb-gallery-hover"><span>Powiększ</span></div>
+      </div>
+      <div class="rb-gallery-item" onclick="openLightbox(this)">
+        <img src="https://images.unsplash.com/photo-1770981667079-d59bbacc0739?w=600&h=600&fit=crop&auto=format" alt="Kosmetyki" />
+        <div class="rb-gallery-hover"><span>Powiększ</span></div>
+      </div>
+      <div class="rb-gallery-item" onclick="openLightbox(this)">
+        <img src="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=600&h=600&fit=crop&auto=format" alt="Zabieg na twarz" />
+        <div class="rb-gallery-hover"><span>Powiększ</span></div>
+      </div>
+      <div class="rb-gallery-item" onclick="openLightbox(this)">
+        <img src="https://images.unsplash.com/photo-1693578538512-fc66f318c833?w=800&h=600&fit=crop&auto=format" alt="Studio urody" />
+        <div class="rb-gallery-hover"><span>Powiększ</span></div>
+      </div>
+      <div class="rb-gallery-item" onclick="openLightbox(this)">
+        <img src="https://images.unsplash.com/photo-1630595271375-5073a6c0638b?w=600&h=600&fit=crop&auto=format" alt="Klientka" />
+        <div class="rb-gallery-hover"><span>Powiększ</span></div>
+      </div>
+      <div class="rb-gallery-item" onclick="openLightbox(this)">
+        <img src="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=600&h=600&fit=crop&auto=format" alt="Zabieg kosmetyczny" />
+        <div class="rb-gallery-hover"><span>Powiększ</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div id="lightbox" class="rb-lightbox" onclick="closeLightbox()">
+  <button class="rb-lightbox-close" onclick="closeLightbox()"><i class="bi bi-x-lg"></i></button>
+  <img id="lightboxImg" src="" alt="" onclick="event.stopPropagation()" />
+</div>
+
+<section id="opinie" class="rb-section rb-testimonials"
+  style="background-image:url('https://images.unsplash.com/photo-1643684391140-c5056cfd3436?w=1800&h=900&fit=crop&auto=format');">
+  <div class="rb-testimonials-overlay"></div>
+  <div class="container-xl px-4 px-lg-5 position-relative" style="z-index:2;">
+    <div class="text-center mb-5">
+      <p class="rb-label">Opinie</p>
+      <h2 class="rb-heading">Co mówią nasze <em class="rb-gold">klientki</em></h2>
+      <div class="rb-gold-line mx-auto mt-3"></div>
+    </div>
+    <div class="row justify-content-center">
+      <div class="col-lg-8 text-center">
+        <div class="rb-stars mb-4">
+          <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+        </div>
+        <blockquote id="testimonialText" class="rb-quote mb-4"></blockquote>
+        <div class="d-flex align-items-center justify-content-center gap-3">
+          <div id="testimonialAvatar" class="rb-avatar"></div>
+          <div class="text-start">
+            <p id="testimonialName" class="rb-author-name mb-0"></p>
+            <p id="testimonialRole" class="rb-author-role mb-0"></p>
+          </div>
+        </div>
+        <div class="d-flex align-items-center justify-content-center gap-4 mt-5">
+          <button class="btn rb-carousel-btn" onclick="prevTestimonial()"><i class="bi bi-chevron-left"></i></button>
+          <div id="testimonialDots" class="d-flex gap-2 align-items-center"></div>
+          <button class="btn rb-carousel-btn" onclick="nextTestimonial()"><i class="bi bi-chevron-right"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="rezerwacja" class="rb-section rb-bg-white">
+  <div class="container-xl px-4 px-lg-5">
+    <div class="row g-5">
+      <div class="col-md-6">
+        <p class="rb-label">Rezerwacja</p>
+        <h2 class="rb-heading mb-3">Zarezerwuj<br><em class="rb-gold">swoją wizytę</em></h2>
+        <div class="rb-gold-line mb-4"></div>
+        <p class="rb-body-text mb-5">Skontaktuj się z nami i zaplanuj swój rytuał piękna. Możesz wybrać preferowaną specjalistkę lub pozostawić nam wybór. Potwierdzimy termin w ciągu 24 godzin.</p>
+        <div class="d-flex flex-column gap-4 mb-5">
+          <div class="d-flex gap-3"><div class="rb-contact-line"></div><div><p class="rb-label mb-1">Telefon</p><p class="rb-body-text mb-0">+48 123 456 789</p></div></div>
+          <div class="d-flex gap-3"><div class="rb-contact-line"></div><div><p class="rb-label mb-1">E-mail</p><p class="rb-body-text mb-0">kontakt@royalbeauty.pl</p></div></div>
+          <div class="d-flex gap-3"><div class="rb-contact-line"></div><div><p class="rb-label mb-1">Godziny</p><p class="rb-body-text mb-0">Pn–Pt: 9:00–20:00<br>Sob: 9:00–17:00</p></div></div>
+        </div>
+        <div class="pt-4" style="border-top:1px solid rgba(184,147,90,.25);">
+          <p class="rb-label mb-3">Nasz zespół</p>
+          <div class="d-flex flex-wrap gap-2">
+            <span class="rb-team-chip"><span class="rb-chip-dot">P</span>Paula</span>
+            <span class="rb-team-chip"><span class="rb-chip-dot">M</span>Marika</span>
+            <span class="rb-team-chip"><span class="rb-chip-dot">w</span>Wiola</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div id="bookingSuccess" class="rb-booking-success d-none text-center p-5">
+          <i class="bi bi-check-circle rb-success-icon mb-3 d-block"></i>
+          <h3 class="rb-heading mb-3" style="font-size:1.5rem;">Dziękujemy za rezerwację!</h3>
+          <p class="rb-body-text mb-4">Potwierdzimy Twoją wizytę w ciągu 24 godzin.</p>
+          <button class="btn rb-btn-outline-dark" onclick="resetBookingForm()">Nowa rezerwacja</button>
+        </div>
+        <form id="bookingForm" class="rb-form" onsubmit="submitBooking(event)" novalidate>
+          <div class="row g-3 mb-3">
+            <div class="col-sm-6"><label class="rb-form-label">Imię i nazwisko</label><input type="text" class="rb-input" placeholder="Anna Kowalska" required /></div>
+            <div class="col-sm-6"><label class="rb-form-label">Telefon</label><input type="tel" class="rb-input" placeholder="+48 000 000 000" required /></div>
+          </div>
+          <div class="mb-3"><label class="rb-form-label">E-mail</label><input type="email" class="rb-input" placeholder="twoj@email.pl" /></div>
+          <div class="mb-3">
+            <label class="rb-form-label">Usługa</label>
+            <select class="rb-input rb-select" required>
+              <option value="" disabled selected>Wybierz usługę...</option>
+              <option>Zabieg liftingujący</option><option>Mezoterapia igłowa</option><option>Peeling chemiczny</option>
+              <option>Makijaż wieczorowy</option><option>Przedłużanie rzęs 1:1</option><option>Objętość rzęs 2D–6D</option>
+              <option>Lifting rzęs</option><option>Regulacja i henna brwi</option><option>Manicure hybrydowy</option>
+              <option>Pedicure spa</option><option>Przedłużanie paznokci</option><option>Nail art premium</option>
+              <option>Masaż relaksacyjny</option><option>Peeling ciała</option><option>Depilacja woskiem</option>
+              <option>Owijanie algowe</option><option>Mikrodermabrazja</option><option>Oczyszczanie ultradźwiękowe</option>
+              <option>Opalenizna natryskowa</option><option>Inne</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="rb-form-label">Specjalistka</label>
+            <select class="rb-input rb-select">
+              <option value="">Dowolna specjalistka</option>
+              <option>Anna Kowalska — Kosmetolog</option>
+              <option>Maria Nowak — Specjalistka rzęs &amp; brwi</option>
+              <option>Joanna Wiśniewska — Manicurzystka</option>
+              <option>Katarzyna Zając — Masażystka</option>
+              <option>Ewa Lis — Kosmetolog estetyczny</option>
+            </select>
+          </div>
+          <div class="row g-3 mb-3">
+            <div class="col-sm-6"><label class="rb-form-label">Data</label><input type="date" class="rb-input" id="bookingDate" required /></div>
+            <div class="col-sm-6">
+              <label class="rb-form-label">Godzina</label>
+              <select class="rb-input rb-select" required>
+                <option value="" disabled selected>Wybierz...</option>
+                <option>9:00</option><option>10:00</option><option>11:00</option><option>12:00</option><option>13:00</option>
+                <option>14:00</option><option>15:00</option><option>16:00</option><option>17:00</option><option>18:00</option>
+              </select>
+            </div>
+          </div>
+          <div class="mb-4"><label class="rb-form-label">Dodatkowe informacje</label><textarea class="rb-input rb-textarea" rows="3" placeholder="Wszelkie uwagi..."></textarea></div>
+          <button type="submit" class="btn rb-btn-gold w-100">Wyślij prośbę o rezerwację</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="kontakt" class="rb-section rb-bg-sand">
+  <div class="container-xl px-4 px-lg-5">
+    <div class="text-center mb-5">
+      <p class="rb-label">Kontakt</p>
+      <h2 class="rb-heading">Znajdź nas <em class="rb-gold">w centrum</em></h2>
+      <div class="rb-gold-line mx-auto mt-3"></div>
+    </div>
+    <div class="row g-0 rb-contact-box">
+      <div class="col-md-6">
+        <div class="rb-contact-img h-100" style="background-image:url('static/img/contact.jpg');">
+          <div class="rb-contact-img-overlay d-flex flex-column align-items-center justify-content-center h-100">
+            <i class="bi bi-geo-alt-fill rb-map-pin mb-2"></i>
+            <p class="rb-map-street">ul. Małopanewska 24B/5</p>
+            <p class="rb-map-city">54-212 Wrocław</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 rb-contact-info p-5">
+        <div class="d-flex flex-column gap-4">
+          <div class="d-flex gap-3 align-items-start"><i class="bi bi-geo-alt rb-contact-icon mt-1"></i><div><p class="rb-label mb-1">Adres</p><p class="rb-body-text mb-0">ul. Małopanewska 24B/5<br>54-212 Wrocław</p></div></div>
+          <div class="d-flex gap-3 align-items-start"><i class="bi bi-telephone rb-contact-icon mt-1"></i><div><p class="rb-label mb-1">Telefon</p><p class="rb-body-text mb-0">+48 123 456 789</p></div></div>
+          <div class="d-flex gap-3 align-items-start"><i class="bi bi-envelope rb-contact-icon mt-1"></i><div><p class="rb-label mb-1">E-mail</p><p class="rb-body-text mb-0">kontakt@royalbeauty.pl</p></div></div>
+          <div class="d-flex gap-3 align-items-start"><i class="bi bi-clock rb-contact-icon mt-1"></i><div><p class="rb-label mb-1">Godziny otwarcia</p><p class="rb-body-text mb-0">Pn–Pt: 9:00–20:00<br>Sob: 9:00–17:00<br>Niedz: nieczynne</p></div></div>
+        </div>
+        <div class="mt-4 pt-4" style="border-top:1px solid rgba(184,147,90,.2);">
+          <p class="rb-label mb-3">Obserwuj nas</p>
+          <div class="d-flex gap-3">
+            <a href="https://www.instagram.com/royalbeauty_studiourody_/" target="_blank" class="rb-social-btn"><i class="bi bi-instagram"></i></a>
+            <a href="https://www.facebook.com/p/Royal-Beauty-100063223181002/" target="_blank" class="rb-social-btn"><i class="bi bi-facebook"></i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
