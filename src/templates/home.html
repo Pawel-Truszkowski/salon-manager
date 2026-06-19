@@ -201,11 +201,9 @@
             <label class="rb-form-label">Specjalistka</label>
             <select class="rb-input rb-select">
               <option value="">Dowolna specjalistka</option>
-              <option>Anna Kowalska — Kosmetolog</option>
-              <option>Maria Nowak — Specjalistka rzęs &amp; brwi</option>
-              <option>Joanna Wiśniewska — Manicurzystka</option>
-              <option>Katarzyna Zając — Masażystka</option>
-              <option>Ewa Lis — Kosmetolog estetyczny</option>
+              {% for employee in employees %}
+                <option>{{ employee.first_name }} {{ employee.last_name }} — {{ employee.bio }}</option>
+              {% endfor %}
             </select>
           </div>
           <div class="row g-3 mb-3">
