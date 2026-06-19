@@ -6,3 +6,4 @@ from api.serializers import ServiceSerializer
 class ServiceListView(ListAPIView):
     queryset = Service.objects.all().order_by('category', 'name')
     serializer_class = ServiceSerializer
+    
