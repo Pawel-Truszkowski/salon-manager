@@ -17,7 +17,7 @@ def submit_booking(request):
     booking = form.save(commit=False)
 
     if not booking.employee:
-        specialist = find_available_specialist(booking.service, booking.date, booking.time,)
+        specialist = find_available_specialist(booking.service, booking.date_time)
         if specialist is None:
             return JsonResponse({
                 'ok': False,
@@ -27,9 +27,8 @@ def submit_booking(request):
         booking.employee = specialist
 
     collision = Appointment.objects.filter(
-        specialist=booking.employee,
-        date=booking.date,
-        time=booking.time,
+        employee=booking.employee,
+        date_time=booking.date_time,
         status__in=['pending', 'confirmed'],
     ).exists()
 

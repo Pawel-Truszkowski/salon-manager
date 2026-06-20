@@ -51,10 +51,13 @@ def get_available_slots(employee, date, service):
     return available_slots
 
 
-def find_available_specialist(service, date, time_obj):
+def find_available_specialist(service, date_time_obj):
     candidates = service.employees.all()
+    if not timezone.is_aware(date_time_obj):
+        date_time_obj = timezone.make_aware(date_time_obj)
+    date = date_time_obj.date()
     for specialist in candidates:
         slots = get_available_slots(specialist, date, service)
-        if time_obj in slots:
+        if date_time_obj in slots:
             return specialist
     return None

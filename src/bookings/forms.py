@@ -1,5 +1,5 @@
 import datetime
-
+from django.utils import timezone
 from django import forms
 from .models import Appointment
 
@@ -35,11 +35,11 @@ class BookingForm(forms.ModelForm):
             try:
                 # Złącz date + time w jedno datetime
                 time_obj = datetime.datetime.strptime(time, '%H:%M').time()
-                cleaned['date_time'] = datetime.datetime.combine(date, time_obj)
+                cleaned['date_time'] = timezone.make_aware(datetime.datetime.combine(date, time_obj))
             except ValueError:
                 raise forms.ValidationError('Nieprawidłowy format godziny.')
 
-        if cleaned.get('date_time') and cleaned['date_time'] < datetime.datetime.now():
+        if cleaned.get('date_time') and cleaned['date_time'] < timezone.now():
             raise forms.ValidationError('Nie można rezerwować w przeszłości.')
 
         return cleaned

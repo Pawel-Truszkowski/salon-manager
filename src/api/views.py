@@ -1,7 +1,7 @@
 import datetime
 from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView
-from api.serializers import ServiceSerializer
+from api.serializers import ServiceSerializer, EmployeeSerializer
 from rest_framework.response import Response
 from rest_framework import status
 
@@ -12,6 +12,16 @@ from bookings.utils import get_available_slots
 class ServiceListView(ListAPIView):
     queryset = Service.objects.all().order_by('category', 'name')
     serializer_class = ServiceSerializer
+
+
+class EmployeeListView(ListAPIView):
+    serializer_class = EmployeeSerializer
+
+    def get_queryset(self):
+        service_id = self.request.query_params.get('service')
+        if service_id:
+            return Employee.objects.filter(services__id=service_id).order_by('first_name')
+        return Employee.objects.all().order_by('first_name')
     
 
 class AvailableSlots(APIView):

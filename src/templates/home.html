@@ -178,45 +178,34 @@
           <button class="btn rb-btn-outline-dark" onclick="resetBookingForm()">Nowa rezerwacja</button>
         </div>
         <form id="bookingForm" class="rb-form" onsubmit="submitBooking(event)" novalidate>
+          {% csrf_token %}
           <div class="row g-3 mb-3">
-            <div class="col-sm-6"><label class="rb-form-label">Imię i nazwisko</label><input type="text" class="rb-input" placeholder="Anna Kowalska" required /></div>
-            <div class="col-sm-6"><label class="rb-form-label">Telefon</label><input type="tel" class="rb-input" placeholder="+48 000 000 000" required /></div>
+            <div class="col-sm-6"><label class="rb-form-label">Imię i nazwisko</label><input type="text" id="clientName" name="client_name" class="rb-input" placeholder="Anna Kowalska" required /></div>
+            <div class="col-sm-6"><label class="rb-form-label">Telefon</label><input type="tel" id="clientPhone" name="client_phone" class="rb-input" placeholder="+48 000 000 000" required /></div>
           </div>
-          <div class="mb-3"><label class="rb-form-label">E-mail</label><input type="email" class="rb-input" placeholder="twoj@email.pl" /></div>
+          <div class="mb-3"><label class="rb-form-label">E-mail</label><input type="email" id="clientEmail" name="client_email" class="rb-input" placeholder="twoj@email.pl" required/></div>
           <div class="mb-3">
             <label class="rb-form-label">Usługa</label>
-            <select class="rb-input rb-select" required>
-              <option value="" disabled selected>Wybierz usługę...</option>
-              <option>Zabieg liftingujący</option><option>Mezoterapia igłowa</option><option>Peeling chemiczny</option>
-              <option>Makijaż wieczorowy</option><option>Przedłużanie rzęs 1:1</option><option>Objętość rzęs 2D–6D</option>
-              <option>Lifting rzęs</option><option>Regulacja i henna brwi</option><option>Manicure hybrydowy</option>
-              <option>Pedicure spa</option><option>Przedłużanie paznokci</option><option>Nail art premium</option>
-              <option>Masaż relaksacyjny</option><option>Peeling ciała</option><option>Depilacja woskiem</option>
-              <option>Owijanie algowe</option><option>Mikrodermabrazja</option><option>Oczyszczanie ultradźwiękowe</option>
-              <option>Opalenizna natryskowa</option><option>Inne</option>
+            <select id="bookingService" name="service" class="rb-input rb-select" required>
+              <option value="" disabled selected>Ładowanie usług...</option>
             </select>
           </div>
           <div class="mb-3">
             <label class="rb-form-label">Specjalistka</label>
-            <select class="rb-input rb-select">
+            <select id="bookingEmployee" name="employee" class="rb-input rb-select">
               <option value="">Dowolna specjalistka</option>
-              {% for employee in employees %}
-                <option>{{ employee.first_name }} {{ employee.last_name }} — {{ employee.bio }}</option>
-              {% endfor %}
             </select>
           </div>
           <div class="row g-3 mb-3">
-            <div class="col-sm-6"><label class="rb-form-label">Data</label><input type="date" class="rb-input" id="bookingDate" required /></div>
+            <div class="col-sm-6"><label class="rb-form-label">Data</label><input type="date" class="rb-input" id="bookingDate" name="date" required /></div>
             <div class="col-sm-6">
               <label class="rb-form-label">Godzina</label>
-              <select class="rb-input rb-select" required>
-                <option value="" disabled selected>Wybierz...</option>
-                <option>9:00</option><option>10:00</option><option>11:00</option><option>12:00</option><option>13:00</option>
-                <option>14:00</option><option>15:00</option><option>16:00</option><option>17:00</option><option>18:00</option>
+              <select id="bookingTime" name="time" class="rb-input rb-select" required>
+                <option value="" disabled selected>Najpierw wybierz usługę i datę</option>
               </select>
             </div>
           </div>
-          <div class="mb-4"><label class="rb-form-label">Dodatkowe informacje</label><textarea class="rb-input rb-textarea" rows="3" placeholder="Wszelkie uwagi..."></textarea></div>
+          <div class="mb-4"><label class="rb-form-label">Dodatkowe informacje</label><textarea id="bookingNotes" name="notes" class="rb-input rb-textarea" rows="3" placeholder="Wszelkie uwagi..."></textarea></div>
           <button type="submit" class="btn rb-btn-gold w-100">Wyślij prośbę o rezerwację</button>
         </form>
       </div>
