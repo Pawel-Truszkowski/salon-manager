@@ -70,7 +70,7 @@ fetch("/api/services/")
   .then(function (r) { return r.json(); })
   .then(function (data) {
     data.forEach(function (s) {
-      var cat = s.category;
+      var cat = s.category.slug;
       if (!servicesData[cat]) servicesData[cat] = [];
       servicesData[cat].push({
         name: s.name,
