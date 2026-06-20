@@ -20,6 +20,8 @@ class Appointment(models.Model):
     employee = models.ForeignKey(
         Employee,
         on_delete=models.PROTECT,
+        null=True,
+        blank=True,
         related_name='appointments',
     )
     date_time = models.DateTimeField()
