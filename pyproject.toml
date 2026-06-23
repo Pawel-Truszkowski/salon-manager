@@ -13,3 +13,8 @@ dependencies = [
     "psycopg-binary==3.3.4",
     "sqlparse==0.5.5",
 ]
+
+[dependency-groups]
+dev = [
+    "python-dotenv>=1.2.2",
+]

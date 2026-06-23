@@ -6,7 +6,7 @@ from .models import Appointment
 from .forms import BookingForm
 
 from .utils import find_available_specialist
-
+from .emails import _send_emails
 
 @require_POST
 def submit_booking(request):
@@ -40,6 +40,6 @@ def submit_booking(request):
 
     booking.save()
     
-    #_send_emails(booking)
+    _send_emails(booking)
     
     return JsonResponse({'ok': True})

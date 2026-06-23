@@ -107,39 +107,39 @@ document.addEventListener("keydown", function (e) {
 });
 
 var testimonials = [
-    {
-      text: "Royal Beauty to miejsce, do którego wracam co miesiąc. Profesjonalizm, luksusowe produkty i atmosfera sprawiają, że czuję się wyjątkowo.",
-      name: "Aleksandra Wiśniewska",
-      role: "Stała klientka od 3 lat",
-      initials: "AW",
-    },
-    {
-      text: "Przedłużanie rzęs wykonane perfekcyjnie. Efekt naturalny i trwały. Polecam wszystkim szukającym jakości premium.",
-      name: "Katarzyna Nowak",
-      role: "Klientka",
-      initials: "KN",
-    },
-    {
-      text: "Zabieg liftingujący twarzy przyniósł spektakularne efekty. Skóra wygląda promiennie i młodziej.",
-      name: "Monika Kowalczyk",
-      role: "Klientka",
-      initials: "MK",
-    },
-    {
-      text: "Mezoterapia igłowa to mój ulubiony zabieg. Efekty są spektakularne, a rytuał przeprowadzony z niezwykłą delikatnością.",
-      name: "Joanna Malinowska",
-      role: "Klientka od roku",
-      initials: "JM",
-    },
-    {
-      text: "Manicure hybrydowy trwa u mnie ponad 4 tygodnie. Wyjątkowe miejsce z wyjątkowym podejściem.",
-      name: "Ewa Zielińska",
-      role: "Klientka",
-      initials: "EZ",
-    },
-  ],
+  {
+    text: "Royal Beauty to miejsce, do którego wracam co miesiąc. Profesjonalizm, luksusowe produkty i atmosfera sprawiają, że czuję się wyjątkowo.",
+    name: "Aleksandra Wiśniewska",
+    role: "Stała klientka od 3 lat",
+    initials: "AW",
+  },
+  {
+    text: "Przedłużanie rzęs wykonane perfekcyjnie. Efekt naturalny i trwały. Polecam wszystkim szukającym jakości premium.",
+    name: "Katarzyna Nowak",
+    role: "Klientka",
+    initials: "KN",
+  },
+  {
+    text: "Zabieg liftingujący twarzy przyniósł spektakularne efekty. Skóra wygląda promiennie i młodziej.",
+    name: "Monika Kowalczyk",
+    role: "Klientka",
+    initials: "MK",
+  },
+  {
+    text: "Mezoterapia igłowa to mój ulubiony zabieg. Efekty są spektakularne, a rytuał przeprowadzony z niezwykłą delikatnością.",
+    name: "Joanna Malinowska",
+    role: "Klientka od roku",
+    initials: "JM",
+  },
+  {
+    text: "Manicure hybrydowy trwa u mnie ponad 4 tygodnie. Wyjątkowe miejsce z wyjątkowym podejściem.",
+    name: "Ewa Zielińska",
+    role: "Klientka",
+    initials: "EZ",
+  },
+],
 
-tIdx = 0;
+  tIdx = 0;
 
 function renderTestimonial(i) {
   var t = testimonials[i];
@@ -239,7 +239,7 @@ function fetchEmployees(serviceId) {
       data.forEach(function (emp) {
         var opt = document.createElement("option");
         opt.value = emp.id;
-        opt.textContent = emp.first_name + " " + emp.last_name;
+        opt.textContent = emp.first_name;
         empSelect.appendChild(opt);
       });
     });
