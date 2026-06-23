@@ -90,18 +90,22 @@ fetch("/api/services/")
   .catch(function () {
     renderServices(activeCategory);
   });
+
 function openLightbox(el) {
   document.getElementById("lightboxImg").src = el.querySelector("img").src;
   document.getElementById("lightbox").classList.add("open");
   document.body.style.overflow = "hidden";
 }
+
 function closeLightbox() {
   document.getElementById("lightbox").classList.remove("open");
   document.body.style.overflow = "";
 }
+
 document.addEventListener("keydown", function (e) {
   if (e.key === "Escape") closeLightbox();
 });
+
 var testimonials = [
     {
       text: "Royal Beauty to miejsce, do którego wracam co miesiąc. Profesjonalizm, luksusowe produkty i atmosfera sprawiają, że czuję się wyjątkowo.",
@@ -134,7 +138,9 @@ var testimonials = [
       initials: "EZ",
     },
   ],
-  tIdx = 0;
+
+tIdx = 0;
+
 function renderTestimonial(i) {
   var t = testimonials[i];
   document.getElementById("testimonialText").textContent = "„" + t.text + '"';
@@ -146,6 +152,7 @@ function renderTestimonial(i) {
     d.style.width = j === i ? "2rem" : "1rem";
   });
 }
+
 function buildDots() {
   document.getElementById("testimonialDots").innerHTML = testimonials
     .map(function (_, i) {
@@ -161,27 +168,60 @@ function buildDots() {
     })
     .join("");
 }
+
 function goTestimonial(i) {
   tIdx = i;
   renderTestimonial(i);
 }
+
 function prevTestimonial() {
   tIdx = (tIdx - 1 + testimonials.length) % testimonials.length;
   renderTestimonial(tIdx);
 }
+
 function nextTestimonial() {
   tIdx = (tIdx + 1) % testimonials.length;
   renderTestimonial(tIdx);
 }
+
 buildDots();
 renderTestimonial(0);
 setInterval(nextTestimonial, 6000);
+
 // ── Booking ───────────────────────────────────────────────────────────────────
 
-(function () {
-  var d = document.getElementById("bookingDate");
-  if (d) d.min = new Date().toISOString().split("T")[0];
-})();
+var bookingPicker = flatpickr("#bookingDate", {
+  minDate: "today",
+  dateFormat: "Y-m-d",
+  locale: "pl",
+  enable: [],
+  onMonthChange: function (selectedDates, dateStr, instance) {
+    var serviceId = document.getElementById("bookingService").value;
+    if (serviceId) {
+      loadAvailableDates(serviceId, instance.currentYear, instance.currentMonth + 1);
+    }
+  },
+  onChange: function (selectedDates, dateStr) {
+    if (dateStr) fetchSlots();
+    else resetTimeSlots("Najpierw wybierz usługę i datę");
+  },
+});
+
+function loadAvailableDates(serviceId, year, month) {
+  var employeeId = document.getElementById("bookingEmployee").value;
+  var monthStr = year + "-" + String(month).padStart(2, "0");
+  var url = "/api/available-dates/?service=" + serviceId + "&month=" + monthStr;
+  if (employeeId) url += "&employee=" + employeeId;
+
+  fetch(url)
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      bookingPicker.set("enable", data.dates || []);
+    })
+    .catch(function () {
+      bookingPicker.set("enable", []);
+    });
+}
 
 function resetTimeSlots(msg) {
   document.getElementById("bookingTime").innerHTML =
@@ -242,11 +282,24 @@ function fetchSlots() {
 }
 
 document.getElementById("bookingService").addEventListener("change", function () {
-  fetchEmployees(this.value);
-  fetchSlots();
+  var serviceId = this.value;
+  fetchEmployees(serviceId);
+  bookingPicker.clear();
+  bookingPicker.set("enable", []);
+  resetTimeSlots("Najpierw wybierz usługę i datę");
+  if (serviceId) {
+    loadAvailableDates(serviceId, bookingPicker.currentYear, bookingPicker.currentMonth + 1);
+  }
 });
-document.getElementById("bookingEmployee").addEventListener("change", fetchSlots);
-document.getElementById("bookingDate").addEventListener("change", fetchSlots);
+
+document.getElementById("bookingEmployee").addEventListener("change", function () {
+  var serviceId = document.getElementById("bookingService").value;
+  bookingPicker.clear();
+  resetTimeSlots("Najpierw wybierz usługę i datę");
+  if (serviceId) {
+    loadAvailableDates(serviceId, bookingPicker.currentYear, bookingPicker.currentMonth + 1);
+  }
+});
 
 function setFieldError(el, msg) {
   el.classList.add("is-invalid");
@@ -375,6 +428,8 @@ function resetBookingForm() {
   var form = document.getElementById("bookingForm");
   form.reset();
   clearAllErrors(form);
+  bookingPicker.clear();
+  bookingPicker.set("enable", []);
   document.getElementById("bookingEmployee").innerHTML = '<option value="">Dowolna specjalistka</option>';
   resetTimeSlots("Najpierw wybierz usługę i datę");
   form.classList.remove("d-none");
