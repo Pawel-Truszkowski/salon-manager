@@ -1,6 +1,6 @@
 from rest_framework import serializers
-from services.models import ServiceCategory, Service, Employee, Schedule
-from bookings.models import Appointment
+from apps.services.models import ServiceCategory, Service, Employee, Schedule
+from apps.bookings.models import Appointment
 
 
 class ServiceCategorySerializer(serializers.ModelSerializer):

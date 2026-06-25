@@ -2,12 +2,12 @@ import calendar
 import datetime
 from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView
-from api.serializers import ServiceSerializer, EmployeeSerializer
+from apps.api.serializers import ServiceSerializer, EmployeeSerializer
 from rest_framework.response import Response
 from rest_framework import status
 
-from services.models import Service, Employee
-from bookings.utils import get_available_slots
+from apps.services.models import Service, Employee
+from apps.bookings.utils import get_available_slots
 
 
 class ServiceListView(ListAPIView):

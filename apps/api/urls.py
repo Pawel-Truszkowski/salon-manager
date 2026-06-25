@@ -1,5 +1,5 @@
 from django.urls import path
-from api.views import ServiceListView, EmployeeListView, AvailableSlots, AvailableDates
+from apps.api.views import ServiceListView, EmployeeListView, AvailableSlots, AvailableDates
 
 urlpatterns = [
     path('services/', ServiceListView.as_view(), name='api-services'),
