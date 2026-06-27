@@ -17,5 +17,6 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "django-debug-toolbar>=7.0.0",
     "python-dotenv>=1.2.2",
 ]
