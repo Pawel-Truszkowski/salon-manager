@@ -11,7 +11,7 @@ dependencies = [
     "djangorestframework==3.17.1",
     "gunicorn==26.0.0",
     "packaging==26.2",
-    "psycopg-binary==3.3.4",
+    "psycopg2-binary>=2.9.12",
     "sqlparse==0.5.5",
 ]
 
