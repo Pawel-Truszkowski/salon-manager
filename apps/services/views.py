@@ -1,7 +1,7 @@
 from django.shortcuts import render
 
-from services.models import Employee, Service
-from bookings.forms import BookingForm
+from apps.services.models import Employee, Service
+from apps.bookings.forms import BookingForm
 
 
 def home(request):

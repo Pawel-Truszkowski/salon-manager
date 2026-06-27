@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 
 from django.utils import timezone
 from .models import Appointment
-from services.models import Schedule
+from apps.services.models import Schedule
 
 
 def get_available_slots(employee, date, service):

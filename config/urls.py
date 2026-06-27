@@ -17,12 +17,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-from services.views import home
-from bookings.views import submit_booking
+from apps.services.views import home
+from apps.bookings.views import submit_booking
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include('api.urls')),
+    path('api/', include('apps.api.urls')),
     path('', home, name='home'),
     path('bookings/', submit_booking, name='submit_booking'),
 ]
