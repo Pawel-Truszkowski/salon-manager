@@ -32,7 +32,7 @@ services:
     image: nginx:alpine
     restart: always
     ports:
-      - "2108:2108"
+      - "80:80"
     volumes:
       - ./nginx/prod.conf:/etc/nginx/conf.d/default.conf:ro
       - static_files:/app/static:ro
