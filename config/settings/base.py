@@ -1,7 +1,4 @@
-
-
 from pathlib import Path
-import os
 import environ
 
 from django.core.exceptions import ImproperlyConfigured
@@ -41,6 +38,7 @@ INSTALLED_APPS += [
     'apps.api.apps.ApiConfig',
     'apps.bookings.apps.BookingsConfig',
     'apps.services.apps.ServicesConfig',
+    'apps.accounts.apps.AccountsConfig',
 ]
 
 MIDDLEWARE = [
@@ -83,6 +81,8 @@ DATABASES = {
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
+
+AUTH_USER_MODEL = 'accounts.User'
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -129,10 +129,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-EMAIL_HOST = os.getenv("EMAIL_HOST")
-EMAIL_PORT = os.getenv("EMAIL_PORT")
-EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS")
-EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+EMAIL_HOST = env("EMAIL_HOST")
+EMAIL_PORT = env("EMAIL_PORT")
+EMAIL_USE_TLS = env("EMAIL_USE_TLS")
+EMAIL_HOST_USER = env("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-OWNER_EMAIL = os.getenv("OWNER_EMAIL")
+OWNER_EMAIL = env("OWNER_EMAIL")
