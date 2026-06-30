@@ -40,7 +40,7 @@ def get_available_slots(employee, date, service):
     available_slots = []
     
     for slot_start in slots:
-        slot_end = slot_start +  service_duration
+        slot_end = slot_start + service_duration
         overlap = any(
             slot_start < busy_end and slot_end > busy_start
             for busy_start, busy_end in busy_slots
