@@ -16,10 +16,10 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          port: 10108
+          port: ${{ secrets.SSH_PORT }}
           script: |
             set -e
-            cd ~/projects/salon_manager
+            cd ~/projects/salon-manager
 
             git pull origin main
 
