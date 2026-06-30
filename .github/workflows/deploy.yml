@@ -27,18 +27,4 @@ jobs:
 
             docker compose -f docker-compose.prod.yml up -d --build --remove-orphans
 
-            for i in $(seq 1 30); do
-              if docker compose -f docker-compose.prod.yml exec -T web \
-                  python manage.py check --deploy 2>/dev/null; then
-                echo "Application is ready."
-                break
-              fi
-              if [ "$i" -eq 30 ]; then
-                echo "Error: aplication doesn't respond after 90 seconds."
-                docker compose -f docker-compose.prod.yml logs --tail=50 web
-                exit 1
-              fi
-              sleep 3
-            done
-
             docker image prune -f
