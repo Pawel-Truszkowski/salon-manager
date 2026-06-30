@@ -1,0 +1,44 @@
+name: Deploy to production
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            set -e
+            cd ~/projects/salon_manager
+
+            git pull origin main
+
+            ./scripts/backup_db.sh --env prod --keep 14
+
+            docker compose -f docker-compose.prod.yml up -d --build --remove-orphans
+
+            for i in $(seq 1 30); do
+              if docker compose -f docker-compose.prod.yml exec -T web \
+                  python manage.py check --deploy 2>/dev/null; then
+                echo "Application is ready."
+                break
+              fi
+              if [ "$i" -eq 30 ]; then
+                echo "Error: aplication doesn't respond after 90 seconds."
+                docker compose -f docker-compose.prod.yml logs --tail=50 web
+                exit 1
+              fi
+              sleep 3
+            done
+
+            docker image prune -f
