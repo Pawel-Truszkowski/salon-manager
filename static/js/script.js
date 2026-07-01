@@ -29,7 +29,8 @@ document.querySelectorAll('a[href^="#"]').forEach(function (a) {
 });
 
 var servicesData = {};
-var activeCategory = "twarz";
+var defaultTab = document.querySelector(".rb-tab-btn.active");
+var activeCategory = defaultTab ? defaultTab.dataset.category : "";
 
 function renderServices(category) {
   var grid = document.getElementById("servicesGrid");
