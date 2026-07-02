@@ -1,0 +1,88 @@
+import datetime
+import pytest
+from django.utils import timezone
+
+from apps.bookings.utils import get_available_slots, find_available_specialist
+from tests.conftest import make_appointment
+
+
+class TestGetAvailableSlots:
+
+    def test_returns_slots_when_schedule_exists(self, employee, service, schedule, tomorrow):
+        slots = get_available_slots(employee, tomorrow, service)
+        assert len(slots) > 0
+
+    def test_returns_empty_when_no_schedule(self, employee, service):
+        no_schedule_date = datetime.date(2030, 1, 1)
+        slots = get_available_slots(employee, no_schedule_date, service)
+        assert slots == []
+
+    def test_first_slot_equals_schedule_start(self, employee, service, schedule, tomorrow):
+        slots = get_available_slots(employee, tomorrow, service)
+        expected_start = timezone.make_aware(
+            datetime.datetime.combine(tomorrow, schedule.start_time)
+        )
+        assert slots[0] == expected_start
+
+    def test_last_slot_does_not_exceed_end(self, employee, service, schedule, tomorrow):
+        slots = get_available_slots(employee, tomorrow, service)
+        end_dt = timezone.make_aware(
+            datetime.datetime.combine(tomorrow, schedule.end_time)
+        )
+        service_duration = datetime.timedelta(minutes=service.duration)
+        for slot in slots:
+            assert slot + service_duration <= end_dt
+
+    def test_slots_are_15_min_apart(self, employee, service, schedule, tomorrow):
+        slots = get_available_slots(employee, tomorrow, service)
+        for a, b in zip(slots, slots[1:]):
+            assert (b - a) == datetime.timedelta(minutes=15)
+
+    def test_booked_slot_is_excluded(self, employee, service, schedule, tomorrow):
+        # Book the very first slot (09:00)
+        make_appointment(employee, service, tomorrow, hour=9, minute=0)
+        slots = get_available_slots(employee, tomorrow, service)
+        booked = timezone.make_aware(datetime.datetime.combine(tomorrow, datetime.time(9, 0)))
+        assert booked not in slots
+
+    def test_cancelled_appointment_does_not_block_slot(self, employee, service, schedule, tomorrow):
+        make_appointment(employee, service, tomorrow, hour=9, minute=0, status='cancelled')
+        slots = get_available_slots(employee, tomorrow, service)
+        booked = timezone.make_aware(datetime.datetime.combine(tomorrow, datetime.time(9, 0)))
+        assert booked in slots
+
+    def test_overlapping_appointments_block_overlapping_slots(self, employee, service, schedule, tomorrow):
+        """A 60-min appointment at 10:00 should block slots 09:15–10:45 that overlap with it."""
+        make_appointment(employee, service, tomorrow, hour=10, minute=0)
+        slots = get_available_slots(employee, tomorrow, service)
+        slot_times = {s.time() for s in slots}
+        # 09:15 + 60 min = 10:15 → overlaps with 10:00–11:00 booking
+        assert datetime.time(9, 15) not in slot_times
+        # 10:00 itself is the booked slot
+        assert datetime.time(10, 0) not in slot_times
+        # 11:00 should be free (ends exactly when booking ends)
+        assert datetime.time(11, 0) in slot_times
+
+
+class TestFindAvailableSpecialist:
+
+    def test_finds_specialist_for_free_slot(self, employee, service, schedule, tomorrow):
+        dt = timezone.make_aware(datetime.datetime.combine(tomorrow, datetime.time(9, 0)))
+        result = find_available_specialist(service, dt)
+        assert result == employee
+
+    def test_returns_none_when_slot_is_fully_booked(self, employee, service, schedule, tomorrow):
+        make_appointment(employee, service, tomorrow, hour=9, minute=0)
+        dt = timezone.make_aware(datetime.datetime.combine(tomorrow, datetime.time(9, 0)))
+        result = find_available_specialist(service, dt)
+        assert result is None
+
+    def test_returns_none_when_no_schedule(self, employee, service):
+        dt = timezone.make_aware(datetime.datetime.combine(datetime.date(2030, 1, 1), datetime.time(9, 0)))
+        result = find_available_specialist(service, dt)
+        assert result is None
+
+    def test_accepts_naive_datetime(self, employee, service, schedule, tomorrow):
+        naive_dt = datetime.datetime.combine(tomorrow, datetime.time(9, 0))
+        result = find_available_specialist(service, naive_dt)
+        assert result == employee
