@@ -2,6 +2,8 @@ from django.db import models
 
 from apps.services.models import Service, Employee
 
+from .emails import send_confirmation_email
+
 
 class Appointment(models.Model):
 
@@ -40,3 +42,11 @@ class Appointment(models.Model):
 
     def __str__(self):
         return f"{self.client_name} — {self.service} {self.date_time:%d.%m.%Y %H:%M}"
+    
+    def confirm(self):
+        if self.status == 'confirmed':
+            return False
+        self.status = 'confirmed'
+        self.save(update_fields=['status'])
+        send_confirmation_email(self)
+        return True
