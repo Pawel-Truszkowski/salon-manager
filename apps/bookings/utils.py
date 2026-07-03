@@ -6,32 +6,33 @@ from apps.services.models import Schedule
 
 
 def get_available_slots(employee, date, service):
-    
-    slot_duration =  15
-    
-    # Get the employee's schedule for the given date
-    schedule = Schedule.objects.filter(employee=employee, date=date).first()
-    if not schedule:
+    slot_duration = 15
+
+    # An employee can have multiple schedule blocks on the same date (e.g. split shifts)
+    schedules = Schedule.objects.filter(employee=employee, date=date).order_by('start_time')
+    if not schedules:
         return []
 
-    # Calculate the available time slots based on the employee's schedule and service duration
-    start_datetime = timezone.make_aware(datetime.combine(date, schedule.start_time))
-    end_datetime = timezone.make_aware(datetime.combine(date, schedule.end_time))
     service_duration = timedelta(minutes=service.duration)
+    now = timezone.now()
 
     slots = []
-    current = start_datetime
+    for schedule in schedules:
+        start_datetime = timezone.make_aware(datetime.combine(date, schedule.start_time))
+        end_datetime = timezone.make_aware(datetime.combine(date, schedule.end_time))
 
-    while current <= end_datetime - service_duration:
-        slots.append(current)
-        current += timedelta(minutes=slot_duration)
-        
+        current = start_datetime
+        while current <= end_datetime - service_duration:
+            if current >= now:
+                slots.append(current)
+            current += timedelta(minutes=slot_duration)
+
     # Exclude time slots that are already booked
     appointments = Appointment.objects.filter(
         employee=employee,
         date_time__date=date,
         status__in=['pending', 'confirmed']
-    )
+    ).select_related('service')
     
     busy_slots = [
             (appt.date_time, appt.date_time + timedelta(minutes=appt.service.duration)) for appt in appointments

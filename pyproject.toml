@@ -19,5 +19,7 @@ dependencies = [
 [dependency-groups]
 dev = [
     "django-debug-toolbar>=7.0.0",
+    "pytest>=9.1.1",
+    "pytest-django>=4.12.0",
     "python-dotenv>=1.2.2",
 ]
