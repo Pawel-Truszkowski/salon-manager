@@ -3,10 +3,33 @@ name: Deploy to production
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
 
 jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.14"
+
+      - name: Install dependencies
+        run: uv sync --frozen
+
+      - name: Run tests
+        run: uv run pytest
+
   deploy:
     name: Deploy
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
 
     steps:
@@ -20,11 +43,7 @@ jobs:
           script: |
             set -e
             cd ~/projects/salon-manager
-
             git pull origin main
-
-            ./scripts/backup_db.sh --env prod --keep 14
-
+            ./scripts/backup_db.sh --env prod --keep 15
             docker compose -f docker-compose.prod.yml up -d --build --remove-orphans
-
             docker image prune -f

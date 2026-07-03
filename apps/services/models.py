@@ -25,13 +25,13 @@ class Service(models.Model):
 
 class Employee(models.Model):
     first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100)
-    email = models.EmailField(unique=True)
+    last_name = models.CharField(max_length=100, null=True, blank=True)
+    email = models.EmailField(unique=True, null=True, blank=True)
     bio = models.TextField()
     services = models.ManyToManyField(Service, related_name='employees')
     
     def __str__(self):
-        return f"{self.first_name} {self.last_name}"
+        return f"{self.first_name}"
    
  
 class Schedule(models.Model):

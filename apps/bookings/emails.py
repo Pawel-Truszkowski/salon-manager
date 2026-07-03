@@ -22,7 +22,6 @@ def send_booking_confirmation_to_client(appointment):
 
 
 def send_booking_notification_to_salon(appointment):
-
     try:
         html_message = render_to_string('emails/booking_notification_salon.html', {'appointment': appointment})
         send_mail(
@@ -38,39 +37,18 @@ def send_booking_notification_to_salon(appointment):
         logger.error(f"Error sending notification email to the salon {settings.SALON_EMAIL}, reservation({appointment.id}): {e}")
 
 
-# def _send_emails(booking):
-#     specialist_name = booking.employee.first_name if booking.employee else 'naszą specjalistką'
-
-#     # To Client
-#     if booking.client_email:
-#         send_mail(
-#             subject='Potwierdzenie rezerwacji od Royal Beauty',
-#             message=(
-#                 f'Cześć {booking.client_name},\n\n'
-#                 f'Dziękujemy za rezerwację!\n\n'
-#                 f'Usługa:       {booking.service.name}\n'
-#                 f'Specjalistka: {specialist_name}\n'
-#                 f'Data:         {booking.date_time.date().strftime("%d.%m.%Y")}\n'
-#                 f'Godzina:      {booking.date_time.time().strftime("%H:%M")}\n\n'
-#                 f'Potwierdzimy termin w ciągu 24 godzin.\n\n'
-#                 f'Zespół Royal Beauty'
-#             ),
-#             from_email=settings.DEFAULT_FROM_EMAIL,
-#             recipient_list=[booking.client_email],
-#         )
-
-#     # To Salon
-#     send_mail(
-#         subject=f'Nowa rezerwacja: {booking.client_name}',
-#         message=(
-#             f'Klientka:     {booking.client_name}\n'
-#             f'Telefon:      {booking.client_phone}\n'
-#             f'Usługa:       {booking.service.name}\n'
-#             f'Specjalistka: {specialist_name}\n'
-#             f'Data:         {booking.date_time.date()} {booking.date_time.time().strftime("%H:%M")}\n'
-#             f'Uwagi:        {booking.notes or "—"}'
-#         ),
-#         from_email=settings.DEFAULT_FROM_EMAIL,
-#         recipient_list=[settings.OWNER_EMAIL],
-#     )
-
+def send_confirmation_email(appointment):
+    try:
+        html_message = render_to_string('emails/booking_confirmed_client.html', {'appointment': appointment})
+        send_mail(
+            subject='Twoja wizyta została potwierdzona — Royal Beauty',
+            message='Twoja wizyta została potwierdzona przez salon. Szczegóły w załączonym e-mailu.',
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[appointment.client_email],
+            html_message=html_message,
+            fail_silently=False,
+        )
+        logger.info(f"Sent confirmation email to client: {appointment.client_email} for reservation({appointment.id})")
+    except Exception as e:
+        logger.error(f"Error sending confirmation email to the client {appointment.client_email}, reservation({appointment.id}): {e}")
+        
