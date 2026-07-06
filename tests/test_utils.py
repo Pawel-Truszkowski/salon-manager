@@ -2,6 +2,7 @@ import datetime
 import pytest
 from django.utils import timezone
 
+from apps.bookings.models import Appointment
 from apps.bookings.utils import get_available_slots, find_available_specialist
 from tests.conftest import make_appointment, make_time_block
 
@@ -46,7 +47,7 @@ class TestGetAvailableSlots:
         assert booked not in slots
 
     def test_cancelled_appointment_does_not_block_slot(self, employee, service, schedule, tomorrow):
-        make_appointment(employee, service, tomorrow, hour=9, minute=0, status='cancelled')
+        make_appointment(employee, service, tomorrow, hour=9, minute=0, status=Appointment.Status.CANCELLED)
         slots = get_available_slots(employee, tomorrow, service)
         booked = timezone.make_aware(datetime.datetime.combine(tomorrow, datetime.time(9, 0)))
         assert booked in slots

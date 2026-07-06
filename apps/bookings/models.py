@@ -7,12 +7,11 @@ from .emails import send_confirmation_email
 
 class Appointment(models.Model):
 
-    STATUS_CHOICES = [
-        ('pending', 'Oczekująca'),
-        ('confirmed', 'Potwierdzona'),
-        ('completed', 'Zrealizowana'),
-        ('cancelled', 'Anulowana'),
-    ]
+    class Status(models.TextChoices):
+        PENDING = 'pending', 'Oczekująca'
+        CONFIRMED = 'confirmed', 'Potwierdzona'
+        COMPLETED = 'completed', 'Zrealizowana'
+        CANCELLED = 'cancelled', 'Anulowana'
 
     service = models.ForeignKey(
         Service,
@@ -29,8 +28,8 @@ class Appointment(models.Model):
     date_time = models.DateTimeField()
     status = models.CharField(
         max_length=20,
-        choices=STATUS_CHOICES,
-        default='pending',
+        choices=Status.choices,
+        default=Status.PENDING,
     )
 
     client_name = models.CharField(max_length=100)
@@ -44,9 +43,15 @@ class Appointment(models.Model):
         return f"{self.client_name} — {self.service} {self.date_time:%d.%m.%Y %H:%M}"
     
     def confirm(self):
-        if self.status == 'confirmed':
+        if self.status == self.Status.CONFIRMED:
             return False
-        self.status = 'confirmed'
+        self.status = self.Status.CONFIRMED
         self.save(update_fields=['status'])
         send_confirmation_email(self)
         return True
+
+    def complete(self):
+        if self.status != self.Status.CONFIRMED:
+            raise ValueError("Only confirmed appointments can be completed.")
+        self.status = self.Status.COMPLETED
+        self.save(update_fields=['status'])

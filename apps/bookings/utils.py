@@ -31,7 +31,7 @@ def get_available_slots(employee, date, service):
     appointments = Appointment.objects.filter(
         employee=employee,
         date_time__date=date,
-        status__in=['pending', 'confirmed']
+        status__in=[Appointment.Status.PENDING, Appointment.Status.CONFIRMED]
     ).select_related('service')
     
     busy_slots = [

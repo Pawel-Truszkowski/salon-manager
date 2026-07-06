@@ -63,7 +63,7 @@ def tomorrow(schedule):
     return schedule.date
 
 
-def make_appointment(employee, service, date, hour, minute=0, status='confirmed'):
+def make_appointment(employee, service, date, hour, minute=0, status=Appointment.Status.CONFIRMED):
     dt = timezone.make_aware(datetime.datetime.combine(date, datetime.time(hour, minute)))
     return Appointment.objects.create(
         service=service,
