@@ -8,7 +8,7 @@ class AppointmentAdmin(admin.ModelAdmin):
     list_display = ('service', 'employee', 'date_time', 'status', 'client_name', 'client_email', 'client_phone')
     list_filter = ('status', 'service', 'employee')
     search_fields = ('client_name', 'client_email', 'client_phone')
-    actions = ['confirm_appointments']
+    actions = ['confirm_appointments', 'complete_appointments']
 
     def save_model(self, request, obj, form, change):
         newly_confirmed = change and 'status' in form.changed_data and obj.status == Appointment.Status.CONFIRMED
