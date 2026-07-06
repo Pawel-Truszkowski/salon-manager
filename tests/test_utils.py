@@ -2,8 +2,9 @@ import datetime
 import pytest
 from django.utils import timezone
 
+from apps.bookings.models import Appointment
 from apps.bookings.utils import get_available_slots, find_available_specialist
-from tests.conftest import make_appointment
+from tests.conftest import make_appointment, make_time_block
 
 
 class TestGetAvailableSlots:
@@ -46,7 +47,7 @@ class TestGetAvailableSlots:
         assert booked not in slots
 
     def test_cancelled_appointment_does_not_block_slot(self, employee, service, schedule, tomorrow):
-        make_appointment(employee, service, tomorrow, hour=9, minute=0, status='cancelled')
+        make_appointment(employee, service, tomorrow, hour=9, minute=0, status=Appointment.Status.CANCELLED)
         slots = get_available_slots(employee, tomorrow, service)
         booked = timezone.make_aware(datetime.datetime.combine(tomorrow, datetime.time(9, 0)))
         assert booked in slots
@@ -62,6 +63,49 @@ class TestGetAvailableSlots:
         assert datetime.time(10, 0) not in slot_times
         # 11:00 should be free (ends exactly when booking ends)
         assert datetime.time(11, 0) in slot_times
+
+    def test_shorter_service_reveals_slots_hidden_for_longer_service(
+        self, employee, service, service_short, schedule, tomorrow
+    ):
+        """A 60-min booking at 10:00 blocks 09:15-09:45 for a 60-min service,
+        but a 30-min service only needs to end by 10:00, so those same slots
+        are free again."""
+        make_appointment(employee, service, tomorrow, hour=10, minute=0)
+
+        slots_60min = {s.time() for s in get_available_slots(employee, tomorrow, service)}
+        slots_30min = {s.time() for s in get_available_slots(employee, tomorrow, service_short)}
+
+        # 60-min service: 09:15 (->10:15) and 09:30 (->10:30) both overlap the booking
+        assert datetime.time(9, 15) not in slots_60min
+        assert datetime.time(9, 30) not in slots_60min
+
+        # 30-min service: 09:15 (->09:45) and 09:30 (->10:00) don't overlap it
+        assert datetime.time(9, 15) in slots_30min
+        assert datetime.time(9, 30) in slots_30min
+
+        # 09:45 + 30 min = 10:15 -> still overlaps the 10:00-11:00 booking
+        assert datetime.time(9, 45) not in slots_30min
+
+    def test_time_block_excludes_overlapping_slots(self, employee, service, schedule, tomorrow):
+        """An owner-set block 12:00-14:00 should hide slots overlapping with it."""
+        make_time_block(employee, tomorrow, start_hour=12, end_hour=14)
+        slots = get_available_slots(employee, tomorrow, service)
+        slot_times = {s.time() for s in slots}
+        assert datetime.time(12, 0) not in slot_times
+        assert datetime.time(13, 0) not in slot_times
+        # 11:00 + 60 min service would end exactly at 12:00 -> still free
+        assert datetime.time(11, 0) in slot_times
+        # 14:00 is free again once the block ends
+        assert datetime.time(14, 0) in slot_times
+
+    def test_time_block_for_other_employee_does_not_affect_slots(self, employee, service, schedule, tomorrow):
+        other = employee.__class__.objects.create(
+            first_name='Ola', last_name='Nowak', bio='Stylistka.'
+        )
+        make_time_block(other, tomorrow, start_hour=12, end_hour=14)
+        slots = get_available_slots(employee, tomorrow, service)
+        slot_times = {s.time() for s in slots}
+        assert datetime.time(12, 0) in slot_times
 
 
 class TestFindAvailableSpecialist:

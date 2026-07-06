@@ -1,0 +1,4 @@
+# templates/robots.txt
+User-agent: *
+Disallow: /admin/
+Sitemap: https://royalbeauty-studiourody.pl/sitemap.xml

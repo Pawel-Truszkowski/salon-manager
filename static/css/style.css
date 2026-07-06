@@ -713,6 +713,20 @@ body {
 .rb-footer-policy:hover {
   color: var(--rb-gold);
 }
+.rb-footer-credit {
+  font-family: var(--ff-body);
+  font-size: 0.75rem;
+  color: rgba(245, 239, 230, 0.25);
+  margin-top: 0.75rem;
+}
+.rb-footer-credit a {
+  color: rgba(245, 239, 230, 0.45);
+  text-decoration: none;
+  transition: color 0.25s;
+}
+.rb-footer-credit a:hover {
+  color: var(--rb-gold);
+}
 ::-webkit-scrollbar {
   width: 6px;
 }

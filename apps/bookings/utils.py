@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 
 from django.utils import timezone
 from .models import Appointment
-from apps.services.models import Schedule
+from apps.services.models import Schedule, TimeBlock
 
 
 def get_available_slots(employee, date, service):
@@ -31,12 +31,22 @@ def get_available_slots(employee, date, service):
     appointments = Appointment.objects.filter(
         employee=employee,
         date_time__date=date,
-        status__in=['pending', 'confirmed']
+        status__in=[Appointment.Status.PENDING, Appointment.Status.CONFIRMED]
     ).select_related('service')
     
     busy_slots = [
             (appt.date_time, appt.date_time + timedelta(minutes=appt.service.duration)) for appt in appointments
         ]
+
+    # Exclude time slots reserved by the employee/owner (breaks, days off, etc.)
+    time_blocks = TimeBlock.objects.filter(employee=employee, date=date)
+    busy_slots += [
+        (
+            timezone.make_aware(datetime.combine(date, block.start_time)),
+            timezone.make_aware(datetime.combine(date, block.end_time)),
+        )
+        for block in time_blocks
+    ]
 
     available_slots = []
     

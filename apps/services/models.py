@@ -15,9 +15,12 @@ class ServiceCategory(models.Model):
 class Service(models.Model):
     name = models.CharField(max_length=100, unique=True)
     category = models.ForeignKey(ServiceCategory, on_delete=models.CASCADE, related_name='services')
-    description = models.TextField(null=True, blank=True)
+    description = models.TextField(blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     duration = models.IntegerField(help_text="Duration in minutes")
+    
+    class Meta:
+        ordering = ['category', 'name']
 
     def __str__(self):
         return self.name
@@ -25,7 +28,7 @@ class Service(models.Model):
 
 class Employee(models.Model):
     first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100, null=True, blank=True)
+    last_name = models.CharField(max_length=100, blank=True)
     email = models.EmailField(unique=True, null=True, blank=True)
     bio = models.TextField()
     services = models.ManyToManyField(Service, related_name='employees')
@@ -45,4 +48,18 @@ class Schedule(models.Model):
 
     def __str__(self):
         return f"{self.employee} - {self.date} {self.start_time}-{self.end_time}"
-    
+
+
+class TimeBlock(models.Model):
+    employee = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='time_blocks')
+    date = models.DateField()
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    reason = models.CharField(max_length=200, blank=True)
+
+    class Meta:
+        ordering = ['date', 'start_time']
+
+    def __str__(self):
+        return f"{self.employee} - {self.date} {self.start_time}-{self.end_time} (blocked)"
+

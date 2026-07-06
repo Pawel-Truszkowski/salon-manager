@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import ServiceCategory, Service, Employee, Schedule
+from .models import ServiceCategory, Service, Employee, Schedule, TimeBlock
 
 
 
@@ -24,3 +24,9 @@ class ScheduleAdmin(admin.ModelAdmin):
     list_display = ('id', 'employee', 'date', 'start_time', 'end_time')
     list_filter = ('employee', 'date')
     search_fields = ('employee__first_name', 'employee__last_name')
+
+@admin.register(TimeBlock)
+class TimeBlockAdmin(admin.ModelAdmin):
+    list_display = ('id', 'employee', 'date', 'start_time', 'end_time', 'reason')
+    list_filter = ('employee', 'date')
+    search_fields = ('employee__first_name', 'employee__last_name', 'reason')
