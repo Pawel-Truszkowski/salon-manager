@@ -88,6 +88,9 @@ class TestAppointmentAdminSaveModel:
 
         model_admin.save_model(request, appt, form, change=False)
 
+        # Creating an appointment still triggers the "new booking" emails via
+        # the post_save signal — only the admin's own "wizyta potwierdzona"
+        # email (which only fires on an update) must be absent here.
         subjects = [m.subject.lower() for m in mailoutbox]
         assert not any('potwierdzona' in subject for subject in subjects)
 
