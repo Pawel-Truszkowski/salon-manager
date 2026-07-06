@@ -2,6 +2,8 @@
 
 Aplikacja webowa do zarządzania rezerwacjami w salonie kosmetycznym — strona wizytówkowa z katalogiem usług, wyborem specjalistki i terminu oraz automatycznymi powiadomieniami mailowymi o rezerwacji.
 
+🌐 **Aplikacja działa na produkcji:** [royalbeauty-studiourody.pl](https://royalbeauty-studiourody.pl)
+
 > **Status projektu:** aktywnie rozwijany. Część funkcji i usprawnień (m.in. panel klienta, rozbudowa API, dalsze pokrycie testami) jest jeszcze w planach — patrz sekcja [Roadmapa](#roadmapa).
 
 ## Spis treści
@@ -127,6 +129,8 @@ uv run pytest
 Konfiguracja testów znajduje się w [pytest.ini](pytest.ini) i korzysta z `config.settings.test`. Testy skupiają się na głównej logice biznesowej aplikacji — modelach, formularzach, widokach, panelu admina i funkcjach pomocnicznych (`tests/`). Nie jest to pełne pokrycie kodu — priorytetem było zabezpieczenie kluczowych ścieżek (rezerwacje, dostępność terminów), a nie 100% coverage.
 
 ## Deployment
+
+Aplikacja jest wdrożona na produkcji i realnie działa pod adresem [royalbeauty-studiourody.pl](https://royalbeauty-studiourody.pl). Środowisko produkcyjne to czysty VPS od dostawcy [Mikrus](https://mikr.us/), skonfigurowany od zera — bez gotowych paneli hostingowych — i uruchomiony w całości przez Docker Compose (Gunicorn + Nginx, patrz [docker-compose.prod.yml](docker-compose.prod.yml)).
 
 Wdrożenie odbywa się automatycznie przez GitHub Actions ([.github/workflows/deploy.yml](.github/workflows/deploy.yml)):
 
