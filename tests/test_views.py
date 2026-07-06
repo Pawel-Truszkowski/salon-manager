@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from apps.bookings.models import Appointment
-from tests.conftest import make_appointment
+from tests.conftest import make_appointment, make_time_block
 
 
 def future_date():
@@ -53,6 +53,21 @@ class TestSubmitBookingView:
         assert response.status_code == 409
         data = json.loads(response.content)
         assert data['ok'] is False
+
+    def test_returns_409_when_time_is_blocked_by_owner(self, employee, service, schedule, tomorrow):
+        make_time_block(employee, tomorrow, start_hour=12, end_hour=14)
+        response = post_booking(self.client, service, employee, time='12:00', date=tomorrow)
+        assert response.status_code == 409
+        data = json.loads(response.content)
+        assert data['ok'] is False
+        assert Appointment.objects.count() == 0
+
+    def test_allows_booking_outside_blocked_range(self, employee, service, schedule, tomorrow):
+        make_time_block(employee, tomorrow, start_hour=12, end_hour=14)
+        response = post_booking(self.client, service, employee, time='14:00', date=tomorrow)
+        assert response.status_code == 200
+        data = json.loads(response.content)
+        assert data['ok'] is True
 
     def test_returns_400_when_no_specialist_available(self, employee, service, schedule, tomorrow):
         # Fill the only available specialist
@@ -125,3 +140,56 @@ class TestAvailableSlotsAPI:
         assert response.status_code == 200
         data = json.loads(response.content)
         assert len(data['slots']) > 0
+
+    def test_excludes_slots_blocked_by_owner(self, employee, service, schedule, tomorrow):
+        make_time_block(employee, tomorrow, start_hour=12, end_hour=14)
+        response = self.client.get(reverse('api-available-slots'), {
+            'date': tomorrow.isoformat(),
+            'service': service.pk,
+            'employee': employee.pk,
+        })
+        assert response.status_code == 200
+        data = json.loads(response.content)
+        assert '12:00' not in data['slots']
+        assert '13:00' not in data['slots']
+        assert '14:00' in data['slots']
+
+
+@pytest.mark.django_db
+class TestAvailableDatesAPI:
+
+    def setup_method(self):
+        self.client = Client()
+
+    def test_returns_date_with_open_schedule(self, employee, service, schedule, tomorrow):
+        response = self.client.get(reverse('api-available-dates'), {
+            'service': service.pk,
+            'employee': employee.pk,
+            'month': f'{tomorrow.year}-{tomorrow.month:02d}',
+        })
+        assert response.status_code == 200
+        data = json.loads(response.content)
+        assert tomorrow.isoformat() in data['dates']
+
+    def test_excludes_date_fully_blocked_by_owner(self, employee, service, schedule, tomorrow):
+        # Block the entire working day (09:00-17:00 per the `schedule` fixture)
+        make_time_block(employee, tomorrow, start_hour=9, end_hour=17)
+        response = self.client.get(reverse('api-available-dates'), {
+            'service': service.pk,
+            'employee': employee.pk,
+            'month': f'{tomorrow.year}-{tomorrow.month:02d}',
+        })
+        assert response.status_code == 200
+        data = json.loads(response.content)
+        assert tomorrow.isoformat() not in data['dates']
+
+    def test_keeps_date_when_only_partially_blocked(self, employee, service, schedule, tomorrow):
+        make_time_block(employee, tomorrow, start_hour=12, end_hour=14)
+        response = self.client.get(reverse('api-available-dates'), {
+            'service': service.pk,
+            'employee': employee.pk,
+            'month': f'{tomorrow.year}-{tomorrow.month:02d}',
+        })
+        assert response.status_code == 200
+        data = json.loads(response.content)
+        assert tomorrow.isoformat() in data['dates']

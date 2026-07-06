@@ -2,7 +2,7 @@ import datetime
 import pytest
 from django.utils import timezone
 
-from apps.services.models import ServiceCategory, Service, Employee, Schedule
+from apps.services.models import ServiceCategory, Service, Employee, Schedule, TimeBlock
 from apps.bookings.models import Appointment
 
 
@@ -73,4 +73,14 @@ def make_appointment(employee, service, date, hour, minute=0, status='confirmed'
         client_name='Klient Testowy',
         client_email='klient@test.pl',
         client_phone='123456789',
+    )
+
+
+def make_time_block(employee, date, start_hour, end_hour, reason=''):
+    return TimeBlock.objects.create(
+        employee=employee,
+        date=date,
+        start_time=datetime.time(start_hour, 0),
+        end_time=datetime.time(end_hour, 0),
+        reason=reason,
     )

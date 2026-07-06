@@ -2,10 +2,9 @@ from django.shortcuts import render
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
 
-from .models import Appointment
 from .forms import BookingForm
 
-from .utils import find_available_specialist
+from .utils import find_available_specialist, get_available_slots
 
 
 @require_POST
@@ -23,21 +22,16 @@ def submit_booking(request):
                 'ok': False,
                 'error': 'Brak dostępnych specjalistek w tym terminie. Wybierz inny termin.'
             }, status=400)
-            
+
         booking.employee = specialist
-
-    collision = Appointment.objects.filter(
-        employee=booking.employee,
-        date_time=booking.date_time,
-        status__in=['pending', 'confirmed'],
-    ).exists()
-
-    if collision:
-        return JsonResponse({
-            'ok': False,
-            'error': 'Ten termin właśnie został zajęty. Wybierz inny.'
-        }, status=409)
+    else:
+        available_slots = get_available_slots(booking.employee, booking.date_time.date(), booking.service)
+        if booking.date_time not in available_slots:
+            return JsonResponse({
+                'ok': False,
+                'error': 'Ten termin właśnie został zajęty. Wybierz inny.'
+            }, status=409)
 
     booking.save()
-    
+
     return JsonResponse({'ok': True})
