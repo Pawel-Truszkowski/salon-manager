@@ -141,6 +141,7 @@ GitHub.sublime-settings
 !.vscode/extensions.json 
 .history
 
+/certs
 /backups
 .DS_Store
 CLAUDE.Md
