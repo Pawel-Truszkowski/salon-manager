@@ -2,13 +2,13 @@ name: Deploy to production
 
 on:
   push:
-    branches: [main]
+    branches: [dev]
     paths-ignore:
       - '**.md'
       - 'docs/**'
       - 'LICENSE'
   pull_request:
-    branches: [main]
+    branches: [dev]
     paths-ignore:
       - '**.md'
       - 'docs/**'
