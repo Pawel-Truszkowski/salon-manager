@@ -1,4 +1,4 @@
-name: Deploy to production
+name: Deploy to dev
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
       - 'docs/**'
       - 'LICENSE'
   pull_request:
-    branches: [dev]
+    branches: [main]
     paths-ignore:
       - '**.md'
       - 'docs/**'
@@ -37,7 +37,7 @@ jobs:
   deploy:
     name: Deploy
     needs: test
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
     runs-on: ubuntu-latest
 
     steps:
@@ -51,7 +51,6 @@ jobs:
           script: |
             set -e
             cd ~/projects/salon-manager
-            git pull origin main
-            ./scripts/backup_db.sh --env prod --keep 15
+            git pull origin dev
             docker compose -f docker-compose.prod.yml up -d --build --remove-orphans
             docker image prune -f
