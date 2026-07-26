@@ -40,7 +40,8 @@ Aplikacja webowa do zarządzania rezerwacjami w salonie kosmetycznym — strona 
 - **Zależności:** zarządzane przez [uv](https://docs.astral.sh/uv/)
 - **Serwer aplikacji:** Gunicorn + Nginx (produkcja)
 - **Testy:** pytest / pytest-django
-- **CI/CD:** GitHub Actions (testy + deployment po SSH)
+- **CI/CD:** GitHub Actions (testy + automatyczny deployment środowiska deweloperskiego po SSH)
+- **Hosting:** Digital Ocean Droplet (produkcja), VPS Mikrus (środowisko deweloperskie/staging)
 
 ## Architektura
 
@@ -74,8 +75,8 @@ Konfiguracja Django (`config/`) rozdziela ustawienia na `base.py`, `development.
 # Instalacja zależności z lockfile'a
 uv sync
 
-# Utwórz plik .env.dev z wymaganymi zmiennymi środowiskowymi
-# (patrz sekcja "Zmienne środowiskowe" poniżej)
+# Skopiuj przykładowy plik i uzupełnij realnymi wartościami
+cp .env.example .env.dev
 
 # Migracje bazy danych
 uv run python manage.py migrate
@@ -105,7 +106,7 @@ docker compose -f docker-compose.prod.yml up -d --build
 
 ## Zmienne środowiskowe
 
-Konfiguracja wczytywana jest z plików `.env.dev` / `.env.prod` (django-environ). Wymagane zmienne:
+Konfiguracja wczytywana jest z plików `.env.dev` / `.env.prod` (django-environ). Wzór ze wszystkimi zmiennymi znajduje się w [.env.example](.env.example) — skopiuj go jako `.env.dev` lub `.env.prod` i uzupełnij realnymi wartościami (nigdy nie commituj tych plików). Wymagane zmienne:
 
 | Zmienna                | Opis                                                    |
 | ----------------------- | -------------------------------------------------------- |
@@ -130,16 +131,25 @@ Konfiguracja testów znajduje się w [pytest.ini](pytest.ini) i korzysta z `conf
 
 ## Deployment
 
-Aplikacja jest wdrożona na produkcji i realnie działa pod adresem [royalbeauty-studiourody.pl](https://royalbeauty-studiourody.pl). Środowisko produkcyjne to czysty VPS od dostawcy [Mikrus](https://mikr.us/), skonfigurowany od zera — bez gotowych paneli hostingowych — i uruchomiony w całości przez Docker Compose (Gunicorn + Nginx, patrz [docker-compose.prod.yml](docker-compose.prod.yml)).
+Projekt działa równolegle w dwóch środowiskach, każde na osobnym VPS-ie:
 
-Wdrożenie odbywa się automatycznie przez GitHub Actions ([.github/workflows/deploy.yml](.github/workflows/deploy.yml)):
+| Środowisko | Hosting | Branch | Adres | Sposób wdrożenia |
+| ---------- | ------- | ------ | ----- | ------------------ |
+| **Produkcja** | Digital Ocean Droplet | `main` | [royalbeauty-studiourody.pl](https://royalbeauty-studiourody.pl) | Ręcznie — po zmergowaniu do `main` deploy wykonywany jest po SSH na Droplecie (`git pull`, restart kontenerów) |
+| **Development / staging** | VPS [Mikrus](https://mikr.us/) | `dev` | wewnętrzny/testowy | Automatycznie przez GitHub Actions przy każdym pushu na `dev` |
 
-1. Push/PR na `main` uruchamia testy (`uv run pytest`).
-2. Po zmergowaniu do `main` workflow łączy się po SSH z serwerem, robi backup bazy, pobiera zmiany i restartuje kontenery produkcyjne (`docker-compose.prod.yml`).
+Oba środowiska uruchamiają aplikację w całości przez Docker Compose (Gunicorn + Nginx, patrz [docker-compose.prod.yml](docker-compose.prod.yml)).
+
+Automatyczny deployment środowiska deweloperskiego skonfigurowany jest w [.github/workflows/deploy.yml](.github/workflows/deploy.yml):
+
+1. Push/PR uruchamia testy (`uv run pytest`).
+2. Po pushu na `dev` workflow łączy się po SSH z serwerem Mikrus, pobiera zmiany (`git pull origin dev`) i restartuje kontenery (`docker-compose.prod.yml`).
+
+Wdrożenie na produkcję (Digital Ocean) nie jest jeszcze zautomatyzowane w CI — wykonywane jest świadomie ręcznie, po zweryfikowaniu zmian na środowisku deweloperskim.
 
 ## Backupy bazy danych
 
-Skrypt [scripts/backup_db.sh](scripts/backup_db.sh) tworzy skompresowany zrzut bazy (`.sql.gz`) i jest wywoływany automatycznie przed każdym deploymentem.
+Skrypt [scripts/backup_db.sh](scripts/backup_db.sh) tworzy skompresowany zrzut bazy (`.sql.gz`). Na produkcji uruchamiany jest automatycznie przez cron na serwerze (`--env prod`), niezależnie od procesu deployu.
 
 ## Struktura projektu
 
@@ -157,6 +167,7 @@ static/         # CSS, JS, obrazy
 tests/          # Testy pytest
 scripts/        # Skrypty pomocnicze (backup bazy)
 nginx/          # Konfiguracja Nginx (produkcja)
+.env.example    # Wzór zmiennych środowiskowych
 ```
 
 ## Roadmapa
