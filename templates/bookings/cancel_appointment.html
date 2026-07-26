@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Odwołanie wizyty — Royal Beauty{% endblock %}
+
+{% block content %}
+<section class="rb-section" style="padding-top: 10rem;">
+  <div class="container-xl px-4 px-lg-5" style="max-width: 640px;">
+    <p class="rb-label mb-3">Rezerwacja</p>
+
+    {% if just_cancelled %}
+      <h1 class="mb-4">Wizyta została odwołana</h1>
+      <p>Twoja wizyta na <strong>{{ appointment.service }}</strong> w dniu
+        <strong>{{ appointment.date_time|date:"d.m.Y" }}</strong> o godzinie
+        <strong>{{ appointment.date_time|time:"H:i" }}</strong> została odwołana.
+      </p>
+      <p>Zapraszamy do dokonania nowej rezerwacji.</p>
+      <a href="{% url 'home' %}" class="btn rb-btn-gold mt-3">Wróć na stronę główną</a>
+
+    {% elif appointment.status == 'cancelled' %}
+      <h1 class="mb-4">Ta wizyta jest już odwołana</h1>
+      <p>Wizyta na <strong>{{ appointment.service }}</strong> w dniu
+        <strong>{{ appointment.date_time|date:"d.m.Y" }}</strong> o godzinie
+        <strong>{{ appointment.date_time|time:"H:i" }}</strong> została już wcześniej odwołana.
+      </p>
+      <a href="{% url 'home' %}" class="btn rb-btn-outline-dark mt-3">Wróć na stronę główną</a>
+
+    {% elif not appointment.can_be_cancelled %}
+      <h1 class="mb-4">Nie można odwołać tej wizyty</h1>
+      <p>Wizyta na <strong>{{ appointment.service }}</strong> w dniu
+        <strong>{{ appointment.date_time|date:"d.m.Y" }}</strong> o godzinie
+        <strong>{{ appointment.date_time|time:"H:i" }}</strong> nie może zostać odwołana online
+        (termin już minął lub wizyta została zrealizowana).
+      </p>
+      <p>Jeśli mimo to potrzebujesz zmiany, skontaktuj się z nami telefonicznie.</p>
+      <a href="{% url 'home' %}" class="btn rb-btn-outline-dark mt-3">Wróć na stronę główną</a>
+
+    {% else %}
+      <h1 class="mb-4">Odwołaj wizytę</h1>
+      <div class="detail mb-2"><strong>Usługa:</strong> {{ appointment.service }}</div>
+      {% if appointment.employee %}
+      <div class="detail mb-2"><strong>Pracownik:</strong> {{ appointment.employee }}</div>
+      {% endif %}
+      <div class="detail mb-2"><strong>Data:</strong> {{ appointment.date_time|date:"d.m.Y" }}</div>
+      <div class="detail mb-4"><strong>Godzina:</strong> {{ appointment.date_time|time:"H:i" }}</div>
+
+      <p>Czy na pewno chcesz odwołać tę wizytę? Tej operacji nie można cofnąć.</p>
+
+      <form method="post" class="d-flex flex-wrap gap-3">
+        {% csrf_token %}
+        <button type="submit" class="btn rb-btn-gold">Tak, odwołaj wizytę</button>
+        <a href="{% url 'home' %}" class="btn rb-btn-outline-dark">Nie, wróć na stronę główną</a>
+      </form>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

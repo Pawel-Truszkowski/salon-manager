@@ -193,3 +193,38 @@ class TestAvailableDatesAPI:
         assert response.status_code == 200
         data = json.loads(response.content)
         assert tomorrow.isoformat() in data['dates']
+
+
+@pytest.mark.django_db
+class TestCancelBookingView:
+
+    def setup_method(self):
+        self.client = Client()
+
+    def test_get_shows_confirmation_page_for_cancellable_appointment(self, employee, service, tomorrow):
+        appt = make_appointment(employee, service, tomorrow, hour=10, status=Appointment.Status.CONFIRMED)
+        response = self.client.get(reverse('cancel_booking', args=[appt.cancellation_token]))
+        assert response.status_code == 200
+        assert Appointment.objects.get(pk=appt.pk).status == Appointment.Status.CONFIRMED
+
+    def test_post_cancels_the_appointment(self, employee, service, tomorrow, mailoutbox):
+        appt = make_appointment(employee, service, tomorrow, hour=10, status=Appointment.Status.CONFIRMED)
+        mailoutbox.clear()
+        response = self.client.post(reverse('cancel_booking', args=[appt.cancellation_token]))
+        assert response.status_code == 200
+        appt.refresh_from_db()
+        assert appt.status == Appointment.Status.CANCELLED
+        assert len(mailoutbox) == 2
+
+    def test_unknown_token_returns_404(self):
+        response = self.client.get(reverse('cancel_booking', args=['00000000-0000-0000-0000-000000000000']))
+        assert response.status_code == 404
+
+    def test_post_on_already_cancelled_appointment_does_not_resend_emails(
+        self, employee, service, tomorrow, mailoutbox
+    ):
+        appt = make_appointment(employee, service, tomorrow, hour=10, status=Appointment.Status.CANCELLED)
+        mailoutbox.clear()
+        response = self.client.post(reverse('cancel_booking', args=[appt.cancellation_token]))
+        assert response.status_code == 200
+        assert len(mailoutbox) == 0
