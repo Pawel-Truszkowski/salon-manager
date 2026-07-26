@@ -139,6 +139,9 @@ ANYMAIL = {
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL")
 SALON_EMAIL = env("SALON_EMAIL")
 
+# Base URL used to build absolute links (e.g. cancellation links) in outgoing e-mails
+SITE_URL = env("SITE_URL", default="https://royalbeauty-studiourody.pl")
+
 # EMAIL_HOST = env("EMAIL_HOST")
 # EMAIL_PORT = env("EMAIL_PORT")
 # EMAIL_USE_TLS = env("EMAIL_USE_TLS")

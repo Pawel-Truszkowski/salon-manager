@@ -1,4 +1,6 @@
+import datetime
 import pytest
+from django.utils import timezone
 
 from apps.bookings.models import Appointment
 from tests.conftest import make_appointment
@@ -38,3 +40,53 @@ class TestAppointmentConfirm:
         assert result is True
         assert appt.status == Appointment.Status.CONFIRMED
         assert len(mailoutbox) == 1
+
+
+@pytest.mark.django_db
+class TestAppointmentCancel:
+
+    def test_cancel_sets_status_to_cancelled(self, employee, service, tomorrow):
+        appt = make_appointment(employee, service, tomorrow, hour=10, status=Appointment.Status.CONFIRMED)
+        result = appt.cancel()
+        appt.refresh_from_db()
+        assert result is True
+        assert appt.status == Appointment.Status.CANCELLED
+
+    def test_cancel_sends_email_to_client_and_salon(self, employee, service, tomorrow, mailoutbox):
+        appt = make_appointment(employee, service, tomorrow, hour=10, status=Appointment.Status.PENDING)
+        mailoutbox.clear()
+        appt.cancel()
+        assert len(mailoutbox) == 2
+        recipients = [m.to[0] for m in mailoutbox]
+        assert appt.client_email in recipients
+
+    def test_cancel_already_cancelled_is_noop(self, employee, service, tomorrow, mailoutbox):
+        appt = make_appointment(employee, service, tomorrow, hour=10, status=Appointment.Status.CANCELLED)
+        mailoutbox.clear()
+        result = appt.cancel()
+        assert result is False
+        assert len(mailoutbox) == 0
+
+    def test_cancel_completed_appointment_is_noop(self, employee, service, tomorrow, mailoutbox):
+        appt = make_appointment(employee, service, tomorrow, hour=10, status=Appointment.Status.COMPLETED)
+        mailoutbox.clear()
+        result = appt.cancel()
+        assert result is False
+        assert len(mailoutbox) == 0
+
+    def test_cancel_past_appointment_is_noop(self, employee, service, mailoutbox):
+        yesterday = (timezone.now() - datetime.timedelta(days=1)).date()
+        appt = make_appointment(employee, service, yesterday, hour=10, status=Appointment.Status.CONFIRMED)
+        mailoutbox.clear()
+        result = appt.cancel()
+        assert result is False
+        assert len(mailoutbox) == 0
+
+    def test_each_appointment_gets_a_unique_cancellation_token(self, employee, service, tomorrow):
+        appt_1 = make_appointment(employee, service, tomorrow, hour=10)
+        appt_2 = make_appointment(employee, service, tomorrow, hour=11)
+        assert appt_1.cancellation_token != appt_2.cancellation_token
+
+    def test_get_cancel_url_contains_token(self, employee, service, tomorrow):
+        appt = make_appointment(employee, service, tomorrow, hour=10)
+        assert str(appt.cancellation_token) in appt.get_cancel_url()
