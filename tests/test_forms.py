@@ -1,4 +1,5 @@
 import datetime
+
 import pytest
 from django.utils import timezone
 
@@ -24,7 +25,6 @@ def valid_data(service, time='10:00'):
 
 @pytest.mark.django_db
 class TestBookingForm:
-
     def test_valid_form(self, service):
         form = BookingForm(data=valid_data(service))
         assert form.is_valid(), form.errors

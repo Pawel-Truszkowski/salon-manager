@@ -1,15 +1,19 @@
 from django.shortcuts import render
 
-from apps.services.models import Employee, Service
 from apps.bookings.forms import BookingForm
+from apps.services.models import Employee, Service
 
 
 def home(request):
     services = Service.objects.select_related('category').all()
     employees = Employee.objects.prefetch_related('services').all()
     form = BookingForm()
-    return render(request, 'home.html', {
-        'form': form,
-        'employees': employees,
-        'services': services,
-    })
+    return render(
+        request,
+        'home.html',
+        {
+            'form': form,
+            'employees': employees,
+            'services': services,
+        },
+    )

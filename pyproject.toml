@@ -22,4 +22,32 @@ dev = [
     "pytest>=9.1.1",
     "pytest-django>=4.12.0",
     "python-dotenv>=1.2.2",
+    "ruff>=0.16.10",
 ]
+
+[tool.ruff]
+target-version = "py314"
+line-length = 120
+extend-exclude = ["**/migrations/*"]
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "B",    # flake8-bugbear
+    "UP",   # pyupgrade
+    "DJ",   # flake8-django
+    "SIM",  # flake8-simplify
+]
+ignore = ["E501"]  # line length is handled by `ruff format`
+
+[tool.ruff.lint.per-file-ignores]
+"config/settings/*.py" = ["F403", "F405"]  # `from .base import *`
+
+[tool.ruff.lint.isort]
+known-first-party = ["apps", "config"]
+
+[tool.ruff.format]
+quote-style = "preserve"

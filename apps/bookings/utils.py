@@ -1,8 +1,10 @@
 from datetime import datetime, timedelta
 
 from django.utils import timezone
-from .models import Appointment
+
 from apps.services.models import Schedule, TimeBlock
+
+from .models import Appointment
 
 
 def get_available_slots(employee, date, service):
@@ -29,14 +31,10 @@ def get_available_slots(employee, date, service):
 
     # Exclude time slots that are already booked
     appointments = Appointment.objects.filter(
-        employee=employee,
-        date_time__date=date,
-        status__in=[Appointment.Status.PENDING, Appointment.Status.CONFIRMED]
+        employee=employee, date_time__date=date, status__in=[Appointment.Status.PENDING, Appointment.Status.CONFIRMED]
     ).select_related('service')
-    
-    busy_slots = [
-            (appt.date_time, appt.date_time + timedelta(minutes=appt.service.duration)) for appt in appointments
-        ]
+
+    busy_slots = [(appt.date_time, appt.date_time + timedelta(minutes=appt.service.duration)) for appt in appointments]
 
     # Exclude time slots reserved by the employee/owner (breaks, days off, etc.)
     time_blocks = TimeBlock.objects.filter(employee=employee, date=date)
@@ -49,16 +47,13 @@ def get_available_slots(employee, date, service):
     ]
 
     available_slots = []
-    
+
     for slot_start in slots:
         slot_end = slot_start + service_duration
-        overlap = any(
-            slot_start < busy_end and slot_end > busy_start
-            for busy_start, busy_end in busy_slots
-        )
+        overlap = any(slot_start < busy_end and slot_end > busy_start for busy_start, busy_end in busy_slots)
         if not overlap:
             available_slots.append(slot_start)
-    
+
     return available_slots
 
 

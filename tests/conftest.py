@@ -1,17 +1,15 @@
 import datetime
+
 import pytest
 from django.utils import timezone
 
-from apps.services.models import ServiceCategory, Service, Employee, Schedule, TimeBlock
 from apps.bookings.models import Appointment
+from apps.services.models import Employee, Schedule, Service, ServiceCategory, TimeBlock
 
 
 @pytest.fixture
 def category(db):
-    return ServiceCategory.objects.create(
-        name='Zabiegi kosmetyczne', 
-        slug='zabiegi-kosmetyczne'
-    )
+    return ServiceCategory.objects.create(name='Zabiegi kosmetyczne', slug='zabiegi-kosmetyczne')
 
 
 @pytest.fixture

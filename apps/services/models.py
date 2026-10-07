@@ -7,7 +7,7 @@ class ServiceCategory(models.Model):
 
     class Meta:
         verbose_name_plural = "Service Categories"
-    
+
     def __str__(self):
         return self.name
 
@@ -18,7 +18,7 @@ class Service(models.Model):
     description = models.TextField(blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     duration = models.IntegerField(help_text="Duration in minutes")
-    
+
     class Meta:
         ordering = ['category', 'name']
 
@@ -32,11 +32,11 @@ class Employee(models.Model):
     email = models.EmailField(unique=True, null=True, blank=True)
     bio = models.TextField()
     services = models.ManyToManyField(Service, related_name='employees')
-    
+
     def __str__(self):
         return f"{self.first_name}"
-   
- 
+
+
 class Schedule(models.Model):
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='schedules')
     date = models.DateField()
@@ -62,4 +62,3 @@ class TimeBlock(models.Model):
 
     def __str__(self):
         return f"{self.employee} - {self.date} {self.start_time}-{self.end_time} (blocked)"
-

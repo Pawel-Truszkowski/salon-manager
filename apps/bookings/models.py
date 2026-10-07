@@ -5,17 +5,16 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 
-from apps.services.models import Service, Employee
+from apps.services.models import Employee, Service
 
 from .emails import (
-    send_confirmation_email,
     send_cancellation_email_to_client,
     send_cancellation_notification_to_salon,
+    send_confirmation_email,
 )
 
 
 class Appointment(models.Model):
-
     class Status(models.TextChoices):
         PENDING = 'pending', 'Oczekująca'
         CONFIRMED = 'confirmed', 'Potwierdzona'

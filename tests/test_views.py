@@ -1,5 +1,6 @@
 import datetime
 import json
+
 import pytest
 from django.test import Client
 from django.urls import reverse
@@ -30,7 +31,6 @@ def post_booking(client, service, employee=None, time='10:00', date=None):
 
 @pytest.mark.django_db
 class TestSubmitBookingView:
-
     def setup_method(self):
         self.client = Client()
 
@@ -92,16 +92,18 @@ class TestSubmitBookingView:
 
 @pytest.mark.django_db
 class TestAvailableSlotsAPI:
-
     def setup_method(self):
         self.client = Client()
 
     def test_returns_slots_for_valid_params(self, employee, service, schedule, tomorrow):
-        response = self.client.get(reverse('api-available-slots'), {
-            'date': tomorrow.isoformat(),
-            'service': service.pk,
-            'employee': employee.pk,
-        })
+        response = self.client.get(
+            reverse('api-available-slots'),
+            {
+                'date': tomorrow.isoformat(),
+                'service': service.pk,
+                'employee': employee.pk,
+            },
+        )
         assert response.status_code == 200
         data = json.loads(response.content)
         assert len(data['slots']) > 0
@@ -112,42 +114,52 @@ class TestAvailableSlotsAPI:
 
     def test_returns_400_for_past_date(self, service):
         past = (timezone.now() - datetime.timedelta(days=1)).date()
-        response = self.client.get(reverse('api-available-slots'), {
-            'date': past.isoformat(),
-            'service': service.pk,
-        })
+        response = self.client.get(
+            reverse('api-available-slots'),
+            {
+                'date': past.isoformat(),
+                'service': service.pk,
+            },
+        )
         assert response.status_code == 400
 
     def test_returns_empty_when_no_schedule(self, employee, service):
         # Deliberately no schedule fixture — employee has no working hours on this date
         date_without_schedule = (timezone.now() + datetime.timedelta(days=30)).date()
-        response = self.client.get(reverse('api-available-slots'), {
-            'date': date_without_schedule.isoformat(),
-            'service': service.pk,
-            'employee': employee.pk,
-        })
+        response = self.client.get(
+            reverse('api-available-slots'),
+            {
+                'date': date_without_schedule.isoformat(),
+                'service': service.pk,
+                'employee': employee.pk,
+            },
+        )
         assert response.status_code == 200
         data = json.loads(response.content)
         assert data['slots'] == []
 
-    def test_aggregates_slots_from_all_employees_when_no_employee_param(
-        self, employee, service, schedule, tomorrow
-    ):
-        response = self.client.get(reverse('api-available-slots'), {
-            'date': tomorrow.isoformat(),
-            'service': service.pk,
-        })
+    def test_aggregates_slots_from_all_employees_when_no_employee_param(self, employee, service, schedule, tomorrow):
+        response = self.client.get(
+            reverse('api-available-slots'),
+            {
+                'date': tomorrow.isoformat(),
+                'service': service.pk,
+            },
+        )
         assert response.status_code == 200
         data = json.loads(response.content)
         assert len(data['slots']) > 0
 
     def test_excludes_slots_blocked_by_owner(self, employee, service, schedule, tomorrow):
         make_time_block(employee, tomorrow, start_hour=12, end_hour=14)
-        response = self.client.get(reverse('api-available-slots'), {
-            'date': tomorrow.isoformat(),
-            'service': service.pk,
-            'employee': employee.pk,
-        })
+        response = self.client.get(
+            reverse('api-available-slots'),
+            {
+                'date': tomorrow.isoformat(),
+                'service': service.pk,
+                'employee': employee.pk,
+            },
+        )
         assert response.status_code == 200
         data = json.loads(response.content)
         assert '12:00' not in data['slots']
@@ -157,16 +169,18 @@ class TestAvailableSlotsAPI:
 
 @pytest.mark.django_db
 class TestAvailableDatesAPI:
-
     def setup_method(self):
         self.client = Client()
 
     def test_returns_date_with_open_schedule(self, employee, service, schedule, tomorrow):
-        response = self.client.get(reverse('api-available-dates'), {
-            'service': service.pk,
-            'employee': employee.pk,
-            'month': f'{tomorrow.year}-{tomorrow.month:02d}',
-        })
+        response = self.client.get(
+            reverse('api-available-dates'),
+            {
+                'service': service.pk,
+                'employee': employee.pk,
+                'month': f'{tomorrow.year}-{tomorrow.month:02d}',
+            },
+        )
         assert response.status_code == 200
         data = json.loads(response.content)
         assert tomorrow.isoformat() in data['dates']
@@ -174,22 +188,28 @@ class TestAvailableDatesAPI:
     def test_excludes_date_fully_blocked_by_owner(self, employee, service, schedule, tomorrow):
         # Block the entire working day (09:00-17:00 per the `schedule` fixture)
         make_time_block(employee, tomorrow, start_hour=9, end_hour=17)
-        response = self.client.get(reverse('api-available-dates'), {
-            'service': service.pk,
-            'employee': employee.pk,
-            'month': f'{tomorrow.year}-{tomorrow.month:02d}',
-        })
+        response = self.client.get(
+            reverse('api-available-dates'),
+            {
+                'service': service.pk,
+                'employee': employee.pk,
+                'month': f'{tomorrow.year}-{tomorrow.month:02d}',
+            },
+        )
         assert response.status_code == 200
         data = json.loads(response.content)
         assert tomorrow.isoformat() not in data['dates']
 
     def test_keeps_date_when_only_partially_blocked(self, employee, service, schedule, tomorrow):
         make_time_block(employee, tomorrow, start_hour=12, end_hour=14)
-        response = self.client.get(reverse('api-available-dates'), {
-            'service': service.pk,
-            'employee': employee.pk,
-            'month': f'{tomorrow.year}-{tomorrow.month:02d}',
-        })
+        response = self.client.get(
+            reverse('api-available-dates'),
+            {
+                'service': service.pk,
+                'employee': employee.pk,
+                'month': f'{tomorrow.year}-{tomorrow.month:02d}',
+            },
+        )
         assert response.status_code == 200
         data = json.loads(response.content)
         assert tomorrow.isoformat() in data['dates']
@@ -197,7 +217,6 @@ class TestAvailableDatesAPI:
 
 @pytest.mark.django_db
 class TestCancelBookingView:
-
     def setup_method(self):
         self.client = Client()
 
