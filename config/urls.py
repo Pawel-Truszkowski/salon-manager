@@ -14,6 +14,7 @@ urlpatterns = [
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}),
     path('admin/', admin.site.urls),
     path('api/', include('apps.api.urls')),
+    path('panel/', include('apps.panel.urls')),
     path('', home, name='home'),
     path('bookings/', submit_booking, name='submit_booking'),
     path('bookings/cancel/<uuid:token>/', cancel_booking, name='cancel_booking'),

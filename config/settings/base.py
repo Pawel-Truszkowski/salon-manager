@@ -39,6 +39,7 @@ INSTALLED_APPS += [
     'apps.bookings.apps.BookingsConfig',
     'apps.services.apps.ServicesConfig',
     'apps.accounts.apps.AccountsConfig',
+    'apps.panel.apps.PanelConfig',
 ]
 
 MIDDLEWARE = [
@@ -137,3 +138,8 @@ SALON_EMAIL = env("SALON_EMAIL")
 
 # Base URL used to build absolute links (e.g. cancellation links) in outgoing e-mails
 SITE_URL = env("SITE_URL", default="https://royalbeauty-studiourody.pl")
+
+# Staff panel (/panel/) authentication
+LOGIN_URL = 'panel:login'
+LOGIN_REDIRECT_URL = 'panel:dashboard'
+LOGOUT_REDIRECT_URL = 'panel:login'

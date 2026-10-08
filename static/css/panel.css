@@ -1,0 +1,104 @@
+:root {
+  --rb-bg: #f5efe6;
+  --rb-bg-white: #fdf9f4;
+  --rb-dark: #2c2418;
+  --rb-body: #3d2e1e;
+  --rb-gold: #b8935a;
+  --rb-gold-dk: #8b6b35;
+  --rb-border: rgba(184, 147, 90, 0.25);
+  --ff-display: "Playfair Display", Georgia, serif;
+  --ff-body: "Raleway", sans-serif;
+}
+
+body.panel {
+  font-family: var(--ff-body);
+  background: var(--rb-bg);
+  color: var(--rb-body);
+  min-height: 100vh;
+}
+
+a {
+  color: var(--rb-gold-dk);
+}
+
+.panel-navbar {
+  background: var(--rb-bg-white);
+  border-bottom: 1px solid var(--rb-border);
+}
+
+.panel-brand {
+  font-family: var(--ff-display);
+  font-weight: 700;
+  color: var(--rb-dark);
+  font-size: 1.25rem;
+}
+
+.panel-brand span {
+  font-family: var(--ff-body);
+  font-weight: 500;
+  font-size: 0.75em;
+  color: var(--rb-gold);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.panel-navbar .nav-link.active {
+  color: var(--rb-gold-dk);
+  font-weight: 600;
+}
+
+.panel-badge-role {
+  background: var(--rb-gold);
+}
+
+.panel-title {
+  font-family: var(--ff-display);
+  color: var(--rb-dark);
+  font-size: 1.6rem;
+}
+
+.panel-card {
+  border-color: var(--rb-border);
+}
+
+.panel-card .card-header {
+  background: var(--rb-bg-white);
+  border-bottom-color: var(--rb-border);
+}
+
+.panel-time {
+  min-width: 3.5rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.panel-btn-primary {
+  background: var(--rb-gold);
+  border-color: var(--rb-gold);
+  color: #fff;
+}
+
+.panel-btn-primary:hover,
+.panel-btn-primary:focus {
+  background: var(--rb-gold-dk);
+  border-color: var(--rb-gold-dk);
+  color: #fff;
+}
+
+.panel-status-pending { background: #f0ad4e; color: #2c2418; }
+.panel-status-confirmed { background: #3c8d5a; }
+.panel-status-completed { background: #6c757d; }
+.panel-status-cancelled { background: #b04a3c; }
+
+.panel-auth {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.panel-auth-card {
+  width: 100%;
+  max-width: 400px;
+  border-color: var(--rb-border);
+}

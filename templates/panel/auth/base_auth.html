@@ -1,0 +1,12 @@
+{% extends 'panel/base.html' %}
+
+{% block body %}
+<main class="panel-auth">
+  <div class="panel-auth-card card shadow-sm">
+    <div class="card-body p-4">
+      <h1 class="panel-brand text-center mb-4">Royal Beauty <span>panel</span></h1>
+      {% block auth_content %}{% endblock %}
+    </div>
+  </div>
+</main>
+{% endblock %}
