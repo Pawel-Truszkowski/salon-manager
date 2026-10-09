@@ -7,6 +7,12 @@ app_name = 'panel'
 
 urlpatterns = [
     path('', views.DashboardView.as_view(), name='dashboard'),
+    path('appointments/', views.AppointmentListView.as_view(), name='appointment_list'),
+    path('appointments/new/', views.AppointmentCreateView.as_view(), name='appointment_create'),
+    path('appointments/<int:pk>/', views.AppointmentDetailView.as_view(), name='appointment_detail'),
+    path('appointments/<int:pk>/reschedule/', views.AppointmentRescheduleView.as_view(), name='appointment_reschedule'),
+    path('appointments/<int:pk>/<str:action>/', views.AppointmentActionView.as_view(), name='appointment_action'),
+    path('slots/', views.SlotsView.as_view(), name='slots'),
     path(
         'login/',
         auth_views.LoginView.as_view(template_name='panel/auth/login.html', redirect_authenticated_user=True),

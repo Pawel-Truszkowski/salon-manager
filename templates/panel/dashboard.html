@@ -5,7 +5,10 @@
 {% block content %}
 <div class="d-flex flex-wrap align-items-baseline justify-content-between gap-2 mb-4">
   <h1 class="panel-title mb-0">Dzień dobry, {{ request.user.first_name|default:request.user.username }}</h1>
-  <span class="text-muted">{% now "l, j E Y" %}</span>
+  <div class="d-flex align-items-center gap-3">
+    <span class="text-muted">{% now "l, j E Y" %}</span>
+    <a href="{% url 'panel:appointment_create' %}" class="btn btn-sm panel-btn-primary"><i class="bi bi-plus-lg"></i> Dodaj wizytę</a>
+  </div>
 </div>
 
 <div class="row g-4">
@@ -21,7 +24,7 @@
             <li class="list-group-item d-flex flex-wrap gap-2 align-items-center">
               <strong class="panel-time">{{ appointment.date_time|time:"H:i" }}</strong>
               <span class="flex-grow-1">
-                {{ appointment.service }} — {{ appointment.client_name }}
+                <a href="{% url 'panel:appointment_detail' appointment.pk %}">{{ appointment.service }} — {{ appointment.client_name }}</a>
                 {% if is_owner and appointment.employee %}<span class="text-muted small">· {{ appointment.employee }}</span>{% endif %}
               </span>
               {% include 'panel/_status_badge.html' %}
@@ -43,12 +46,15 @@
       {% if pending_appointments %}
         <ul class="list-group list-group-flush">
           {% for appointment in pending_appointments|slice:":10" %}
-            <li class="list-group-item">
-              <div class="d-flex justify-content-between gap-2">
-                <strong>{{ appointment.date_time|date:"d.m H:i" }}</strong>
-                <span class="text-muted small">{{ appointment.employee|default:"—" }}</span>
+            <li class="list-group-item d-flex gap-2 align-items-center">
+              <div class="flex-grow-1">
+                <div class="d-flex justify-content-between gap-2">
+                  <a href="{% url 'panel:appointment_detail' appointment.pk %}"><strong>{{ appointment.date_time|date:"d.m H:i" }}</strong></a>
+                  <span class="text-muted small">{{ appointment.employee|default:"—" }}</span>
+                </div>
+                <div class="small">{{ appointment.service }} — {{ appointment.client_name }}, {{ appointment.client_phone }}</div>
               </div>
-              <div class="small">{{ appointment.service }} — {{ appointment.client_name }}, {{ appointment.client_phone }}</div>
+              {% include 'panel/appointments/_actions.html' with compact=True next=request.path %}
             </li>
           {% endfor %}
         </ul>

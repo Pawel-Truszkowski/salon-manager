@@ -102,3 +102,14 @@ a {
   max-width: 400px;
   border-color: var(--rb-border);
 }
+
+.panel-slot {
+  min-width: 4rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.panel-slot.active {
+  background: var(--rb-gold);
+  border-color: var(--rb-gold);
+  color: #fff;
+}

@@ -1,8 +1,11 @@
 import datetime
 
 import pytest
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from django.utils import timezone
 
+from apps.accounts.roles import OWNER_GROUP
 from apps.bookings.models import Appointment
 from apps.services.models import Employee, Schedule, Service, ServiceCategory, TimeBlock
 
@@ -82,3 +85,35 @@ def make_time_block(employee, date, start_hour, end_hour, reason=''):
         end_time=datetime.time(end_hour, 0),
         reason=reason,
     )
+
+
+# --- Panel roles ---
+
+User = get_user_model()
+
+
+@pytest.fixture
+def owner_user(db):
+    user = User.objects.create_user(username='wlascicielka', password='haslo-123!', email='owner@salon.pl')
+    user.groups.add(Group.objects.get(name=OWNER_GROUP))
+    return user
+
+
+@pytest.fixture
+def employee_user(employee):
+    user = User.objects.create_user(username='anna', password='haslo-123!', email='anna@salon.pl')
+    employee.user = user
+    employee.save()
+    return user
+
+
+@pytest.fixture
+def other_employee(service):
+    emp = Employee.objects.create(first_name='Ewa', email='ewa@salon.pl', bio='')
+    emp.services.add(service)
+    return emp
+
+
+@pytest.fixture
+def plain_user(db):
+    return User.objects.create_user(username='klient', password='haslo-123!')

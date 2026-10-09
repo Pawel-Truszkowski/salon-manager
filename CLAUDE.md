@@ -81,7 +81,9 @@ uv run pytest -k cancel                                                        #
 - Saving a new `Appointment` fires a `post_save` signal that sends a confirmation e-mail to the client and a notification e-mail to the salon (`SALON_EMAIL`).
 - Admin actions in `apps.bookings.admin` (or calling `Appointment.confirm()`) send a further "confirmed" e-mail to the client; `Appointment.complete()` marks a confirmed appointment as completed.
 - Client self-cancellation: the confirmation e-mails include `cancel_url` from `Appointment.get_cancel_url()` (built from `settings.SITE_URL`). `GET /bookings/cancel/<uuid:token>/` (`apps.bookings.views.cancel_booking`, routed in `config/urls.py`) shows a confirmation page; `POST` calls `Appointment.cancel()`, which e-mails the client and the salon. Re-posting on an already cancelled appointment sends nothing.
-- E-mail sending is split: creation e-mails come from the `post_save` signal; confirm/cancel e-mails are sent directly from the model methods (all helpers in `apps/bookings/emails.py`).
+- E-mail sending is split: creation e-mails come from the `post_save` signal; confirm/cancel/reschedule e-mails are sent directly from the model methods (all helpers in `apps/bookings/emails.py`; client e-mails are silently skipped when `client_email` is empty).
+- Panel (`/panel/appointments/`): appointments created there set `instance._skip_booking_emails = True` before `save()` (signal skips "booking received" + salon notification) and are saved as `confirmed` with a "confirmed" e-mail instead. Panel cancels use `cancel(by_salon=True)` (different client e-mail, no salon notification); moves use `reschedule()`. Panel views set `updated_by` before calling model methods. Availability in panel forms (`apps/panel/forms.py`) goes through `get_available_slots(..., exclude_appointment=...)`; only owners may bypass it (`force`).
+- `client_email` is `blank=True` on the model (phone bookings in the panel); `BookingForm` re-requires it for the website.
 
 **API endpoints** (`apps/api/urls.py`, mounted at `/api/`):
 - `GET /api/services/` — list services

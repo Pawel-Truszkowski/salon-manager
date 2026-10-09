@@ -7,7 +7,7 @@ from apps.services.models import Schedule, TimeBlock
 from .models import Appointment
 
 
-def get_available_slots(employee, date, service):
+def get_available_slots(employee, date, service, exclude_appointment=None):
     slot_duration = 15
 
     # An employee can have multiple schedule blocks on the same date (e.g. split shifts)
@@ -33,6 +33,9 @@ def get_available_slots(employee, date, service):
     appointments = Appointment.objects.filter(
         employee=employee, date_time__date=date, status__in=[Appointment.Status.PENDING, Appointment.Status.CONFIRMED]
     ).select_related('service')
+    # When rescheduling, the appointment being moved must not block its own new slot
+    if exclude_appointment is not None:
+        appointments = appointments.exclude(pk=exclude_appointment.pk)
 
     busy_slots = [(appt.date_time, appt.date_time + timedelta(minutes=appt.service.duration)) for appt in appointments]
 

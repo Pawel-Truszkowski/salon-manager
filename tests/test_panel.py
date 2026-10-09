@@ -8,36 +8,8 @@ from django.utils import timezone
 
 from apps.accounts.roles import OWNER_GROUP, get_employee, has_panel_access, is_owner
 from apps.bookings.models import Appointment
-from apps.services.models import Employee
 
 User = get_user_model()
-
-
-@pytest.fixture
-def owner_user(db):
-    user = User.objects.create_user(username='wlascicielka', password='haslo-123!', email='owner@salon.pl')
-    user.groups.add(Group.objects.get(name=OWNER_GROUP))
-    return user
-
-
-@pytest.fixture
-def employee_user(employee):
-    user = User.objects.create_user(username='anna', password='haslo-123!', email='anna@salon.pl')
-    employee.user = user
-    employee.save()
-    return user
-
-
-@pytest.fixture
-def other_employee(service):
-    emp = Employee.objects.create(first_name='Ewa', email='ewa@salon.pl', bio='')
-    emp.services.add(service)
-    return emp
-
-
-@pytest.fixture
-def plain_user(db):
-    return User.objects.create_user(username='klient', password='haslo-123!')
 
 
 def make_today_appointment(employee, service, hour, client_name, status=Appointment.Status.CONFIRMED):

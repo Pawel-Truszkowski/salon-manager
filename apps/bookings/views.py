@@ -39,6 +39,7 @@ def cancel_booking(request, token):
 
     just_cancelled = False
     if request.method == 'POST':
+        appointment.updated_by = None  # cancelled by the client, not by a panel user
         just_cancelled = appointment.cancel()
 
     return render(

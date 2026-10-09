@@ -21,6 +21,8 @@ class BookingForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['employee'].required = False
         self.fields['employee'].empty_label = 'Dowolna specjalistka'
+        # Optional on the model (phone bookings in the panel), but always required on the website
+        self.fields['client_email'].required = True
 
         # Jeśli formularz ma już dane (np. błąd walidacji) — zachowaj wybraną godzinę
         if self.data.get('time'):

@@ -1,0 +1,48 @@
+{% comment %}Action buttons for one appointment. Optional: `next` (URL to return to), `compact`.{% endcomment %}
+<div class="d-flex flex-wrap gap-2">
+  {% if appointment.status == 'pending' %}
+    <form method="post" action="{% url 'panel:appointment_action' appointment.pk 'confirm' %}">
+      {% csrf_token %}{% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+      <button type="submit" class="btn btn-sm btn-success"><i class="bi bi-check-lg"></i>{% if not compact %} Potwierdź{% endif %}</button>
+    </form>
+  {% endif %}
+  {% if appointment.status == 'confirmed' %}
+    <form method="post" action="{% url 'panel:appointment_action' appointment.pk 'complete' %}">
+      {% csrf_token %}{% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+      <button type="submit" class="btn btn-sm btn-outline-secondary"><i class="bi bi-check2-all"></i>{% if not compact %} Zrealizowana{% endif %}</button>
+    </form>
+  {% endif %}
+  {% if not compact and appointment.can_be_rescheduled %}
+    <a class="btn btn-sm btn-outline-primary" href="{% url 'panel:appointment_reschedule' appointment.pk %}"><i class="bi bi-arrow-left-right"></i> Przenieś</a>
+  {% endif %}
+  {% if not compact and appointment.can_be_cancelled %}
+    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#cancelModal{{ appointment.pk }}">
+      <i class="bi bi-x-lg"></i> Odwołaj
+    </button>
+    <div class="modal fade" id="cancelModal{{ appointment.pk }}" tabindex="-1" aria-labelledby="cancelModalLabel{{ appointment.pk }}" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2 class="modal-title h5" id="cancelModalLabel{{ appointment.pk }}">Odwołać wizytę?</h2>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Zamknij"></button>
+          </div>
+          <div class="modal-body">
+            <p class="mb-1"><strong>{{ appointment.client_name }}</strong> — {{ appointment.service }}, {{ appointment.date_time|date:"d.m.Y H:i" }}</p>
+            {% if appointment.client_email %}
+              <p class="small text-muted mb-0">Klient dostanie e-mail, że salon odwołał wizytę.</p>
+            {% else %}
+              <p class="small text-muted mb-0">Klient nie ma e-maila — poinformuj go telefonicznie ({{ appointment.client_phone }}).</p>
+            {% endif %}
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Nie</button>
+            <form method="post" action="{% url 'panel:appointment_action' appointment.pk 'cancel' %}">
+              {% csrf_token %}{% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+              <button type="submit" class="btn btn-danger">Tak, odwołaj</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+</div>

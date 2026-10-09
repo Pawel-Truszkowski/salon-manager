@@ -7,6 +7,7 @@ from .models import Appointment
 
 @receiver(post_save, sender=Appointment)
 def send_booking_emails(sender, instance, created, **kwargs):
-    if created:
+    # The panel sets this flag and sends its own e-mails for appointments it creates
+    if created and not getattr(instance, '_skip_booking_emails', False):
         send_booking_confirmation_to_client(instance)
         send_booking_notification_to_salon(instance)
