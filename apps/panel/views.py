@@ -376,3 +376,97 @@ class ScheduleGenerateView(TargetEmployeeMixin, View):
                 request, f'Nic nie dodano ({period}) — te dni mają już grafik albo szablon nie ma w nich godzin pracy.'
             )
         return redirect(schedule_url(employee))
+
+
+class CalendarEventsView(PanelAccessMixin, View):
+    """JSON feed for FullCalendar: `GET ?start=<ISO>&end=<ISO>[&employee=<pk>]` -> list of event dicts.
+
+    FullCalendar sends `start`/`end` as ISO datetimes with an offset (e.g. `2026-10-12T00:00:00+02:00`) and
+    expects a JSON array of `{"id", "title", "start", "end", "url", "color", ...}` (ISO strings for times).
+    """
+
+    STATUS_COLORS = {
+        Appointment.Status.PENDING: '#e0a100',
+        Appointment.Status.CONFIRMED: '#b07d62',
+        Appointment.Status.COMPLETED: '#8a9a8b',
+    }
+    WORKING_HOURS_COLOR = '#d1e7dd'
+    TIME_BLOCK_COLOR = '#adb5bd'
+
+    def get(self, request):
+        try:
+            start = self.parse_datetime(request.GET['start'])
+            end = self.parse_datetime(request.GET['end'])
+        except KeyError, ValueError:
+            return JsonResponse({'error': 'Podaj poprawne parametry start i end (ISO 8601).'}, status=400)
+
+        appointments = self.scope_to_employee(Appointment.objects.select_related('service', 'employee'))
+        employee_id = request.GET.get('employee', '')
+        if self.is_owner and employee_id.isdigit():
+            appointments = appointments.filter(employee_id=employee_id)
+
+        appointments = appointments.filter(date_time__gte=start, date_time__lt=end).exclude(
+            status=Appointment.Status.CANCELLED
+        )
+        events = [self.appointment_event(appointment) for appointment in appointments.order_by('date_time')]
+
+        # Working hours / blocks only make sense for one person (an "all employees" view would be a mess)
+        if not self.is_owner:
+            events += self.background_events(self.employee, start, end)
+        elif employee_id.isdigit():
+            employee = Employee.objects.filter(pk=employee_id).first()
+            if employee:
+                events += self.background_events(employee, start, end)
+        return JsonResponse(events, safe=False)
+
+    def background_events(self, employee, start, end):
+        """`Schedule` rows (working hours) and `TimeBlock`s of `employee` in [start, end) as background events.
+
+        FullCalendar draws `{'start', 'end', 'display': 'background', 'color', 'title'?}` behind the appointments.
+        """
+        first_day, last_day = timezone.localtime(start).date(), timezone.localtime(end).date()
+
+        def at(date, time):
+            return timezone.make_aware(datetime.datetime.combine(date, time)).isoformat()
+
+        events = [
+            {
+                'start': at(schedule.date, schedule.start_time),
+                'end': at(schedule.date, schedule.end_time),
+                'display': 'background',
+                'color': self.WORKING_HOURS_COLOR,
+            }
+            for schedule in employee.schedules.filter(date__gte=first_day, date__lt=last_day)
+        ]
+        events += [
+            {
+                'title': block.reason or 'Blokada',
+                'start': at(block.date, block.start_time),
+                'end': at(block.date, block.end_time),
+                'display': 'background',
+                'color': self.TIME_BLOCK_COLOR,
+            }
+            for block in employee.time_blocks.filter(date__gte=first_day, date__lt=last_day)
+        ]
+        return events
+
+    def appointment_event(self, appointment):
+        begins = timezone.localtime(appointment.date_time)
+        title = f'{appointment.client_name} — {appointment.service}'
+        if self.is_owner and appointment.employee:
+            # Owners may look at all employees at once, so say whose appointment it is
+            title = f'{title} ({appointment.employee})'
+        return {
+            'id': appointment.pk,
+            'title': title,
+            'start': begins.isoformat(),
+            'end': (begins + datetime.timedelta(minutes=appointment.service.duration)).isoformat(),
+            'url': reverse('panel:appointment_detail', args=[appointment.pk]),
+            'color': self.STATUS_COLORS.get(appointment.status, '#6c757d'),
+        }
+
+    @staticmethod
+    def parse_datetime(value):
+        """ISO string from FullCalendar -> aware datetime (a bare date like `2026-10-12` is local midnight)."""
+        parsed = datetime.datetime.fromisoformat(value)
+        return timezone.make_aware(parsed) if timezone.is_naive(parsed) else parsed

@@ -16,6 +16,7 @@ urlpatterns = [
     path('time-blocks/', views.TimeBlockListView.as_view(), name='time_block_list'),
     path('time-blocks/new/', views.TimeBlockCreateView.as_view(), name='time_block_create'),
     path('time-blocks/<int:pk>/delete/', views.TimeBlockDeleteView.as_view(), name='time_block_delete'),
+    path('calendar/events/', views.CalendarEventsView.as_view(), name='calendar_events'),
     path('schedule/', views.ScheduleView.as_view(), name='schedule'),
     path('schedule/<int:employee_pk>/weekly/', views.WeeklyScheduleEditView.as_view(), name='weekly_schedule'),
     path('schedule/<int:employee_pk>/generate/', views.ScheduleGenerateView.as_view(), name='schedule_generate'),
