@@ -58,9 +58,9 @@ uv run pytest -k cancel                                                        #
 **Project layout:**
 - `./config/` — Django settings package (`settings/base.py`, `development.py`, `production.py`, `test.py`), root URL conf, `sitemaps.py`, `asgi.py`/`wsgi.py`
 - `./apps/accounts/` — Custom `User` model (`AbstractUser` + `phone_number`), set as `AUTH_USER_MODEL`
-- `./apps/services/` — `ServiceCategory`, `Service`, `Employee`, `Schedule`, `TimeBlock` models
+- `./apps/services/` — `ServiceCategory`, `Service`, `Employee`, `Schedule`, `TimeBlock`, `WeeklyScheduleEntry` models; `scheduling.py` (`generate_schedules()`: weekly template → `Schedule` rows)
 - `./apps/bookings/` — `Appointment` model, booking form/view, availability logic (`utils.py`), confirmation e-mails (`emails.py`), post-save signal that triggers booking e-mails (`signals.py`)
-- `./apps/panel/` — staff panel at `/panel/` (own views + `templates/panel/`, not Django admin): login/logout/password reset, dashboard. Access via `PanelAccessMixin` / `OwnerRequiredMixin` (`apps/panel/mixins.py`); querysets for employees must go through `scope_to_employee()`. Roadmap in `docs/panel-plan.md`
+- `./apps/panel/` — staff panel at `/panel/` (own views + `templates/panel/`, not Django admin): login/logout/password reset, dashboard, appointments, time blocks, schedule (weekly template editor + generation). Access via `PanelAccessMixin` / `OwnerRequiredMixin` (`apps/panel/mixins.py`); querysets for employees must go through `scope_to_employee()`. Roadmap in `docs/panel-plan.md`
 - `./apps/api/` — DRF app: serializers + views for services, employees, available slots/dates (implemented, not a stub)
 - `./templates/` — Django HTML templates (`base.html`, `home.html`, `bookings/cancel_appointment.html`, `emails/*.html` incl. cancellation e-mails, `robots.txt`)
 - `./static/` — CSS (`style.css`), JS (`script.js`), images
@@ -74,6 +74,7 @@ uv run pytest -k cancel                                                        #
 - `Employee` M2M `Service` (an employee can perform multiple services); optional `Employee.user` (OneToOne) is the panel login
 - `Schedule` belongs to `Employee` (working hours per day; supports multiple blocks/day e.g. split shifts)
 - `TimeBlock` belongs to `Employee` (ad-hoc blocked periods: breaks, days off)
+- `WeeklyScheduleEntry` belongs to `Employee` (weekly template: weekday + hours, several per day allowed). It is **not** read by availability logic — `generate_schedules()` materializes it into `Schedule` rows, skipping days that already have any (manual exceptions win)
 - `Appointment` → `Service` + `Employee` (optional — auto-assigned if omitted) + datetime + client info + `status` (`pending`/`confirmed`/`completed`/`cancelled`) + `cancellation_token` (unique UUID used in the client's cancel link). State transitions live on the model: `confirm()`, `complete()`, `cancel()` (allowed only while `can_be_cancelled` — status `pending`/`confirmed` and `date_time` in the future)
 
 **Booking flow:**

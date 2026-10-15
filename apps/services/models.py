@@ -52,6 +52,15 @@ class Schedule(models.Model):
     date = models.DateField()
     start_time = models.TimeField()
     end_time = models.TimeField()
+    # Who/when last changed it from the panel (owner sees employees' changes); null = system or before tracking
+    updated_at = models.DateTimeField(auto_now=True)
+    updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='+',
+    )
 
     class Meta:
         unique_together = ('employee', 'date', 'start_time')
@@ -101,6 +110,15 @@ class TimeBlock(models.Model):
     start_time = models.TimeField()
     end_time = models.TimeField()
     reason = models.CharField(max_length=200, blank=True)
+    # Who/when last changed it from the panel (owner sees employees' changes); null = system or before tracking
+    updated_at = models.DateTimeField(auto_now=True)
+    updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='+',
+    )
 
     class Meta:
         ordering = ['date', 'start_time']

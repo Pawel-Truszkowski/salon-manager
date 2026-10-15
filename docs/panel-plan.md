@@ -36,10 +36,12 @@ Własny panel do zarządzania salonem dla właściciela i specjalistek, zbudowan
 - `updated_by` / `updated_at` na `Appointment`.
 - Zasady (ustalone): wizyta dodana w panelu jest od razu potwierdzona (mail „potwierdzona” do klienta, bez powiadomienia salonu); e-mail klienta opcjonalny w panelu, wymagany na stronie; tylko właściciel może pominąć grafik („force”); specjalistki nie dostają maili o zmianach.
 
-### 3. Grafik tygodniowy
-- Szablon tygodnia per specjalistka (np. pon–pt 9–17, możliwe kilka bloków dziennie), z którego generowane są wpisy `Schedule` na wybrany zakres dat. Logika dostępności (`get_available_slots`) się nie zmienia.
-- Zarządzanie `TimeBlock` (urlopy, przerwy).
+### 3. Grafik tygodniowy ✅
+- Szablon tygodnia per specjalistka (`WeeklyScheduleEntry`; np. pon–pt 9–17, możliwe kilka bloków dziennie, bloki nie mogą na siebie nachodzić), z którego `generate_schedules()` (`apps/services/scheduling.py`) tworzy wpisy `Schedule` na wybrany zakres dat (max 183 dni, nie w przeszłości). Dni, które już mają grafik, są pomijane — ręczne wyjątki nie są nadpisywane. Logika dostępności (`get_available_slots`) się nie zmienia.
+- Strona „Grafik” (`/panel/schedule/`): szablon, najbliższe 4 tygodnie (praca + blokady), generowanie; edytor szablonu (formset).
+- Zarządzanie `TimeBlock` (urlopy, przerwy): lista od dziś, dodawanie, usuwanie.
 - `updated_by` / `updated_at` na `Schedule` / `TimeBlock`.
+- Do rozważenia później: edycja pojedynczych dni grafiku (wyjątki) w panelu — dziś tylko przez `/admin/`.
 
 ### 4. Kalendarz (FullCalendar)
 - Widok dnia/tygodnia, kolumny per specjalistka (właściciel) lub tylko własny (specjalistka).

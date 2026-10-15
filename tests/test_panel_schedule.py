@@ -126,6 +126,12 @@ class TestScheduleGenerate:
         assert Schedule.objects.filter(employee=employee).count() == 5
         assert '5 bloków' in response.content.decode()
 
+    def test_generated_rows_record_the_user(self, employee_client, employee, employee_user, weekdays_template):
+        employee_client.post(generate_url(employee), range_data(in_days(0), in_days(13)))
+
+        assert Schedule.objects.exists()
+        assert set(Schedule.objects.values_list('updated_by', flat=True)) == {employee_user.pk}
+
     def test_second_generate_reports_nothing_added(self, employee_client, employee, weekdays_template):
         data = range_data(in_days(0), in_days(13))
         employee_client.post(generate_url(employee), data)

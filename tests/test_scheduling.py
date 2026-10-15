@@ -84,3 +84,14 @@ class TestGenerateSchedules:
             (WEDNESDAY, t(9), t(13)),
             (WEDNESDAY, t(14), t(18)),
         ]
+
+    def test_records_who_generated_and_when(self, employee, template, owner_user):
+        generate_schedules(employee, MONDAY, SUNDAY, updated_by=owner_user)
+
+        # bulk_create skips save(), so check that auto_now still fills `updated_at`
+        assert all(s.updated_by == owner_user and s.updated_at for s in Schedule.objects.all())
+
+    def test_updated_by_is_optional(self, employee, template):
+        generate_schedules(employee, MONDAY, SUNDAY)
+
+        assert not Schedule.objects.filter(updated_by__isnull=False).exists()

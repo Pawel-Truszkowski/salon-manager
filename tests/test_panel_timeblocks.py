@@ -52,6 +52,15 @@ class TestTimeBlockList:
 
         assert len(response.context['time_blocks']) == 2
 
+    def test_owner_sees_who_added_the_block(self, owner_client, employee, employee_user):
+        block = make_time_block(employee, in_days(1), 10, 12)
+        block.updated_by = employee_user
+        block.save()
+
+        response = owner_client.get(LIST_URL)
+
+        assert employee_user.username in response.content.decode()
+
     def test_past_blocks_are_hidden(self, employee_client, employee):
         make_time_block(employee, in_days(-1), 10, 12, reason='wczoraj')
         make_time_block(employee, in_days(0), 10, 12, reason='dziś')
@@ -69,6 +78,13 @@ class TestTimeBlockCreate:
 
         assert response.status_code == 302
         assert TimeBlock.objects.get().employee == employee
+
+    def test_records_who_added_the_block(self, employee_client, employee_user):
+        employee_client.post(CREATE_URL, block_data(in_days(1)))
+
+        block = TimeBlock.objects.get()
+        assert block.updated_by == employee_user
+        assert block.updated_at is not None
 
     def test_employee_has_no_employee_field(self, employee_client):
         response = employee_client.get(CREATE_URL)

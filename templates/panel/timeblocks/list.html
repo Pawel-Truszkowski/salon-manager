@@ -19,6 +19,7 @@
             <th>Godziny</th>
             {% if is_owner %}<th>Specjalistka</th>{% endif %}
             <th class="d-none d-md-table-cell">Powód</th>
+            {% if is_owner %}<th class="d-none d-lg-table-cell">Dodano</th>{% endif %}
             <th class="text-end"><span class="visually-hidden">Akcje</span></th>
           </tr>
         </thead>
@@ -29,6 +30,11 @@
               <td class="text-nowrap">{{ block.start_time|time:"H:i" }}–{{ block.end_time|time:"H:i" }}</td>
               {% if is_owner %}<td>{{ block.employee }}</td>{% endif %}
               <td class="d-none d-md-table-cell">{{ block.reason|default:"—" }}</td>
+              {% if is_owner %}
+                <td class="d-none d-lg-table-cell small text-muted">
+                  {{ block.updated_at|date:"d.m H:i" }}{% if block.updated_by %} — {{ block.updated_by.get_full_name|default:block.updated_by.username }}{% endif %}
+                </td>
+              {% endif %}
               <td class="text-end">
                 <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ block.pk }}" aria-label="Usuń blokadę">
                   <i class="bi bi-trash"></i>

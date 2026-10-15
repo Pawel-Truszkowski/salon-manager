@@ -230,8 +230,7 @@ class TimeBlockListView(PanelAccessMixin, ListView):
 
     def get_queryset(self):
         return self.scope_to_employee(
-            TimeBlock.objects.all()
-            .select_related('employee')
+            TimeBlock.objects.select_related('employee', 'updated_by')
             .filter(date__gte=timezone.localdate())
             .order_by('date', 'start_time')
         )
@@ -250,6 +249,7 @@ class TimeBlockCreateView(PanelAccessMixin, CreateView):
         return kwargs
 
     def form_valid(self, form):
+        form.instance.updated_by = self.request.user
         response = super().form_valid(form)  # saves -> self.object
         messages.success(
             self.request,
@@ -367,7 +367,7 @@ class ScheduleGenerateView(TargetEmployeeMixin, View):
             return redirect(schedule_url(employee))
 
         date_from, date_to = form.cleaned_data['date_from'], form.cleaned_data['date_to']
-        created = generate_schedules(employee, date_from, date_to)
+        created = generate_schedules(employee, date_from, date_to, updated_by=request.user)
         period = f'{date_from:%d.%m.%Y}–{date_to:%d.%m.%Y}'
         if created:
             messages.success(request, f'Wygenerowano grafik ({period}): {created} bloków pracy.')

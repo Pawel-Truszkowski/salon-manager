@@ -4,11 +4,13 @@ from collections import defaultdict
 from .models import Employee, Schedule
 
 
-def generate_schedules(employee: Employee, date_from: datetime.date, date_to: datetime.date) -> int:
+def generate_schedules(employee: Employee, date_from: datetime.date, date_to: datetime.date, updated_by=None) -> int:
     """Create `Schedule` rows for `employee` from their weekly template, for every day in [date_from, date_to].
 
     Days that already have at least one `Schedule` row are left untouched — they may contain manual
     exceptions (a longer shift, a swapped day) that the template must not overwrite.
+
+    `updated_by` is the panel user who triggered it (None when run outside the panel, e.g. from a shell).
 
     Returns the number of `Schedule` rows created.
     """
@@ -41,6 +43,7 @@ def generate_schedules(employee: Employee, date_from: datetime.date, date_to: da
                     date=current_date,
                     start_time=entry.start_time,
                     end_time=entry.end_time,
+                    updated_by=updated_by,
                 )
             )
 
