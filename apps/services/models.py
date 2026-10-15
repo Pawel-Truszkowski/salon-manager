@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
 
 
@@ -57,6 +58,41 @@ class Schedule(models.Model):
 
     def __str__(self):
         return f"{self.employee} - {self.date} {self.start_time}-{self.end_time}"
+
+
+class WeeklyScheduleEntry(models.Model):
+    """One working block in an employee's weekly template, e.g. "Monday 09:00-17:00".
+
+    Several entries on the same weekday = split shift. Concrete `Schedule` rows are generated from these.
+    """
+
+    class WeekDay(models.IntegerChoices):
+        MONDAY = 0, "poniedziałek"
+        TUESDAY = 1, "wtorek"
+        WEDNESDAY = 2, "środa"
+        THURSDAY = 3, "czwartek"
+        FRIDAY = 4, "piątek"
+        SATURDAY = 5, "sobota"
+        SUNDAY = 6, "niedziela"
+
+    employee = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='weekly_schedule')
+    weekday = models.IntegerField(choices=WeekDay.choices)
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+
+    class Meta:
+        ordering = ['employee', 'weekday', 'start_time']
+        constraints = [
+            models.UniqueConstraint(fields=['employee', 'weekday', 'start_time'], name='unique_weekly_schedule_entry'),
+        ]
+
+    def __str__(self):
+        return f"{self.employee} – {self.get_weekday_display()} {self.start_time:%H:%M}–{self.end_time:%H:%M}"
+
+    def clean(self):
+        # Either time may be None here if its own field validation already failed
+        if self.start_time and self.end_time and self.start_time >= self.end_time:
+            raise ValidationError({'end_time': 'Godzina zakończenia musi być późniejsza niż rozpoczęcia.'})
 
 
 class TimeBlock(models.Model):
