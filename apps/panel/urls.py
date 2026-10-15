@@ -13,6 +13,9 @@ urlpatterns = [
     path('appointments/<int:pk>/reschedule/', views.AppointmentRescheduleView.as_view(), name='appointment_reschedule'),
     path('appointments/<int:pk>/<str:action>/', views.AppointmentActionView.as_view(), name='appointment_action'),
     path('slots/', views.SlotsView.as_view(), name='slots'),
+    path('time-blocks/', views.TimeBlockListView.as_view(), name='time_block_list'),
+    path('time-blocks/new/', views.TimeBlockCreateView.as_view(), name='time_block_create'),
+    path('time-blocks/<int:pk>/delete/', views.TimeBlockDeleteView.as_view(), name='time_block_delete'),
     path(
         'login/',
         auth_views.LoginView.as_view(template_name='panel/auth/login.html', redirect_authenticated_user=True),

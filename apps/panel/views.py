@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.db.models import Q
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views import View
@@ -13,9 +14,9 @@ from django.views.generic import CreateView, DetailView, FormView, ListView, Tem
 from apps.bookings.emails import send_confirmation_email
 from apps.bookings.models import Appointment
 from apps.bookings.utils import get_available_slots
-from apps.services.models import Employee, Service
+from apps.services.models import Employee, Service, TimeBlock
 
-from .forms import AppointmentCreateForm, RescheduleForm
+from .forms import AppointmentCreateForm, RescheduleForm, TimeBlockForm
 from .mixins import PanelAccessMixin
 
 
@@ -210,3 +211,52 @@ class SlotsView(PanelAccessMixin, View):
         for employee in employees:
             slots.update(get_available_slots(employee, date, service, exclude_appointment=exclude))
         return JsonResponse({'slots': [timezone.localtime(s).strftime('%H:%M') for s in sorted(slots)]})
+
+
+class TimeBlockListView(PanelAccessMixin, ListView):
+    """Upcoming blocked periods (today onwards); an employee sees only her own."""
+
+    template_name = 'panel/timeblocks/list.html'
+    context_object_name = 'time_blocks'
+    paginate_by = 25
+
+    def get_queryset(self):
+        return self.scope_to_employee(
+            TimeBlock.objects.all()
+            .select_related('employee')
+            .filter(date__gte=timezone.localdate())
+            .order_by('date', 'start_time')
+        )
+
+
+class TimeBlockCreateView(PanelAccessMixin, CreateView):
+    """Add a blocked period; an employee always blocks her own time."""
+
+    template_name = 'panel/timeblocks/form.html'
+    form_class = TimeBlockForm
+    success_url = reverse_lazy('panel:time_block_list')
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs.update(is_owner=self.is_owner, employee=self.employee)
+        return kwargs
+
+    def form_valid(self, form):
+        response = super().form_valid(form)  # saves -> self.object
+        messages.success(
+            self.request,
+            f'Dodano blokadę: {self.object.date:%d.%m.%Y} {self.object.start_time:%H:%M}–{self.object.end_time:%H:%M}.',
+        )
+        return response
+
+
+class TimeBlockDeleteView(PanelAccessMixin, View):
+    """POST-only delete; someone else's block is a 404 for an employee."""
+
+    http_method_names = ['post']
+
+    def post(self, request, pk):
+        time_block = get_object_or_404(self.scope_to_employee(TimeBlock.objects), pk=pk)
+        time_block.delete()
+        messages.success(request, 'Blokada usunięta.')
+        return redirect('panel:time_block_list')

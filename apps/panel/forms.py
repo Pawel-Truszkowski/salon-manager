@@ -5,7 +5,7 @@ from django.utils import timezone
 
 from apps.bookings.models import Appointment
 from apps.bookings.utils import find_available_specialist, get_available_slots
-from apps.services.models import Employee
+from apps.services.models import Employee, TimeBlock
 
 FORCE_HELP = 'Pozwala zapisać wizytę poza grafikiem lub na zajęty termin. Używaj świadomie.'
 
@@ -154,3 +154,54 @@ class RescheduleForm(SlotFieldsMixin, forms.Form):
         cleaned['employee'] = employee
         cleaned['date_time'] = date_time
         return cleaned
+
+
+class TimeBlockForm(forms.ModelForm):
+    """Blocked period (holiday, break, doctor's visit). Owners pick the employee; employees always block their own time."""
+
+    class Meta:
+        model = TimeBlock
+        fields = ['employee', 'date', 'start_time', 'end_time', 'reason']
+        labels = {
+            'employee': 'Specjalistka',
+            'date': 'Data',
+            'start_time': 'Od',
+            'end_time': 'Do',
+            'reason': 'Powód',
+        }
+        help_texts = {'reason': 'Np. urlop, przerwa, lekarz — widoczne tylko w panelu.'}
+        widgets = {
+            'date': forms.DateInput(attrs={'type': 'date'}, format='%Y-%m-%d'),
+            'start_time': forms.TimeInput(attrs={'type': 'time', 'step': 900}, format='%H:%M'),
+            'end_time': forms.TimeInput(attrs={'type': 'time', 'step': 900}, format='%H:%M'),
+        }
+
+    def __init__(self, *args, is_owner, employee=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.is_owner = is_owner
+        self.current_employee = employee
+        if not is_owner:
+            del self.fields['employee']
+        add_bootstrap_classes(self)
+
+    def clean(self):
+        cleaned = super().clean()
+        date, start_time, end_time = cleaned.get('date'), cleaned.get('start_time'), cleaned.get('end_time')
+        # Any of these may be missing if its own field validation already failed
+        if start_time and end_time and start_time >= end_time:
+            self.add_error('end_time', 'Godzina zakończenia musi być późniejsza niż rozpoczęcia.')
+        if date:
+            today = timezone.localdate()
+            if date < today:
+                self.add_error('date', 'Nie można zablokować dnia z przeszłości.')
+            elif date == today and start_time and start_time < timezone.localtime().time():
+                self.add_error('start_time', 'Ta godzina już minęła.')
+        return cleaned
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        if not self.is_owner:
+            instance.employee = self.current_employee
+        if commit:
+            instance.save()
+        return instance

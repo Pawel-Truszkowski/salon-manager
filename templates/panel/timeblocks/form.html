@@ -1,0 +1,29 @@
+{% extends 'panel/base.html' %}
+
+{% block title %}Nowa blokada{% endblock %}
+
+{% block content %}
+<a href="{% url 'panel:time_block_list' %}" class="small"><i class="bi bi-arrow-left"></i> Wszystkie blokady</a>
+<h1 class="panel-title mt-2 mb-4">Nowa blokada</h1>
+
+<form method="post" class="card panel-card" style="max-width: 720px" novalidate>
+  {% csrf_token %}
+  <div class="card-body">
+    {% if form.non_field_errors %}
+      <div class="alert alert-danger">{% for error in form.non_field_errors %}{{ error }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</div>
+    {% endif %}
+
+    {% if form.employee %}{% include 'panel/_field.html' with field=form.employee %}{% endif %}
+    {% include 'panel/_field.html' with field=form.date %}
+    <div class="row">
+      <div class="col-sm-6">{% include 'panel/_field.html' with field=form.start_time %}</div>
+      <div class="col-sm-6">{% include 'panel/_field.html' with field=form.end_time %}</div>
+    </div>
+    {% include 'panel/_field.html' with field=form.reason %}
+  </div>
+  <div class="card-footer bg-transparent d-flex gap-2">
+    <button type="submit" class="btn panel-btn-primary">Zapisz blokadę</button>
+    <a href="{% url 'panel:time_block_list' %}" class="btn btn-outline-secondary">Anuluj</a>
+  </div>
+</form>
+{% endblock %}

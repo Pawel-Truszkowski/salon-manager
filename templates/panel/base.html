@@ -34,6 +34,11 @@
               <i class="bi bi-calendar-check"></i> Wizyty
             </a>
           </li>
+          <li class="nav-item">
+            <a class="nav-link {% if 'time_block' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'panel:time_block_list' %}">
+              <i class="bi bi-slash-circle"></i> Blokady
+            </a>
+          </li>
         </ul>
         <div class="d-flex align-items-center gap-3">
           <span class="panel-user small">
