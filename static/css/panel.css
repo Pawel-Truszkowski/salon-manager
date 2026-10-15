@@ -113,3 +113,29 @@ a {
   border-color: var(--rb-gold);
   color: #fff;
 }
+
+/* --- Calendar (FullCalendar) --- */
+#calendar {
+  --fc-button-bg-color: var(--rb-gold);
+  --fc-button-border-color: var(--rb-gold);
+  --fc-button-hover-bg-color: var(--rb-gold-dk);
+  --fc-button-hover-border-color: var(--rb-gold-dk);
+  --fc-button-active-bg-color: var(--rb-gold-dk);
+  --fc-button-active-border-color: var(--rb-gold-dk);
+  --fc-today-bg-color: rgba(184, 147, 90, 0.08);
+  --fc-bg-event-opacity: 0.45;
+  font-size: 0.875rem;
+}
+
+#calendar .fc-toolbar-title {
+  font-family: var(--ff-display);
+  font-size: 1.25rem;
+}
+
+.calendar-legend {
+  display: inline-block;
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 2px;
+  vertical-align: middle;
+}

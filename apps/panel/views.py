@@ -119,9 +119,14 @@ class AppointmentCreateView(PanelAccessMixin, CreateView):
         return kwargs
 
     def get_initial(self):
+        # Prefill from the calendar's "click an empty slot"; the form still validates everything
         initial = super().get_initial()
-        if date := self.request.GET.get('date'):
-            initial['date'] = date
+        params = self.request.GET
+        for name in ('date', 'time'):
+            if value := params.get(name):
+                initial[name] = value
+        if params.get('employee', '').isdigit():
+            initial['employee'] = params['employee']  # ignored for employees: their form has no such field
         return initial
 
     def form_valid(self, form):
@@ -470,3 +475,16 @@ class CalendarEventsView(PanelAccessMixin, View):
         """ISO string from FullCalendar -> aware datetime (a bare date like `2026-10-12` is local midnight)."""
         parsed = datetime.datetime.fromisoformat(value)
         return timezone.make_aware(parsed) if timezone.is_naive(parsed) else parsed
+
+
+class CalendarView(PanelAccessMixin, TemplateView):
+    """FullCalendar page; events come from `CalendarEventsView`. Owners pick one employee or see everyone."""
+
+    template_name = 'panel/calendar.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        employee_id = self.request.GET.get('employee', '')
+        context['selected_employee'] = employee_id if self.is_owner and employee_id.isdigit() else ''
+        context['employees'] = Employee.objects.order_by('first_name') if self.is_owner else []
+        return context

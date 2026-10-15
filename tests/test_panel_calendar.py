@@ -151,3 +151,43 @@ class TestCalendarBackground:
     def test_owner_gets_background_only_for_one_employee(self, owner_client, employee, tomorrow_setup):
         assert self.background(owner_client.get(EVENTS_URL, week_params()).json()) == []
         assert len(self.background(owner_client.get(EVENTS_URL, week_params(employee=employee.pk)).json())) == 2
+
+
+@pytest.mark.django_db
+class TestCalendarPage:
+    url = reverse('panel:calendar')
+
+    def test_employee_page_has_no_employee_picker(self, employee_client):
+        response = employee_client.get(self.url)
+
+        assert response.status_code == 200
+        content = response.content.decode()
+        assert f'data-events-url="{EVENTS_URL}"' in content
+        assert 'calendar-employee' not in content
+
+    def test_owner_selected_employee_is_passed_to_the_feed(self, owner_client, employee):
+        response = owner_client.get(self.url, {'employee': employee.pk})
+
+        assert f'data-employee="{employee.pk}"' in response.content.decode()
+
+    def test_garbage_employee_param_is_ignored(self, owner_client):
+        response = owner_client.get(self.url, {'employee': '1; DROP'})
+
+        assert 'data-employee=""' in response.content.decode()
+
+
+@pytest.mark.django_db
+class TestCreatePrefillFromCalendar:
+    url = reverse('panel:appointment_create')
+
+    def test_date_time_and_employee_are_prefilled(self, owner_client, employee):
+        response = owner_client.get(self.url, {'date': '2026-10-12', 'time': '10:15', 'employee': employee.pk})
+
+        initial = response.context['form'].initial
+        assert (initial['date'], initial['time'], initial['employee']) == ('2026-10-12', '10:15', str(employee.pk))
+
+    def test_employee_form_ignores_employee_param(self, employee_client, other_employee):
+        response = employee_client.get(self.url, {'date': '2026-10-12', 'employee': other_employee.pk})
+
+        assert response.status_code == 200
+        assert 'employee' not in response.context['form'].fields
