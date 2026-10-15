@@ -266,3 +266,30 @@ WeeklyScheduleFormSet = forms.inlineformset_factory(
     extra=1,
     can_delete=True,
 )
+
+
+class GenerateScheduleForm(forms.Form):
+    """Date range for `generate_schedules()`."""
+
+    MAX_DAYS = 183  # ~6 months: the template may change, so don't materialize too far ahead
+
+    date_from = forms.DateField(label='Od', widget=forms.DateInput(attrs={'type': 'date'}, format='%Y-%m-%d'))
+    date_to = forms.DateField(label='Do', widget=forms.DateInput(attrs={'type': 'date'}, format='%Y-%m-%d'))
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        add_bootstrap_classes(self)
+
+    def clean(self):
+        cleaned = super().clean()
+        date_from, date_to = cleaned.get('date_from'), cleaned.get('date_to')
+        if date_from is None or date_to is None:
+            return cleaned  # field errors already reported
+
+        if date_from < timezone.localdate():
+            self.add_error('date_from', 'Nie można generować grafiku w przeszłości.')
+        if date_from > date_to:
+            self.add_error('date_to', 'Data końcowa nie może być wcześniejsza niż początkowa.')
+        elif (date_to - date_from).days + 1 > self.MAX_DAYS:  # both ends inclusive
+            self.add_error('date_to', f'Grafik można wygenerować najwyżej na {self.MAX_DAYS} dni naraz.')
+        return cleaned

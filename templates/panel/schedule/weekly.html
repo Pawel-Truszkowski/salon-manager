@@ -4,7 +4,8 @@
 {% block title %}Szablon tygodnia{% endblock %}
 
 {% block content %}
-<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+<a href="{% url 'panel:schedule' %}?employee={{ target_employee.pk }}" class="small"><i class="bi bi-arrow-left"></i> Grafik</a>
+<div class="mt-2 d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
   <h1 class="panel-title mb-0">Szablon tygodnia — {{ target_employee }}</h1>
   {% if is_owner %}
     <div class="dropdown">

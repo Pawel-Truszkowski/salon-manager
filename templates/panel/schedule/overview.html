@@ -1,0 +1,97 @@
+{% extends 'panel/base.html' %}
+
+{% block title %}Grafik{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+  <h1 class="panel-title mb-0">Grafik{% if target_employee %} — {{ target_employee }}{% endif %}</h1>
+  {% if is_owner and employees %}
+    <form method="get" class="d-flex gap-2 align-items-center">
+      <label class="visually-hidden" for="schedule-employee">Specjalistka</label>
+      <select id="schedule-employee" name="employee" class="form-select form-select-sm" onchange="this.form.submit()">
+        {% for employee in employees %}
+          <option value="{{ employee.pk }}" {% if employee == target_employee %}selected{% endif %}>{{ employee }}</option>
+        {% endfor %}
+      </select>
+      <noscript><button type="submit" class="btn btn-sm btn-outline-secondary">Pokaż</button></noscript>
+    </form>
+  {% endif %}
+</div>
+
+{% if not target_employee %}
+  <div class="card panel-card"><div class="card-body text-muted">Brak specjalistek w systemie.</div></div>
+{% else %}
+<div class="row g-3">
+  <div class="col-lg-5">
+    <div class="card panel-card mb-3">
+      <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+        <h2 class="h6 mb-0">Szablon tygodnia</h2>
+        <a href="{% url 'panel:weekly_schedule' target_employee.pk %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i> Edytuj</a>
+      </div>
+      <ul class="list-group list-group-flush">
+        {% for label, entries in template_days %}
+          <li class="list-group-item d-flex justify-content-between">
+            <span>{{ label|capfirst }}</span>
+            <span class="{% if not entries %}text-muted{% endif %}">
+              {% for entry in entries %}{{ entry.start_time|time:"H:i" }}–{{ entry.end_time|time:"H:i" }}{% if not forloop.last %}, {% endif %}{% empty %}wolne{% endfor %}
+            </span>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="card panel-card">
+      <div class="card-header bg-transparent"><h2 class="h6 mb-0">Wygeneruj grafik z szablonu</h2></div>
+      {% if has_template %}
+        <form method="post" action="{% url 'panel:schedule_generate' target_employee.pk %}" novalidate>
+          {% csrf_token %}
+          <div class="card-body">
+            <div class="row">
+              <div class="col-sm-6">{% include 'panel/_field.html' with field=generate_form.date_from %}</div>
+              <div class="col-sm-6">{% include 'panel/_field.html' with field=generate_form.date_to %}</div>
+            </div>
+            <p class="small text-muted mb-0">Dni, które mają już grafik, zostaną pominięte — ręczne zmiany nie zostaną nadpisane.</p>
+          </div>
+          <div class="card-footer bg-transparent">
+            <button type="submit" class="btn panel-btn-primary"><i class="bi bi-magic"></i> Wygeneruj</button>
+          </div>
+        </form>
+      {% else %}
+        <div class="card-body text-muted small">Najpierw uzupełnij szablon tygodnia.</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="col-lg-7">
+    <div class="card panel-card">
+      <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+        <h2 class="h6 mb-0">Najbliższe 4 tygodnie</h2>
+        <a href="{% url 'panel:time_block_create' %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-slash-circle"></i> Dodaj blokadę</a>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-sm align-middle mb-0">
+          <thead>
+            <tr><th>Dzień</th><th>Praca</th><th>Blokady</th></tr>
+          </thead>
+          <tbody>
+            {% for day in days %}
+              <tr class="{% if day.date.weekday == 0 and not forloop.first %}border-top border-2{% endif %}">
+                <td class="text-nowrap">{{ day.date|date:"D d.m" }}</td>
+                <td>
+                  {% for schedule in day.schedules %}{{ schedule.start_time|time:"H:i" }}–{{ schedule.end_time|time:"H:i" }}{% if not forloop.last %}, {% endif %}{% empty %}<span class="text-muted">—</span>{% endfor %}
+                </td>
+                <td>
+                  {% for block in day.blocks %}
+                    <span class="badge text-bg-danger fw-normal" title="{{ block.reason }}">{{ block.start_time|time:"H:i" }}–{{ block.end_time|time:"H:i" }}</span>
+                  {% endfor %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,11 +1,12 @@
 import contextlib
 import datetime
+from collections import defaultdict
 
 from django.contrib import messages
 from django.db.models import Q
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views import View
@@ -14,9 +15,16 @@ from django.views.generic import CreateView, DetailView, FormView, ListView, Tem
 from apps.bookings.emails import send_confirmation_email
 from apps.bookings.models import Appointment
 from apps.bookings.utils import get_available_slots
-from apps.services.models import Employee, Service, TimeBlock
+from apps.services.models import Employee, Service, TimeBlock, WeeklyScheduleEntry
+from apps.services.scheduling import generate_schedules
 
-from .forms import AppointmentCreateForm, RescheduleForm, TimeBlockForm, WeeklyScheduleFormSet
+from .forms import (
+    AppointmentCreateForm,
+    GenerateScheduleForm,
+    RescheduleForm,
+    TimeBlockForm,
+    WeeklyScheduleFormSet,
+)
 from .mixins import PanelAccessMixin
 
 
@@ -262,23 +270,33 @@ class TimeBlockDeleteView(PanelAccessMixin, View):
         return redirect('panel:time_block_list')
 
 
-class WeeklyScheduleEditView(PanelAccessMixin, TemplateView):
-    """Edit one employee's weekly template (several blocks per day allowed). Employees can open only their own."""
+class TargetEmployeeMixin(PanelAccessMixin):
+    """Pages about one employee's schedule: owners may open anyone's, employees only their own (others = 404)."""
+
+    def get_target_employee(self, pk):
+        # scope_to_employee() filters rows that *belong to* an employee; here the row *is* the employee
+        employees = Employee.objects.all() if self.is_owner else Employee.objects.filter(pk=self.employee.pk)
+        return get_object_or_404(employees, pk=pk)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['target_employee'] = self.target
+        context['employees'] = Employee.objects.order_by('first_name') if self.is_owner else []
+        return context
+
+
+class WeeklyScheduleEditView(TargetEmployeeMixin, TemplateView):
+    """Edit one employee's weekly template (several blocks per day allowed)."""
 
     template_name = 'panel/schedule/weekly.html'
 
-    def get_target_employee(self):
-        # scope_to_employee() filters rows that *belong to* an employee; here the row *is* the employee
-        employees = Employee.objects.all() if self.is_owner else Employee.objects.filter(pk=self.employee.pk)
-        return get_object_or_404(employees, pk=self.kwargs['employee_pk'])
-
     def get(self, request, *args, **kwargs):
-        self.target = self.get_target_employee()
+        self.target = self.get_target_employee(self.kwargs['employee_pk'])
         formset = WeeklyScheduleFormSet(instance=self.target)
         return self.render_to_response(self.get_context_data(formset=formset))
 
     def post(self, request, *args, **kwargs):
-        self.target = self.get_target_employee()
+        self.target = self.get_target_employee(self.kwargs['employee_pk'])
         formset = WeeklyScheduleFormSet(request.POST, instance=self.target)
         if formset.is_valid():
             formset.save()
@@ -286,8 +304,75 @@ class WeeklyScheduleEditView(PanelAccessMixin, TemplateView):
             return redirect('panel:weekly_schedule', employee_pk=self.target.pk)
         return self.render_to_response(self.get_context_data(formset=formset))
 
+
+def schedule_url(employee):
+    return f"{reverse('panel:schedule')}?employee={employee.pk}"
+
+
+class ScheduleView(TargetEmployeeMixin, TemplateView):
+    """Weekly template summary, the next weeks day by day (working hours + blocks) and the generate form."""
+
+    template_name = 'panel/schedule/overview.html'
+    days_ahead = 28
+
+    def get(self, request, *args, **kwargs):
+        employee_pk = request.GET.get('employee', '')
+        if employee_pk.isdigit():
+            self.target = self.get_target_employee(employee_pk)
+        else:
+            # Own schedule first (also for an owner who works as a specialist), otherwise the first one
+            self.target = self.employee or Employee.objects.order_by('first_name').first()
+        return super().get(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['target_employee'] = self.target
-        context['employees'] = Employee.objects.order_by('first_name') if self.is_owner else []
+        if self.target is None:  # owner, no employees yet
+            return context
+
+        today = timezone.localdate()
+        last_day = today + datetime.timedelta(days=self.days_ahead - 1)
+        schedules, blocks = defaultdict(list), defaultdict(list)
+        for schedule in self.target.schedules.filter(date__range=(today, last_day)).order_by('start_time'):
+            schedules[schedule.date].append(schedule)
+        for block in self.target.time_blocks.filter(date__range=(today, last_day)):
+            blocks[block.date].append(block)
+        context['days'] = [
+            {'date': day, 'schedules': schedules[day], 'blocks': blocks[day]}
+            for day in (today + datetime.timedelta(days=offset) for offset in range(self.days_ahead))
+        ]
+
+        entries = defaultdict(list)
+        for entry in self.target.weekly_schedule.all():
+            entries[entry.weekday].append(entry)
+        context['template_days'] = [
+            (label, entries.get(value, [])) for value, label in WeeklyScheduleEntry.WeekDay.choices
+        ]
+        context['has_template'] = bool(entries)
+        context['generate_form'] = GenerateScheduleForm(initial={'date_from': today, 'date_to': last_day})
         return context
+
+
+class ScheduleGenerateView(TargetEmployeeMixin, View):
+    """POST-only: materialize `Schedule` rows from the employee's weekly template."""
+
+    http_method_names = ['post']
+
+    def post(self, request, employee_pk):
+        employee = self.get_target_employee(employee_pk)
+        form = GenerateScheduleForm(request.POST)
+        if not form.is_valid():
+            for errors in form.errors.values():
+                for error in errors:
+                    messages.error(request, error)
+            return redirect(schedule_url(employee))
+
+        date_from, date_to = form.cleaned_data['date_from'], form.cleaned_data['date_to']
+        created = generate_schedules(employee, date_from, date_to)
+        period = f'{date_from:%d.%m.%Y}–{date_to:%d.%m.%Y}'
+        if created:
+            messages.success(request, f'Wygenerowano grafik ({period}): {created} bloków pracy.')
+        else:
+            messages.info(
+                request, f'Nic nie dodano ({period}) — te dni mają już grafik albo szablon nie ma w nich godzin pracy.'
+            )
+        return redirect(schedule_url(employee))

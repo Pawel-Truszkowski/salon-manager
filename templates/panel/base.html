@@ -35,6 +35,11 @@
             </a>
           </li>
           <li class="nav-item">
+            <a class="nav-link {% if 'schedule' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'panel:schedule' %}">
+              <i class="bi bi-calendar-week"></i> Grafik
+            </a>
+          </li>
+          <li class="nav-item">
             <a class="nav-link {% if 'time_block' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'panel:time_block_list' %}">
               <i class="bi bi-slash-circle"></i> Blokady
             </a>
