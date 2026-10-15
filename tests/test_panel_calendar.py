@@ -50,6 +50,8 @@ class TestCalendarEvents:
             'end': (begins + datetime.timedelta(minutes=service.duration)).isoformat(),
             'url': reverse('panel:appointment_detail', args=[appointment.pk]),
             'color': '#b07d62',
+            'startEditable': True,
+            'extendedProps': {'moveUrl': reverse('panel:calendar_move', args=[appointment.pk])},
         }
 
     def test_only_appointments_inside_the_range(self, employee_client, employee, service):
@@ -191,3 +193,93 @@ class TestCreatePrefillFromCalendar:
 
         assert response.status_code == 200
         assert 'employee' not in response.context['form'].fields
+
+
+def move_url(appointment):
+    return reverse('panel:calendar_move', args=[appointment.pk])
+
+
+def local_dt(date, hour, minute=0):
+    return timezone.make_aware(datetime.datetime.combine(date, datetime.time(hour, minute)))
+
+
+@pytest.mark.django_db
+class TestCalendarMove:
+    @pytest.fixture
+    def appointment(self, employee, service, mailoutbox):
+        Schedule.objects.create(
+            employee=employee, date=in_days(1), start_time=datetime.time(9), end_time=datetime.time(17)
+        )
+        appointment = make_appointment(employee, service, in_days(1), 10)
+        mailoutbox.clear()  # creation e-mails are not what these tests check
+        return appointment
+
+    def move(self, client, appointment, hour, minute=0, date=None):
+        data = {'date': (date or in_days(1)).isoformat(), 'time': f'{hour:02}:{minute:02}'}
+        return client.post(move_url(appointment), data)
+
+    def test_moves_to_a_free_slot_and_tells_the_client(self, employee_client, employee_user, appointment, mailoutbox):
+        response = self.move(employee_client, appointment, 11, 15)
+
+        assert response.status_code == 200
+        assert 'Przeniesiono' in response.json()['message']
+        appointment.refresh_from_db()
+        assert appointment.date_time == local_dt(in_days(1), 11, 15)
+        assert appointment.updated_by == employee_user
+        assert len(mailoutbox) == 1
+
+    def test_slot_outside_working_hours_is_rejected(self, employee_client, appointment, mailoutbox):
+        response = self.move(employee_client, appointment, 18)
+
+        assert response.status_code == 400
+        assert 'niedostępny' in response.json()['error']
+        appointment.refresh_from_db()
+        assert appointment.date_time == local_dt(in_days(1), 10)
+        assert mailoutbox == []
+
+    def test_past_time_is_rejected(self, employee_client, appointment):
+        response = self.move(employee_client, appointment, 10, date=in_days(-1))
+
+        assert response.status_code == 400
+        assert 'przeszłości' in response.json()['error']
+
+    def test_owner_cannot_bypass_availability_by_dragging(self, owner_client, appointment):
+        # `force` exists only on the "Przenieś" page; a stray POST field must not switch it on here
+        response = owner_client.post(
+            move_url(appointment), {'date': in_days(1).isoformat(), 'time': '18:00', 'force': 'on'}
+        )
+
+        assert response.status_code == 400
+
+    def test_owner_keeps_the_same_employee(self, owner_client, appointment, employee):
+        assert self.move(owner_client, appointment, 12).status_code == 200
+        appointment.refresh_from_db()
+        assert appointment.employee == employee
+
+    def test_cancelled_appointment_cannot_be_moved(self, employee_client, appointment):
+        appointment.status = Appointment.Status.CANCELLED
+        appointment.save()
+
+        response = self.move(employee_client, appointment, 11)
+
+        assert response.status_code == 400
+        assert 'nie można' in response.json()['error']
+
+    def test_employee_cannot_move_someone_elses(self, employee_client, other_employee, service):
+        theirs = make_appointment(other_employee, service, in_days(1), 10)
+
+        assert self.move(employee_client, theirs, 11).status_code == 404
+
+    def test_get_is_not_allowed(self, employee_client, appointment):
+        assert employee_client.get(move_url(appointment)).status_code == 405
+
+    def test_events_say_which_appointments_can_be_dragged(self, employee_client, employee, service, appointment):
+        done = make_appointment(employee, service, in_days(1), 14, status=Appointment.Status.COMPLETED)
+
+        events = {
+            event['id']: event for event in employee_client.get(EVENTS_URL, week_params()).json() if 'id' in event
+        }
+
+        assert events[appointment.pk]['startEditable'] is True
+        assert events[appointment.pk]['extendedProps']['moveUrl'] == move_url(appointment)
+        assert events[done.pk]['startEditable'] is False

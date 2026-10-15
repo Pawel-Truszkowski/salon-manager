@@ -468,6 +468,9 @@ class CalendarEventsView(PanelAccessMixin, View):
             'end': (begins + datetime.timedelta(minutes=appointment.service.duration)).isoformat(),
             'url': reverse('panel:appointment_detail', args=[appointment.pk]),
             'color': self.STATUS_COLORS.get(appointment.status, '#6c757d'),
+            # Drag & drop only where the "Przenieś" page would allow it; the server re-checks anyway
+            'startEditable': appointment.can_be_rescheduled and appointment.date_time > timezone.now(),
+            'extendedProps': {'moveUrl': reverse('panel:calendar_move', args=[appointment.pk])},
         }
 
     @staticmethod
@@ -475,6 +478,32 @@ class CalendarEventsView(PanelAccessMixin, View):
         """ISO string from FullCalendar -> aware datetime (a bare date like `2026-10-12` is local midnight)."""
         parsed = datetime.datetime.fromisoformat(value)
         return timezone.make_aware(parsed) if timezone.is_naive(parsed) else parsed
+
+
+class CalendarMoveView(AppointmentScopeMixin, View):
+    """Drag & drop in the calendar: `POST date=YYYY-MM-DD&time=HH:MM` -> JSON.
+
+    Same rules as the "Przenieś" page via `RescheduleForm`, but never `force` and never a different employee
+    (the free FullCalendar has no per-employee columns to drop onto). 400 + `{"error"}` -> the JS reverts the drop.
+    """
+
+    http_method_names = ['post']
+
+    def post(self, request, pk):
+        appointment = self.get_appointment()
+        if not appointment.can_be_rescheduled:
+            return JsonResponse({'error': 'Tej wizyty nie można już przenieść.'}, status=400)
+
+        data = {'date': request.POST.get('date'), 'time': request.POST.get('time'), 'employee': appointment.employee_id}
+        form = RescheduleForm(data=data, appointment=appointment, is_owner=self.is_owner)
+        if not form.is_valid():
+            errors = [error for field_errors in form.errors.values() for error in field_errors]
+            return JsonResponse({'error': ' '.join(errors)}, status=400)
+
+        appointment.updated_by = request.user
+        appointment.reschedule(form.cleaned_data['date_time'])
+        moved_to = timezone.localtime(appointment.date_time)
+        return JsonResponse({'message': f'Przeniesiono wizytę na {moved_to:%d.%m.%Y %H:%M}.'})
 
 
 class CalendarView(PanelAccessMixin, TemplateView):

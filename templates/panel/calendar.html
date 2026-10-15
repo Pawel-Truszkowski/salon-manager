@@ -37,6 +37,7 @@
     <div id="calendar"
          data-events-url="{% url 'panel:calendar_events' %}"
          data-create-url="{% url 'panel:appointment_create' %}"
+         data-csrf-token="{{ csrf_token }}"
          data-employee="{% if is_owner %}{{ selected_employee }}{% endif %}"></div>
   </div>
 </div>

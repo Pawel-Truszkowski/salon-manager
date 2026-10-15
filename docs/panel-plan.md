@@ -43,12 +43,12 @@ Własny panel do zarządzania salonem dla właściciela i specjalistek, zbudowan
 - `updated_by` / `updated_at` na `Schedule` / `TimeBlock`.
 - Do rozważenia później: edycja pojedynczych dni grafiku (wyjątki) w panelu — dziś tylko przez `/admin/`.
 
-### 4. Kalendarz (FullCalendar)
+### 4. Kalendarz (FullCalendar) ✅
 - Darmowy FullCalendar (MIT) z CDN — **bez** płatnych widoków z kolumnami per osoba (`resourceTimeGrid` jest w licencji Premium, a salon to użytek komercyjny).
-- Widok tygodnia/dnia (na telefonie lista). Właściciel wybiera specjalistkę albo „wszystkie” (kolor per specjalistka); specjalistka widzi tylko siebie. Grafik i blokady jako tło — tylko przy jednej wybranej osobie.
+- Widok tygodnia/dnia (na telefonie lista). Właściciel wybiera specjalistkę albo „wszystkie” (kolor = status wizyty, imię specjalistki w tytule); specjalistka widzi tylko siebie. Grafik i blokady jako tło — tylko przy jednej wybranej osobie.
 - Endpoint JSON `/panel/calendar/events/` z wizytami, grafikiem i blokadami w zakresie dat (przez `scope_to_employee()`).
 - Kliknięcie wizyty → szczegóły; kliknięcie wolnego miejsca → nowa wizyta z wypełnioną datą/godziną/specjalistką.
-- Przeciągnięcie wizyty = zmiana terminu przez tę samą walidację co w etapie 2 (`RescheduleForm` / `get_available_slots`); rozciąganie wyłączone (czas trwania wynika z usługi).
+- Przeciągnięcie wizyty = zmiana terminu przez tę samą walidację co w etapie 2 (`RescheduleForm` / `get_available_slots`) w `POST /panel/calendar/appointments/<pk>/move/` — bez `force` i bez zmiany specjalistki; przed wysłaniem potwierdzenie (klientka dostaje mail), przy błędzie wizyta wraca na miejsce. Rozciąganie wyłączone (czas trwania wynika z usługi).
 
 ### 5. Statystyki (tylko właściciel)
 - Liczba wizyt, przychód (`Service.price` zrealizowanych wizyt), obłożenie specjalistek, odsetek anulacji — w wybranym okresie.
