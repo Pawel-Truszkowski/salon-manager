@@ -1,11 +1,13 @@
 import datetime
+import itertools
+from collections import defaultdict
 
 from django import forms
 from django.utils import timezone
 
 from apps.bookings.models import Appointment
 from apps.bookings.utils import find_available_specialist, get_available_slots
-from apps.services.models import Employee, TimeBlock
+from apps.services.models import Employee, TimeBlock, WeeklyScheduleEntry
 
 FORCE_HELP = 'Pozwala zapisać wizytę poza grafikiem lub na zajęty termin. Używaj świadomie.'
 
@@ -205,3 +207,62 @@ class TimeBlockForm(forms.ModelForm):
         if commit:
             instance.save()
         return instance
+
+
+class WeeklyScheduleEntryForm(forms.ModelForm):
+    """One row of the weekly template editor; start < end is checked by `WeeklyScheduleEntry.clean()`."""
+
+    class Meta:
+        model = WeeklyScheduleEntry
+        fields = ['weekday', 'start_time', 'end_time']
+        labels = {'weekday': 'Dzień', 'start_time': 'Od', 'end_time': 'Do'}
+        widgets = {
+            'start_time': forms.TimeInput(attrs={'type': 'time', 'step': 900}, format='%H:%M'),
+            'end_time': forms.TimeInput(attrs={'type': 'time', 'step': 900}, format='%H:%M'),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        add_bootstrap_classes(self)
+
+
+class BaseWeeklyScheduleFormSet(forms.BaseInlineFormSet):
+    def add_fields(self, form, index):
+        super().add_fields(form, index)
+        # DELETE is added by the formset after the form's __init__, so style it here
+        if 'DELETE' in form.fields:
+            form.fields['DELETE'].label = 'Usuń'
+            form.fields['DELETE'].widget.attrs['class'] = 'form-check-input'
+
+    def clean(self):
+        super().clean()
+        blocks_by_day = defaultdict(list)
+        for form in self.forms:
+            # Invalid rows already show their own errors (and may lack fields); empty extra rows and deleted ones don't count
+            if not form.is_valid() or not form.has_changed() or form in self.deleted_forms:
+                continue
+            data = form.cleaned_data
+            blocks_by_day[data['weekday']].append((data['start_time'], data['end_time']))
+
+        # Touching blocks (9-13 + 13-17) are fine; only a real overlap is an error
+        errors = []
+        for weekday, blocks in sorted(blocks_by_day.items()):
+            blocks.sort()
+            for (prev_start, prev_end), (next_start, next_end) in itertools.pairwise(blocks):
+                if prev_end > next_start:
+                    errors.append(
+                        f'Bloki w dniu {WeeklyScheduleEntry.WeekDay(weekday).label} nachodzą na siebie: '
+                        f'{prev_start:%H:%M}–{prev_end:%H:%M} i {next_start:%H:%M}–{next_end:%H:%M}.'
+                    )
+        if errors:
+            raise forms.ValidationError(errors)
+
+
+WeeklyScheduleFormSet = forms.inlineformset_factory(
+    Employee,
+    WeeklyScheduleEntry,
+    form=WeeklyScheduleEntryForm,
+    formset=BaseWeeklyScheduleFormSet,
+    extra=1,
+    can_delete=True,
+)

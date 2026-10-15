@@ -1,0 +1,66 @@
+{% extends 'panel/base.html' %}
+{% load static %}
+
+{% block title %}Szablon tygodnia{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+  <h1 class="panel-title mb-0">Szablon tygodnia — {{ target_employee }}</h1>
+  {% if is_owner %}
+    <div class="dropdown">
+      <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="bi bi-person"></i> Zmień specjalistkę
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end">
+        {% for employee in employees %}
+          <li><a class="dropdown-item {% if employee == target_employee %}active{% endif %}" href="{% url 'panel:weekly_schedule' employee.pk %}">{{ employee }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+</div>
+<p class="text-muted small">
+  Stałe godziny pracy w tygodniu. Kilka bloków w jednym dniu = przerwa między nimi.
+  Zmiana szablonu <strong>nie zmienia</strong> już wygenerowanego grafiku — działa przy kolejnym generowaniu.
+</p>
+
+<form method="post" class="card panel-card" style="max-width: 720px" novalidate>
+  {% csrf_token %}
+  {{ formset.management_form }}
+  <div class="card-body">
+    {% if formset.non_form_errors %}
+      <div class="alert alert-danger">{% for error in formset.non_form_errors %}{{ error }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</div>
+    {% endif %}
+    <div class="table-responsive">
+      <table class="table align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Dzień</th>
+            <th>Od</th>
+            <th>Do</th>
+            <th class="text-center">Usuń</th>
+          </tr>
+        </thead>
+        <tbody data-formset-body>
+          {% for form in formset %}
+            {% include 'panel/schedule/_weekly_row.html' %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <template data-formset-empty>
+      {% include 'panel/schedule/_weekly_row.html' with form=formset.empty_form %}
+    </template>
+    <button type="button" class="btn btn-sm btn-outline-primary mt-3" data-formset-add>
+      <i class="bi bi-plus-lg"></i> Dodaj blok
+    </button>
+  </div>
+  <div class="card-footer bg-transparent d-flex gap-2">
+    <button type="submit" class="btn panel-btn-primary">Zapisz szablon</button>
+  </div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/panel-formset.js' %}"></script>
+{% endblock %}

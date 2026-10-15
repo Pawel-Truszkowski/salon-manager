@@ -1,0 +1,24 @@
+{% comment %}One formset row of the weekly template editor (also used for the empty "new row" template).{% endcomment %}
+<tr data-formset-row>
+  <td>
+    {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
+    {{ form.weekday }}
+    {% for error in form.weekday.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+  </td>
+  <td>
+    {{ form.start_time }}
+    {% for error in form.start_time.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+  </td>
+  <td>
+    {{ form.end_time }}
+    {% for error in form.end_time.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+  </td>
+  <td class="text-center">
+    {% if form.DELETE %}
+      <div class="form-check d-inline-block">{{ form.DELETE }}<label class="visually-hidden" for="{{ form.DELETE.id_for_label }}">Usuń</label></div>
+    {% endif %}
+  </td>
+</tr>
+{% if form.non_field_errors %}
+  <tr><td colspan="4" class="text-danger small border-0 pt-0">{% for error in form.non_field_errors %}{{ error }} {% endfor %}</td></tr>
+{% endif %}

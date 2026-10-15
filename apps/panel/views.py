@@ -16,7 +16,7 @@ from apps.bookings.models import Appointment
 from apps.bookings.utils import get_available_slots
 from apps.services.models import Employee, Service, TimeBlock
 
-from .forms import AppointmentCreateForm, RescheduleForm, TimeBlockForm
+from .forms import AppointmentCreateForm, RescheduleForm, TimeBlockForm, WeeklyScheduleFormSet
 from .mixins import PanelAccessMixin
 
 
@@ -260,3 +260,34 @@ class TimeBlockDeleteView(PanelAccessMixin, View):
         time_block.delete()
         messages.success(request, 'Blokada usunięta.')
         return redirect('panel:time_block_list')
+
+
+class WeeklyScheduleEditView(PanelAccessMixin, TemplateView):
+    """Edit one employee's weekly template (several blocks per day allowed). Employees can open only their own."""
+
+    template_name = 'panel/schedule/weekly.html'
+
+    def get_target_employee(self):
+        # scope_to_employee() filters rows that *belong to* an employee; here the row *is* the employee
+        employees = Employee.objects.all() if self.is_owner else Employee.objects.filter(pk=self.employee.pk)
+        return get_object_or_404(employees, pk=self.kwargs['employee_pk'])
+
+    def get(self, request, *args, **kwargs):
+        self.target = self.get_target_employee()
+        formset = WeeklyScheduleFormSet(instance=self.target)
+        return self.render_to_response(self.get_context_data(formset=formset))
+
+    def post(self, request, *args, **kwargs):
+        self.target = self.get_target_employee()
+        formset = WeeklyScheduleFormSet(request.POST, instance=self.target)
+        if formset.is_valid():
+            formset.save()
+            messages.success(request, f'Zapisano szablon tygodnia: {self.target}.')
+            return redirect('panel:weekly_schedule', employee_pk=self.target.pk)
+        return self.render_to_response(self.get_context_data(formset=formset))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['target_employee'] = self.target
+        context['employees'] = Employee.objects.order_by('first_name') if self.is_owner else []
+        return context
