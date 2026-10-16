@@ -10,7 +10,7 @@ from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views import View
-from django.views.generic import CreateView, DetailView, FormView, ListView, TemplateView
+from django.views.generic import CreateView, DetailView, FormView, ListView, TemplateView, UpdateView
 
 from apps.bookings.emails import send_confirmation_email
 from apps.bookings.models import Appointment
@@ -20,12 +20,13 @@ from apps.services.scheduling import generate_schedules
 
 from .forms import (
     AppointmentCreateForm,
+    EmployeeForm,
     GenerateScheduleForm,
     RescheduleForm,
     TimeBlockForm,
     WeeklyScheduleFormSet,
 )
-from .mixins import PanelAccessMixin
+from .mixins import OwnerRequiredMixin, PanelAccessMixin
 
 
 class DashboardView(PanelAccessMixin, TemplateView):
@@ -216,7 +217,8 @@ class SlotsView(PanelAccessMixin, View):
 
         if self.is_owner:
             employee_id = params.get('employee')
-            employees = service.employees.filter(pk=employee_id) if employee_id else service.employees.all()
+            employees = service.employees.active()
+            employees = employees.filter(pk=employee_id) if employee_id else employees
         else:
             employees = service.employees.filter(pk=self.employee.pk)
 
@@ -286,7 +288,7 @@ class TargetEmployeeMixin(PanelAccessMixin):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['target_employee'] = self.target
-        context['employees'] = Employee.objects.order_by('first_name') if self.is_owner else []
+        context['employees'] = Employee.objects.active().order_by('first_name') if self.is_owner else []
         return context
 
 
@@ -326,7 +328,7 @@ class ScheduleView(TargetEmployeeMixin, TemplateView):
             self.target = self.get_target_employee(employee_pk)
         else:
             # Own schedule first (also for an owner who works as a specialist), otherwise the first one
-            self.target = self.employee or Employee.objects.order_by('first_name').first()
+            self.target = self.employee or Employee.objects.active().order_by('first_name').first()
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -515,5 +517,83 @@ class CalendarView(PanelAccessMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         employee_id = self.request.GET.get('employee', '')
         context['selected_employee'] = employee_id if self.is_owner and employee_id.isdigit() else ''
-        context['employees'] = Employee.objects.order_by('first_name') if self.is_owner else []
+        context['employees'] = Employee.objects.active().order_by('first_name') if self.is_owner else []
         return context
+
+
+class EmployeeListView(OwnerRequiredMixin, ListView):
+    """The salon's specialists with their services and whether they can sign in to the panel."""
+
+    template_name = 'panel/employees/list.html'
+    context_object_name = 'employees'
+
+    def get_queryset(self):
+        return (
+            Employee.objects.select_related('user')
+            .prefetch_related('services')
+            .order_by('-is_active', 'first_name', 'last_name')  # active first, the former team below
+        )
+
+
+class EmployeeFormViewMixin(OwnerRequiredMixin):
+    """Shared by add/edit: same form, same template, back to the list with a message."""
+
+    template_name = 'panel/employees/form.html'
+    form_class = EmployeeForm
+    model = Employee
+    success_url = reverse_lazy('panel:employee_list')
+    success_message = ''
+
+    def form_valid(self, form):
+        response = super().form_valid(form)  # saves -> self.object (incl. the M2M services)
+        messages.success(self.request, self.success_message.format(employee=self.object))
+        return response
+
+
+class EmployeeCreateView(EmployeeFormViewMixin, CreateView):
+    success_message = 'Dodano specjalistkę: {employee}.'
+
+
+class EmployeeUpdateView(EmployeeFormViewMixin, UpdateView):
+    success_message = 'Zapisano zmiany: {employee}.'
+
+
+class EmployeeToggleActiveView(OwnerRequiredMixin, View):
+    """POST: deactivate an active employee (hidden from booking, no panel login, history kept) or reactivate."""
+
+    http_method_names = ['post']
+
+    def post(self, request, pk):
+        employee = get_object_or_404(Employee, pk=pk)
+
+        if not employee.is_active:
+            employee.is_active = True
+            employee.save(update_fields=['is_active'])
+            messages.success(request, f'{employee} jest znów aktywna — klienci mogą się do niej zapisywać.')
+            return redirect('panel:employee_list')
+
+        upcoming = Appointment.objects.filter(
+            employee=employee,
+            date_time__gte=timezone.now(),
+            status__in=[Appointment.Status.PENDING, Appointment.Status.CONFIRMED],
+        ).order_by('date_time')
+
+        next_appointment = upcoming.first()  # one query instead of exists() + first()
+        if next_appointment:
+            # From the DB the datetime is UTC; f-string formatting doesn't convert, so go local first
+            when = timezone.localtime(next_appointment.date_time)
+            messages.error(
+                request,
+                f'{employee} ma zaplanowane wizyty ({upcoming.count()}), najbliższa {when:%d.%m.%Y %H:%M}. '
+                'Odwołaj je lub przenieś na inną specjalistkę przed dezaktywacją.',
+            )
+            return redirect('panel:employee_list')
+
+        employee.is_active = False
+        employee.save(update_fields=['is_active'])
+        messages.success(
+            request,
+            f'{employee} jest teraz nieaktywna — zniknęła z rezerwacji i nie zaloguje się do panelu. '
+            'Historia wizyt zostaje.',
+        )
+        return redirect('panel:employee_list')

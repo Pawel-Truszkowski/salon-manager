@@ -28,7 +28,15 @@ class Service(models.Model):
         return self.name
 
 
+class EmployeeQuerySet(models.QuerySet):
+    def active(self):
+        return self.filter(is_active=True)
+
+
 class Employee(models.Model):
+    # Public name shown to clients; may differ from the linked account's `User.first_name/last_name` on purpose
+    # (e.g. "Ania" vs "Anna Kowalska"), so don't sync them. Account e-mail lives on `User.email`; this `email`
+    # field is legacy and no longer edited in the panel.
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100, blank=True)
     email = models.EmailField(unique=True, null=True, blank=True)
@@ -42,6 +50,11 @@ class Employee(models.Model):
         blank=True,
         related_name='employee',
     )
+    # Inactive = left the salon / long leave: hidden from booking and pickers, no panel login, history kept.
+    # Lists shown to clients or used to pick someone must use `.active()` (also on `service.employees`).
+    is_active = models.BooleanField(default=True)
+
+    objects = EmployeeQuerySet.as_manager()
 
     def __str__(self):
         return f"{self.first_name}"

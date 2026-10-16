@@ -49,6 +49,13 @@
               <i class="bi bi-slash-circle"></i> Blokady
             </a>
           </li>
+          {% if is_owner %}
+            <li class="nav-item">
+              <a class="nav-link {% if 'employee' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'panel:employee_list' %}">
+                <i class="bi bi-people"></i> Zespół
+              </a>
+            </li>
+          {% endif %}
         </ul>
         <div class="d-flex align-items-center gap-3">
           <span class="panel-user small">

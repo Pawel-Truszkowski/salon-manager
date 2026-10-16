@@ -3,6 +3,8 @@ import datetime
 from django import forms
 from django.utils import timezone
 
+from apps.services.models import Employee
+
 from .models import Appointment
 
 
@@ -19,6 +21,7 @@ class BookingForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['employee'].queryset = Employee.objects.active()
         self.fields['employee'].required = False
         self.fields['employee'].empty_label = 'Dowolna specjalistka'
         # Optional on the model (phone bookings in the panel), but always required on the website

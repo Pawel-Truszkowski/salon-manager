@@ -15,7 +15,7 @@ FORCE_HELP = 'Pozwala zapisać wizytę poza grafikiem lub na zajęty termin. Uż
 def add_bootstrap_classes(form):
     for field in form.fields.values():
         widget = field.widget
-        if isinstance(widget, forms.CheckboxInput):
+        if isinstance(widget, (forms.CheckboxInput, forms.RadioSelect)):
             css = 'form-check-input'
         elif isinstance(widget, forms.Select):
             css = 'form-select'
@@ -84,6 +84,7 @@ class AppointmentCreateForm(SlotFieldsMixin, forms.ModelForm):
         self.setup_slot_fields(is_owner)
         self.current_employee = employee
         if is_owner:
+            self.fields['employee'].queryset = Employee.objects.active()
             self.fields['employee'].required = False
             self.fields['employee'].empty_label = 'Pierwsza wolna specjalistka'
         else:
@@ -140,7 +141,7 @@ class RescheduleForm(SlotFieldsMixin, forms.Form):
         self.setup_slot_fields(is_owner)
         self.appointment = appointment
         if is_owner:
-            self.fields['employee'].queryset = appointment.service.employees.all()
+            self.fields['employee'].queryset = appointment.service.employees.active()
         else:
             del self.fields['employee']
 
@@ -182,7 +183,9 @@ class TimeBlockForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.is_owner = is_owner
         self.current_employee = employee
-        if not is_owner:
+        if is_owner:
+            self.fields['employee'].queryset = Employee.objects.active()
+        else:
             del self.fields['employee']
         add_bootstrap_classes(self)
 
@@ -293,3 +296,30 @@ class GenerateScheduleForm(forms.Form):
         elif (date_to - date_from).days + 1 > self.MAX_DAYS:  # both ends inclusive
             self.add_error('date_to', f'Grafik można wygenerować najwyżej na {self.MAX_DAYS} dni naraz.')
         return cleaned
+
+
+class EmployeeForm(forms.ModelForm):
+    """Owner adds/edits a specialist: public name, bio and which services she performs."""
+
+    class Meta:
+        model = Employee
+        fields = ['first_name', 'last_name', 'bio', 'services']
+        labels = {
+            'first_name': 'Imię',
+            'last_name': 'Nazwisko',
+            'bio': 'O specjalistce',
+            'services': 'Usługi',
+        }
+        help_texts = {
+            'bio': 'Opcjonalnie — krótki opis specjalistki.',
+            'services': 'Wybierz wszystkie usługi, które wykonuje specjalistka.',
+        }
+        widgets = {
+            'bio': forms.Textarea(attrs={'rows': 3}),
+            'services': forms.CheckboxSelectMultiple(),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['bio'].required = False
+        add_bootstrap_classes(self)

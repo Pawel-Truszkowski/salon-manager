@@ -22,8 +22,8 @@ class EmployeeListView(ListAPIView):
     def get_queryset(self):
         service_id = self.request.query_params.get('service')
         if service_id:
-            return Employee.objects.filter(services__id=service_id).order_by('first_name')
-        return Employee.objects.all().order_by('first_name')
+            return Employee.objects.active().filter(services__id=service_id).order_by('first_name')
+        return Employee.objects.active().order_by('first_name')
 
 
 class AvailableSlots(APIView):
@@ -49,14 +49,14 @@ class AvailableSlots(APIView):
 
         if employee_id:
             try:
-                employee = service.employees.get(id=employee_id)
+                employee = service.employees.active().get(id=employee_id)
                 slots = get_available_slots(employee, date, service)
             except Employee.DoesNotExist:
                 return Response(
                     {'slots': [], 'error': 'Employee not found for this service.'}, status=status.HTTP_404_NOT_FOUND
                 )
         else:
-            candidates = service.employees.all()
+            candidates = service.employees.active()
             slots_set = set()
             for employee in candidates:
                 slots_set.update(get_available_slots(employee, date, service))
@@ -82,11 +82,11 @@ class AvailableDates(APIView):
 
         if employee_id:
             try:
-                candidates = [service.employees.get(id=employee_id)]
+                candidates = [service.employees.active().get(id=employee_id)]
             except Employee.DoesNotExist:
                 return Response({'dates': []})
         else:
-            candidates = list(service.employees.all())
+            candidates = list(service.employees.active())
 
         today = datetime.date.today()
         days_in_month = calendar.monthrange(year, month)[1]

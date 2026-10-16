@@ -53,6 +53,10 @@ Własny panel do zarządzania salonem dla właściciela i specjalistek, zbudowan
 ### 5. Statystyki (tylko właściciel)
 - Liczba wizyt, przychód (`Service.price` zrealizowanych wizyt), obłożenie specjalistek, odsetek anulacji — w wybranym okresie.
 
-### Zarządzanie salonem (właściciel, w ramach etapów 2–3)
+### Zarządzanie salonem (właściciel) — w toku, przed etapem 5
+Kolejność zmieniona: bez tego panelu nie da się wdrożyć (konto specjalistki dało się podpiąć tylko w `/admin/`).
+- ✅ Zespół: lista, dodawanie, edycja specjalistek (`/panel/employees/`; imię publiczne, opis, usługi).
+- `Employee.first_name/last_name` = nazwa publiczna, `User.*` = dane konta — mogą się różnić, nie synchronizujemy.
+- E-mail konta tylko w `User.email`. `Employee.email` usuwamy etapami (expand/contract): ✅ panel i publiczne API już go nie pokazują → zaproszenia podpowiadają adres z `Employee.email` → usunąć z admina i fixtur → backup bazy + migracja `RemoveField`.
 - Specjalistki: dodawanie, edycja, dezaktywacja, zakładanie konta i wysyłka zaproszenia. Uwaga: wbudowany reset hasła pomija konta bez ustawionego hasła (`has_usable_password`), więc zaproszenie potrzebuje własnego formularza/linku.
 - Usługi i kategorie.

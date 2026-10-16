@@ -9,6 +9,8 @@ from .models import Appointment
 
 def get_available_slots(employee, date, service, exclude_appointment=None):
     slot_duration = 15
+    if not employee.is_active:
+        return []
 
     # An employee can have multiple schedule blocks on the same date (e.g. split shifts)
     schedules = Schedule.objects.filter(employee=employee, date=date).order_by('start_time')
@@ -61,7 +63,7 @@ def get_available_slots(employee, date, service, exclude_appointment=None):
 
 
 def find_available_specialist(service, date_time_obj):
-    candidates = service.employees.all()
+    candidates = service.employees.active()
     if not timezone.is_aware(date_time_obj):
         date_time_obj = timezone.make_aware(date_time_obj)
     date = date_time_obj.date()

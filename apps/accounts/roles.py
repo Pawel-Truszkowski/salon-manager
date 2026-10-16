@@ -9,12 +9,12 @@ def is_owner(user):
 
 
 def get_employee(user):
-    """The `Employee` linked to this account, or None."""
+    """The active `Employee` linked to this account, or None (a deactivated employee loses panel access)."""
     if not user.is_authenticated:
         return None
     from apps.services.models import Employee
 
-    return Employee.objects.filter(user=user).first()
+    return Employee.objects.active().filter(user=user).first()
 
 
 def has_panel_access(user):
