@@ -1,5 +1,6 @@
 import contextlib
 import datetime
+import logging
 from collections import defaultdict
 
 from django.contrib import messages
@@ -22,11 +23,15 @@ from .forms import (
     AppointmentCreateForm,
     EmployeeForm,
     GenerateScheduleForm,
+    InviteEmployeeForm,
     RescheduleForm,
     TimeBlockForm,
     WeeklyScheduleFormSet,
 )
+from .invitations import create_invited_account, is_pending_invitation, send_invitation
 from .mixins import OwnerRequiredMixin, PanelAccessMixin
+
+logger = logging.getLogger(__name__)
 
 
 class DashboardView(PanelAccessMixin, TemplateView):
@@ -596,4 +601,72 @@ class EmployeeToggleActiveView(OwnerRequiredMixin, View):
             f'{employee} jest teraz nieaktywna — zniknęła z rezerwacji i nie zaloguje się do panelu. '
             'Historia wizyt zostaje.',
         )
+        return redirect('panel:employee_list')
+
+
+class EmployeeInviteView(OwnerRequiredMixin, FormView):
+    """Create a panel account for an active specialist who has none, and e-mail her the invitation."""
+
+    template_name = 'panel/employees/invite.html'
+    form_class = InviteEmployeeForm
+
+    def dispatch(self, request, *args, **kwargs):
+        self.target = get_object_or_404(Employee, pk=kwargs['pk'])
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        return self._guard() or super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        return self._guard() or super().post(request, *args, **kwargs)
+
+    def _guard(self):
+        if self.target.user_id or not self.target.is_active:
+            messages.error(self.request, f'{self.target} ma już konto albo jest nieaktywna — nie można jej zaprosić.')
+            return redirect('panel:employee_list')
+        return None
+
+    def get_initial(self):
+        # Legacy `Employee.email` (set in /admin/ before the panel) is the best guess; the owner can change it
+        return {'email': self.target.email}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['employee'] = self.target
+        return context
+
+    def form_valid(self, form):
+        email = form.cleaned_data['email']
+        user = create_invited_account(self.target, email)
+        try:
+            send_invitation(user)
+        except Exception:  # account stays; the owner can resend from the team list
+            logger.exception(f'Panel invitation for employee({self.target.pk}) failed')
+            messages.error(
+                self.request,
+                f'Konto dla {self.target} zostało utworzone, ale maila nie udało się wysłać. '
+                'Spróbuj „Wyślij zaproszenie ponownie” za chwilę.',
+            )
+        else:
+            messages.success(self.request, f'Wysłano zaproszenie do {email}.')
+        return redirect('panel:employee_list')
+
+
+class EmployeeResendInviteView(OwnerRequiredMixin, View):
+    """POST: send the invitation again (lost e-mail, expired link) while she hasn't set a password yet."""
+
+    http_method_names = ['post']
+
+    def post(self, request, pk):
+        employee = get_object_or_404(Employee.objects.select_related('user'), pk=pk)
+        if not employee.is_active or not is_pending_invitation(employee.user):
+            messages.error(request, f'{employee} nie czeka na zaproszenie.')
+            return redirect('panel:employee_list')
+        try:
+            send_invitation(employee.user)
+        except Exception:
+            logger.exception(f'Resending panel invitation for employee({employee.pk}) failed')
+            messages.error(request, 'Nie udało się wysłać maila. Spróbuj ponownie za chwilę.')
+        else:
+            messages.success(request, f'Wysłano ponownie zaproszenie do {employee.user.email}.')
         return redirect('panel:employee_list')

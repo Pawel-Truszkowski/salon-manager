@@ -22,6 +22,8 @@ urlpatterns = [
     path('employees/', views.EmployeeListView.as_view(), name='employee_list'),
     path('employees/new/', views.EmployeeCreateView.as_view(), name='employee_create'),
     path('employees/<int:pk>/edit/', views.EmployeeUpdateView.as_view(), name='employee_update'),
+    path('employees/<int:pk>/invite/', views.EmployeeInviteView.as_view(), name='employee_invite'),
+    path('employees/<int:pk>/invite/resend/', views.EmployeeResendInviteView.as_view(), name='employee_invite_resend'),
     path('employees/<int:pk>/toggle-active/', views.EmployeeToggleActiveView.as_view(), name='employee_toggle_active'),
     path('schedule/', views.ScheduleView.as_view(), name='schedule'),
     path('schedule/<int:employee_pk>/weekly/', views.WeeklyScheduleEditView.as_view(), name='weekly_schedule'),
@@ -55,6 +57,15 @@ urlpatterns = [
             success_url=reverse_lazy('panel:password_reset_complete'),
         ),
         name='password_reset_confirm',
+    ),
+    # Invitation link from the e-mail; same token as a password reset, own wording
+    path(
+        'invitation/<uidb64>/<token>/',
+        auth_views.PasswordResetConfirmView.as_view(
+            template_name='panel/auth/invitation_accept.html',
+            success_url=reverse_lazy('panel:password_reset_complete'),
+        ),
+        name='invitation_accept',
     ),
     path(
         'password-reset/complete/',

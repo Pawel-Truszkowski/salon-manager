@@ -31,10 +31,20 @@
                 {% for service in employee.services.all %}{{ service }}{% if not forloop.last %}, {% endif %}{% empty %}<span class="text-muted">brak</span>{% endfor %}
               </td>
               <td>
-                {% if employee.user and employee.is_active %}
+                {% if employee.user and not employee.user.has_usable_password %}
+                  <span class="badge text-bg-warning">zaproszona</span>
+                  {% if employee.is_active %}
+                    <form method="post" action="{% url 'panel:employee_invite_resend' employee.pk %}" class="d-inline">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-link btn-sm p-0 ms-1 align-baseline">wyślij ponownie</button>
+                    </form>
+                  {% endif %}
+                {% elif employee.user and employee.is_active %}
                   <span class="badge text-bg-success">aktywne</span>
                 {% elif employee.user %}
                   <span class="badge text-bg-secondary">zablokowane</span>
+                {% elif employee.is_active %}
+                  <a href="{% url 'panel:employee_invite' employee.pk %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-envelope"></i> Zaproś</a>
                 {% else %}
                   <span class="badge text-bg-secondary">brak</span>
                 {% endif %}

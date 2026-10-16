@@ -1,0 +1,17 @@
+{% extends 'panel/auth/base_auth.html' %}
+
+{% block title %}Witaj w panelu{% endblock %}
+
+{% block auth_content %}
+{% if validlink %}
+  <p>Ustaw hasło do swojego konta. Twój login to <strong>{{ form.user.get_username }}</strong>.</p>
+  <form method="post">
+    {% csrf_token %}
+    {% include 'panel/auth/_form_fields.html' %}
+    <button type="submit" class="btn panel-btn-primary w-100">Ustaw hasło</button>
+  </form>
+{% else %}
+  <p>Link z zaproszenia jest nieprawidłowy, wygasł albo został już użyty.</p>
+  <p class="mb-0 small">Jeśli hasło jest już ustawione, <a href="{% url 'panel:login' %}">zaloguj się</a>. W przeciwnym razie poproś właścicielkę salonu o nowe zaproszenie.</p>
+{% endif %}
+{% endblock %}

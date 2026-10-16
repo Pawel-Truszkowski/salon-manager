@@ -3,6 +3,8 @@ import itertools
 from collections import defaultdict
 
 from django import forms
+from django.contrib.auth import get_user_model
+from django.db.models import Q
 from django.utils import timezone
 
 from apps.bookings.models import Appointment
@@ -323,3 +325,26 @@ class EmployeeForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['bio'].required = False
         add_bootstrap_classes(self)
+
+
+class InviteEmployeeForm(forms.Form):
+    """E-mail for the specialist's new panel account; it also becomes her login."""
+
+    email = forms.EmailField(
+        label='E-mail',
+        help_text='Na ten adres wyślemy link do ustawienia hasła. Będzie też loginem do panelu.',
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        add_bootstrap_classes(self)
+
+    def clean_email(self):
+        # It becomes the login too, so store one canonical form: people don't think of e-mails as case-sensitive
+        email = self.cleaned_data['email'].lower()
+        User = get_user_model()
+        # `User.email` isn't unique in Django and `username` is (and equals the e-mail for invited accounts): check both
+        if User.objects.filter(Q(email__iexact=email) | Q(username__iexact=email)).exists():
+            # Don't say whose account it is (owner, another specialist, later maybe a client)
+            raise forms.ValidationError('Konto z tym adresem już istnieje.')
+        return email

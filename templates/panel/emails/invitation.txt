@@ -1,0 +1,11 @@
+Dzień dobry {{ user.first_name }},
+
+zapraszamy do panelu Royal Beauty — zobaczysz w nim swoje wizyty, grafik i kalendarz.
+
+Ustaw hasło, otwierając link:
+{{ url }}
+
+Twój login: {{ user.get_username }}
+Link jest ważny {{ valid_days }} dni i działa tylko raz. Jeśli wygaśnie, poproś właścicielkę salonu o nowe zaproszenie.
+
+Royal Beauty Studio Urody

@@ -56,6 +56,8 @@ Własny panel do zarządzania salonem dla właściciela i specjalistek, zbudowan
 ### Zarządzanie salonem (właściciel) — w toku, przed etapem 5
 Kolejność zmieniona: bez tego panelu nie da się wdrożyć (konto specjalistki dało się podpiąć tylko w `/admin/`).
 - ✅ Zespół: lista, dodawanie, edycja specjalistek (`/panel/employees/`; imię publiczne, opis, usługi).
+- ✅ Dezaktywacja (`is_active`, `.active()`; blokowana przy przyszłych wizytach).
+- ✅ Zaproszenia do panelu: konto bez hasła (login = e-mail, małymi literami) + link z tokenem resetu hasła (`apps/panel/invitations.py`, `/panel/invitation/<uidb64>/<token>/`), ponowne wysłanie dopóki hasło nie jest ustawione.
 - `Employee.first_name/last_name` = nazwa publiczna, `User.*` = dane konta — mogą się różnić, nie synchronizujemy.
 - E-mail konta tylko w `User.email`. `Employee.email` usuwamy etapami (expand/contract): ✅ panel i publiczne API już go nie pokazują → zaproszenia podpowiadają adres z `Employee.email` → usunąć z admina i fixtur → backup bazy + migracja `RemoveField`.
 - Specjalistki: dodawanie, edycja, dezaktywacja, zakładanie konta i wysyłka zaproszenia. Uwaga: wbudowany reset hasła pomija konta bez ustawionego hasła (`has_usable_password`), więc zaproszenie potrzebuje własnego formularza/linku.
