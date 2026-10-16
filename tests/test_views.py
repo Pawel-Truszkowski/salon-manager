@@ -91,6 +91,15 @@ class TestSubmitBookingView:
 
 
 @pytest.mark.django_db
+class TestEmployeesAPI:
+    def test_does_not_expose_contact_data(self, client, employee):
+        [data] = client.get(reverse('api-employees')).json()
+
+        assert data['first_name'] == employee.first_name
+        assert 'email' not in data
+
+
+@pytest.mark.django_db
 class TestAvailableSlotsAPI:
     def setup_method(self):
         self.client = Client()

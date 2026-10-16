@@ -23,7 +23,8 @@ class EmployeeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Employee
-        fields = ['id', 'first_name', 'last_name', 'email', 'bio', 'services']
+        # Public, no login: only what the booking form shows. Never contact data (e-mail, phone, account).
+        fields = ['id', 'first_name', 'last_name', 'bio', 'services']
 
 
 class ScheduleSerializer(serializers.ModelSerializer):
