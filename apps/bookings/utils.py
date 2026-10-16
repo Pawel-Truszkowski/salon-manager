@@ -9,7 +9,7 @@ from .models import Appointment
 
 def get_available_slots(employee, date, service, exclude_appointment=None):
     slot_duration = 15
-    if not employee.is_active:
+    if not employee.is_active or not service.is_active:
         return []
 
     # An employee can have multiple schedule blocks on the same date (e.g. split shifts)

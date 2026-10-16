@@ -25,6 +25,7 @@ from .forms import (
     GenerateScheduleForm,
     InviteEmployeeForm,
     RescheduleForm,
+    ServiceForm,
     TimeBlockForm,
     WeeklyScheduleFormSet,
 )
@@ -563,6 +564,15 @@ class EmployeeUpdateView(EmployeeFormViewMixin, UpdateView):
     success_message = 'Zapisano zmiany: {employee}.'
 
 
+def upcoming_appointments(**filters):
+    """Future appointments that still need someone to show up (pending/confirmed), soonest first."""
+    return Appointment.objects.filter(
+        date_time__gte=timezone.now(),
+        status__in=[Appointment.Status.PENDING, Appointment.Status.CONFIRMED],
+        **filters,
+    ).order_by('date_time')
+
+
 class EmployeeToggleActiveView(OwnerRequiredMixin, View):
     """POST: deactivate an active employee (hidden from booking, no panel login, history kept) or reactivate."""
 
@@ -577,11 +587,7 @@ class EmployeeToggleActiveView(OwnerRequiredMixin, View):
             messages.success(request, f'{employee} jest znów aktywna — klienci mogą się do niej zapisywać.')
             return redirect('panel:employee_list')
 
-        upcoming = Appointment.objects.filter(
-            employee=employee,
-            date_time__gte=timezone.now(),
-            status__in=[Appointment.Status.PENDING, Appointment.Status.CONFIRMED],
-        ).order_by('date_time')
+        upcoming = upcoming_appointments(employee=employee)
 
         next_appointment = upcoming.first()  # one query instead of exists() + first()
         if next_appointment:
@@ -670,3 +676,65 @@ class EmployeeResendInviteView(OwnerRequiredMixin, View):
         else:
             messages.success(request, f'Wysłano ponownie zaproszenie do {employee.user.email}.')
         return redirect('panel:employee_list')
+
+
+class ServiceListView(OwnerRequiredMixin, ListView):
+    """All services grouped by category (the website's tabs); inactive ones at the end of each group."""
+
+    template_name = 'panel/services/list.html'
+    context_object_name = 'services'
+
+    def get_queryset(self):
+        return Service.objects.select_related('category').order_by('category__name', '-is_active', 'name')
+
+
+class ServiceFormViewMixin(OwnerRequiredMixin):
+    template_name = 'panel/services/form.html'
+    form_class = ServiceForm
+    model = Service
+    success_url = reverse_lazy('panel:service_list')
+    success_message = ''
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, self.success_message.format(service=self.object))
+        return response
+
+
+class ServiceCreateView(ServiceFormViewMixin, CreateView):
+    success_message = 'Dodano usługę: {service}. Zaznacz ją w zespole u specjalistek, które ją wykonują.'
+
+
+class ServiceUpdateView(ServiceFormViewMixin, UpdateView):
+    success_message = 'Zapisano zmiany: {service}.'
+
+
+class ServiceToggleActiveView(OwnerRequiredMixin, View):
+    """POST: stop offering a service (refused while it has upcoming appointments) or offer it again."""
+
+    http_method_names = ['post']
+
+    def post(self, request, pk):
+        service = get_object_or_404(Service, pk=pk)
+
+        if not service.is_active:
+            service.is_active = True
+            service.save(update_fields=['is_active'])
+            messages.success(request, f'Usługa „{service}” jest znów dostępna do rezerwacji.')
+            return redirect('panel:service_list')
+
+        upcoming = upcoming_appointments(service=service)
+        next_appointment = upcoming.first()
+        if next_appointment:
+            when = timezone.localtime(next_appointment.date_time)
+            messages.error(
+                request,
+                f'Usługa „{service}” ma zaplanowane wizyty ({upcoming.count()}), najbliższa {when:%d.%m.%Y %H:%M}. '
+                'Wyłącz ją, gdy się odbędą albo zostaną odwołane.',
+            )
+            return redirect('panel:service_list')
+
+        service.is_active = False
+        service.save(update_fields=['is_active'])
+        messages.success(request, f'Usługa „{service}” zniknęła ze strony i z rezerwacji. Historia wizyt zostaje.')
+        return redirect('panel:service_list')

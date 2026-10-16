@@ -5,7 +5,7 @@ from apps.services.models import Employee, Service
 
 
 def home(request):
-    services = Service.objects.select_related('category').all()
+    services = Service.objects.active().select_related('category')
     employees = Employee.objects.active().prefetch_related('services')
     form = BookingForm()
     return render(

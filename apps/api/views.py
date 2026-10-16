@@ -12,7 +12,7 @@ from apps.services.models import Employee, Service
 
 
 class ServiceListView(ListAPIView):
-    queryset = Service.objects.all().order_by('category', 'name')
+    queryset = Service.objects.active().select_related('category').order_by('category', 'name')
     serializer_class = ServiceSerializer
 
 
@@ -37,7 +37,7 @@ class AvailableSlots(APIView):
             )
 
         try:
-            service = Service.objects.get(id=service_id)
+            service = Service.objects.active().get(id=service_id)
             date = datetime.date.fromisoformat(date_str)
         except Service.DoesNotExist, ValueError:
             return Response({'slots': [], 'error': 'Nieprawidłowe dane.'}, status=status.HTTP_400_BAD_REQUEST)
@@ -75,7 +75,7 @@ class AvailableDates(APIView):
             return Response({'dates': []}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            service = Service.objects.get(id=service_id)
+            service = Service.objects.active().get(id=service_id)
             year, month = map(int, month_str.split('-'))
         except Service.DoesNotExist, ValueError:
             return Response({'dates': []}, status=status.HTTP_400_BAD_REQUEST)

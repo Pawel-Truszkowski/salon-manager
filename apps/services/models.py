@@ -14,12 +14,22 @@ class ServiceCategory(models.Model):
         return self.name
 
 
+class ServiceQuerySet(models.QuerySet):
+    def active(self):
+        return self.filter(is_active=True)
+
+
 class Service(models.Model):
     name = models.CharField(max_length=100, unique=True)
     category = models.ForeignKey(ServiceCategory, on_delete=models.CASCADE, related_name='services')
     description = models.TextField(blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     duration = models.IntegerField(help_text="Duration in minutes")
+    # Inactive = no longer offered: hidden from the website, API and new bookings; past appointments keep it
+    # (appointments PROTECT their service, so it can't be deleted once booked)
+    is_active = models.BooleanField(default=True)
+
+    objects = ServiceQuerySet.as_manager()
 
     class Meta:
         ordering = ['category', 'name']

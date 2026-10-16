@@ -1,0 +1,55 @@
+{% extends 'panel/base.html' %}
+
+{% block title %}Usługi{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+  <h1 class="panel-title mb-0">Usługi</h1>
+  <a href="{% url 'panel:service_create' %}" class="btn panel-btn-primary"><i class="bi bi-plus-lg"></i> Dodaj usługę</a>
+</div>
+<p class="text-muted small">Kategorie odpowiadają zakładkom na stronie. Nowa usługa pojawi się w rezerwacji, gdy zaznaczysz ją u co najmniej jednej specjalistki w zakładce „Zespół”.</p>
+
+{% regroup services by category as categories %}
+{% for group in categories %}
+  <div class="card panel-card mb-3">
+    <div class="card-header bg-transparent"><h2 class="h6 mb-0">{{ group.grouper }}</h2></div>
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Usługa</th>
+            <th class="text-nowrap">Cena</th>
+            <th class="text-nowrap">Czas</th>
+            <th class="text-end"><span class="visually-hidden">Akcje</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for service in group.list %}
+            <tr{% if not service.is_active %} class="text-muted"{% endif %}>
+              <td>
+                {{ service.name }}
+                {% if not service.is_active %}<span class="badge text-bg-light border ms-1">wyłączona</span>{% endif %}
+              </td>
+              <td class="text-nowrap">{{ service.price }} zł</td>
+              <td class="text-nowrap">{{ service.duration }} min</td>
+              <td class="text-end text-nowrap">
+                <a href="{% url 'panel:service_update' service.pk %}" class="btn btn-sm btn-outline-secondary" aria-label="Edytuj: {{ service }}"><i class="bi bi-pencil"></i></a>
+                <form method="post" action="{% url 'panel:service_toggle_active' service.pk %}" class="d-inline">
+                  {% csrf_token %}
+                  {% if service.is_active %}
+                    <button type="submit" class="btn btn-sm btn-outline-danger" aria-label="Wyłącz: {{ service }}" title="Wyłącz (zniknie ze strony)"><i class="bi bi-eye-slash"></i></button>
+                  {% else %}
+                    <button type="submit" class="btn btn-sm btn-outline-success" aria-label="Włącz: {{ service }}" title="Włącz ponownie"><i class="bi bi-eye"></i></button>
+                  {% endif %}
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% empty %}
+  <div class="card panel-card"><div class="card-body text-muted">Brak usług.</div></div>
+{% endfor %}
+{% endblock %}

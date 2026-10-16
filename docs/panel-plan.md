@@ -58,6 +58,8 @@ Kolejność zmieniona: bez tego panelu nie da się wdrożyć (konto specjalistki
 - ✅ Zespół: lista, dodawanie, edycja specjalistek (`/panel/employees/`; imię publiczne, opis, usługi).
 - ✅ Dezaktywacja (`is_active`, `.active()`; blokowana przy przyszłych wizytach).
 - ✅ Zaproszenia do panelu: konto bez hasła (login = e-mail, małymi literami) + link z tokenem resetu hasła (`apps/panel/invitations.py`, `/panel/invitation/<uidb64>/<token>/`), ponowne wysłanie dopóki hasło nie jest ustawione.
+- ✅ Usługi (`/panel/services/`): lista wg kategorii, dodawanie, edycja, wyłączanie (`Service.is_active`, blokowane przy przyszłych wizytach); czas trwania 15–480 min, wielokrotność 15 (siatka terminów). Kategorie tylko do wyboru — zakładki na stronie są wpisane w `home.html`, więc nowa kategoria nie miałaby zakładki.
+- **Przed etapem 5:** zapamiętywać `price` i `duration` w `Appointment` przy zapisie (snapshot) — dziś zmiana usługi zmienia wstecz długość zapisanych wizyt i historyczny przychód.
 - `Employee.first_name/last_name` = nazwa publiczna, `User.*` = dane konta — mogą się różnić, nie synchronizujemy.
 - E-mail konta tylko w `User.email`. `Employee.email` usuwamy etapami (expand/contract): ✅ panel i publiczne API już go nie pokazują → zaproszenia podpowiadają adres z `Employee.email` → usunąć z admina i fixtur → backup bazy + migracja `RemoveField`.
 - Specjalistki: dodawanie, edycja, dezaktywacja, zakładanie konta i wysyłka zaproszenia. Uwaga: wbudowany reset hasła pomija konta bez ustawionego hasła (`has_usable_password`), więc zaproszenie potrzebuje własnego formularza/linku.

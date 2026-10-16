@@ -9,7 +9,7 @@ from django.utils import timezone
 
 from apps.bookings.models import Appointment
 from apps.bookings.utils import find_available_specialist, get_available_slots
-from apps.services.models import Employee, TimeBlock, WeeklyScheduleEntry
+from apps.services.models import Employee, Service, TimeBlock, WeeklyScheduleEntry
 
 FORCE_HELP = 'Pozwala zapisać wizytę poza grafikiem lub na zajęty termin. Używaj świadomie.'
 
@@ -85,6 +85,7 @@ class AppointmentCreateForm(SlotFieldsMixin, forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.setup_slot_fields(is_owner)
         self.current_employee = employee
+        self.fields['service'].queryset = Service.objects.active()
         if is_owner:
             self.fields['employee'].queryset = Employee.objects.active()
             self.fields['employee'].required = False
@@ -92,7 +93,7 @@ class AppointmentCreateForm(SlotFieldsMixin, forms.ModelForm):
         else:
             # Employees always book for themselves, only services they perform
             del self.fields['employee']
-            self.fields['service'].queryset = employee.services.all()
+            self.fields['service'].queryset = employee.services.active()
 
     def clean(self):
         cleaned = super().clean()
@@ -348,3 +349,53 @@ class InviteEmployeeForm(forms.Form):
             # Don't say whose account it is (owner, another specialist, later maybe a client)
             raise forms.ValidationError('Konto z tym adresem już istnieje.')
         return email
+
+
+class ServiceForm(forms.ModelForm):
+    """Owner adds/edits a service offered on the website."""
+
+    class Meta:
+        model = Service
+        fields = ['category', 'name', 'description', 'price', 'duration']
+        labels = {
+            'category': 'Kategoria',
+            'name': 'Nazwa',
+            'description': 'Opis',
+            'price': 'Cena (zł)',
+            'duration': 'Czas trwania (min)',
+        }
+        help_texts = {
+            'description': 'Widoczny na stronie w zakładce usług.',
+            'price': 'Zmiana dotyczy też już zapisanych wizyt (szczegóły wizyty pokazują aktualną cenę).',
+            'duration': 'Zmiana dotyczy też już zapisanych wizyt: zmieni się ich długość w kalendarzu i dostępność.',
+        }
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 3}),
+            'price': forms.NumberInput(attrs={'min': 0, 'step': '0.01'}),
+            'duration': forms.NumberInput(attrs={'min': 15, 'step': 15}),
+        }
+
+    MAX_DURATION = 8 * 60  # longer than a working day makes no sense
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['category'].empty_label = None  # every service belongs to a category tab on the website
+        add_bootstrap_classes(self)
+
+    def clean_price(self):
+        price = self.cleaned_data['price']
+        if price < 0:
+            raise forms.ValidationError('Cena nie może być ujemna.')
+        return price
+
+    def clean_duration(self):
+        duration = self.cleaned_data['duration']
+        if duration <= 0:
+            raise forms.ValidationError('Czas trwania musi być dłuższy niż 0 minut.')
+        if duration > self.MAX_DURATION:
+            raise forms.ValidationError(f'Czas trwania może wynosić najwyżej {self.MAX_DURATION // 60} godzin.')
+        # Bookings start every 15 min (`get_available_slots`); other lengths leave unbookable gaps, e.g. 50 min
+        # ends at :50 and the next free start is :00 -> 10 min lost after every such appointment
+        if duration % 15:
+            raise forms.ValidationError('Czas trwania musi być wielokrotnością 15 minut (np. 45, 60, 90).')
+        return duration
