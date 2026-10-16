@@ -1,12 +1,16 @@
 from datetime import datetime, timedelta
 
 from django.utils import timezone
-from .models import Appointment
+
 from apps.services.models import Schedule, TimeBlock
 
+from .models import Appointment
 
-def get_available_slots(employee, date, service):
+
+def get_available_slots(employee, date, service, exclude_appointment=None):
     slot_duration = 15
+    if not employee.is_active or not service.is_active:
+        return []
 
     # An employee can have multiple schedule blocks on the same date (e.g. split shifts)
     schedules = Schedule.objects.filter(employee=employee, date=date).order_by('start_time')
@@ -29,14 +33,13 @@ def get_available_slots(employee, date, service):
 
     # Exclude time slots that are already booked
     appointments = Appointment.objects.filter(
-        employee=employee,
-        date_time__date=date,
-        status__in=[Appointment.Status.PENDING, Appointment.Status.CONFIRMED]
+        employee=employee, date_time__date=date, status__in=[Appointment.Status.PENDING, Appointment.Status.CONFIRMED]
     ).select_related('service')
-    
-    busy_slots = [
-            (appt.date_time, appt.date_time + timedelta(minutes=appt.service.duration)) for appt in appointments
-        ]
+    # When rescheduling, the appointment being moved must not block its own new slot
+    if exclude_appointment is not None:
+        appointments = appointments.exclude(pk=exclude_appointment.pk)
+
+    busy_slots = [(appt.date_time, appt.date_time + timedelta(minutes=appt.service.duration)) for appt in appointments]
 
     # Exclude time slots reserved by the employee/owner (breaks, days off, etc.)
     time_blocks = TimeBlock.objects.filter(employee=employee, date=date)
@@ -49,21 +52,18 @@ def get_available_slots(employee, date, service):
     ]
 
     available_slots = []
-    
+
     for slot_start in slots:
         slot_end = slot_start + service_duration
-        overlap = any(
-            slot_start < busy_end and slot_end > busy_start
-            for busy_start, busy_end in busy_slots
-        )
+        overlap = any(slot_start < busy_end and slot_end > busy_start for busy_start, busy_end in busy_slots)
         if not overlap:
             available_slots.append(slot_start)
-    
+
     return available_slots
 
 
 def find_available_specialist(service, date_time_obj):
-    candidates = service.employees.all()
+    candidates = service.employees.active()
     if not timezone.is_aware(date_time_obj):
         date_time_obj = timezone.make_aware(date_time_obj)
     date = date_time_obj.date()

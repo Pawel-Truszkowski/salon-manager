@@ -119,7 +119,6 @@ Konfiguracja wczytywana jest z plików `.env.dev` / `.env.prod` (django-environ)
 | `RESEND_API_KEY`        | Klucz API Resend do wysyłki e-maili                     |
 | `DEFAULT_FROM_EMAIL`    | Adres nadawcy e-maili                                   |
 | `SALON_EMAIL`           | Adres, na który przychodzą powiadomienia o rezerwacjach |
-| `SECURE_PROXY_SSL_HEADER` | Wymagane w produkcji za proxy (Cloudflare → Nginx → Django) |
 
 ## Testy
 

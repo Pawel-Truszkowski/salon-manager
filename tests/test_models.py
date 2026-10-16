@@ -1,4 +1,5 @@
 import datetime
+
 import pytest
 from django.utils import timezone
 
@@ -8,7 +9,6 @@ from tests.conftest import make_appointment
 
 @pytest.mark.django_db
 class TestAppointmentConfirm:
-
     def test_confirm_sets_status_to_confirmed(self, employee, service, tomorrow):
         appt = make_appointment(employee, service, tomorrow, hour=10, status=Appointment.Status.PENDING)
         result = appt.confirm()
@@ -44,7 +44,6 @@ class TestAppointmentConfirm:
 
 @pytest.mark.django_db
 class TestAppointmentCancel:
-
     def test_cancel_sets_status_to_cancelled(self, employee, service, tomorrow):
         appt = make_appointment(employee, service, tomorrow, hour=10, status=Appointment.Status.CONFIRMED)
         result = appt.cancel()

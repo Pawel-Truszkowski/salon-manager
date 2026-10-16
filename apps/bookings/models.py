@@ -5,17 +5,18 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 
-from apps.services.models import Service, Employee
+from apps.services.models import Employee, Service
 
 from .emails import (
-    send_confirmation_email,
     send_cancellation_email_to_client,
     send_cancellation_notification_to_salon,
+    send_cancelled_by_salon_email,
+    send_confirmation_email,
+    send_rescheduled_email,
 )
 
 
 class Appointment(models.Model):
-
     class Status(models.TextChoices):
         PENDING = 'pending', 'Oczekująca'
         CONFIRMED = 'confirmed', 'Potwierdzona'
@@ -42,13 +43,22 @@ class Appointment(models.Model):
     )
 
     client_name = models.CharField(max_length=100)
-    client_email = models.EmailField()
+    # Optional only for appointments added in the panel (phone bookings); BookingForm requires it on the website
+    client_email = models.EmailField(blank=True)
     client_phone = models.CharField(max_length=15)
     notes = models.TextField(blank=True)
 
     cancellation_token = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='+',
+    )
 
     def __str__(self):
         return f"{self.client_name} — {self.service} {self.date_time:%d.%m.%Y %H:%M}"
@@ -57,7 +67,7 @@ class Appointment(models.Model):
         if self.status == self.Status.CONFIRMED:
             return False
         self.status = self.Status.CONFIRMED
-        self.save(update_fields=['status'])
+        self.save()
         send_confirmation_email(self)
         return True
 
@@ -65,20 +75,36 @@ class Appointment(models.Model):
         if self.status != self.Status.CONFIRMED:
             raise ValueError("Only confirmed appointments can be completed.")
         self.status = self.Status.COMPLETED
-        self.save(update_fields=['status'])
+        self.save()
 
     @property
     def can_be_cancelled(self):
         return self.status in (self.Status.PENDING, self.Status.CONFIRMED) and self.date_time > timezone.now()
 
-    def cancel(self):
+    def cancel(self, by_salon=False):
         if not self.can_be_cancelled:
             return False
         self.status = self.Status.CANCELLED
-        self.save(update_fields=['status'])
-        send_cancellation_email_to_client(self)
-        send_cancellation_notification_to_salon(self)
+        self.save()
+        if by_salon:
+            send_cancelled_by_salon_email(self)
+        else:
+            send_cancellation_email_to_client(self)
+            send_cancellation_notification_to_salon(self)
         return True
+
+    @property
+    def can_be_rescheduled(self):
+        return self.status in (self.Status.PENDING, self.Status.CONFIRMED)
+
+    def reschedule(self, new_date_time, employee=None):
+        if not self.can_be_rescheduled:
+            raise ValueError("Only pending or confirmed appointments can be rescheduled.")
+        self.date_time = new_date_time
+        if employee is not None:
+            self.employee = employee
+        self.save()
+        send_rescheduled_email(self)
 
     def get_cancel_url(self):
         return f"{settings.SITE_URL}{reverse('cancel_booking', args=[self.cancellation_token])}"

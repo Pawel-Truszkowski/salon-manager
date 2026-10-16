@@ -1,0 +1,39 @@
+{% extends 'panel/base.html' %}
+
+{% block title %}{% if object %}Edycja: {{ object }}{% else %}Nowa specjalistka{% endif %}{% endblock %}
+
+{% block content %}
+<a href="{% url 'panel:employee_list' %}" class="small"><i class="bi bi-arrow-left"></i> Zespół</a>
+<h1 class="panel-title mt-2 mb-4">{% if object %}{{ object.first_name }} {{ object.last_name }}{% else %}Nowa specjalistka{% endif %}</h1>
+
+<form method="post" class="card panel-card" style="max-width: 720px" novalidate>
+  {% csrf_token %}
+  <div class="card-body">
+    {% if form.non_field_errors %}
+      <div class="alert alert-danger">{% for error in form.non_field_errors %}{{ error }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</div>
+    {% endif %}
+
+    <div class="row">
+      <div class="col-sm-6">{% include 'panel/_field.html' with field=form.first_name %}</div>
+      <div class="col-sm-6">{% include 'panel/_field.html' with field=form.last_name %}</div>
+    </div>
+    {% include 'panel/_field.html' with field=form.bio %}
+
+    <fieldset class="mb-3">
+      <legend class="form-label fs-6">{{ form.services.label }}{% if form.services.field.required %} <span class="text-danger">*</span>{% endif %}</legend>
+      {% for checkbox in form.services %}
+        <div class="form-check">
+          {{ checkbox.tag }}
+          <label class="form-check-label" for="{{ checkbox.id_for_label }}">{{ checkbox.choice_label }}</label>
+        </div>
+      {% endfor %}
+      {% if form.services.help_text %}<div class="form-text">{{ form.services.help_text }}</div>{% endif %}
+      {% for error in form.services.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+    </fieldset>
+  </div>
+  <div class="card-footer bg-transparent d-flex gap-2">
+    <button type="submit" class="btn panel-btn-primary">Zapisz</button>
+    <a href="{% url 'panel:employee_list' %}" class="btn btn-outline-secondary">Anuluj</a>
+  </div>
+</form>
+{% endblock %}

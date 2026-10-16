@@ -1,0 +1,53 @@
+{% extends 'panel/base.html' %}
+
+{% block title %}Wizyta — {{ appointment.client_name }}{% endblock %}
+
+{% block content %}
+<a href="{% url 'panel:appointment_list' %}" class="small"><i class="bi bi-arrow-left"></i> Wszystkie wizyty</a>
+
+<div class="d-flex flex-wrap align-items-center gap-3 mt-2 mb-4">
+  <h1 class="panel-title mb-0">{{ appointment.client_name }}</h1>
+  {% include 'panel/_status_badge.html' %}
+</div>
+
+<div class="row g-4">
+  <section class="col-lg-7">
+    <div class="card panel-card">
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-sm-4">Termin</dt>
+          <dd class="col-sm-8">{{ appointment.date_time|date:"l, d.m.Y" }}, <strong>{{ appointment.date_time|time:"H:i" }}</strong> ({{ appointment.service.duration }} min)</dd>
+          <dt class="col-sm-4">Usługa</dt>
+          <dd class="col-sm-8">{{ appointment.service }} — {{ appointment.service.price }} zł</dd>
+          <dt class="col-sm-4">Specjalistka</dt>
+          <dd class="col-sm-8">{{ appointment.employee|default:"—" }}</dd>
+          <dt class="col-sm-4">Telefon</dt>
+          <dd class="col-sm-8"><a href="tel:{{ appointment.client_phone }}">{{ appointment.client_phone }}</a></dd>
+          <dt class="col-sm-4">E-mail</dt>
+          <dd class="col-sm-8">{% if appointment.client_email %}<a href="mailto:{{ appointment.client_email }}">{{ appointment.client_email }}</a>{% else %}<span class="text-muted">brak — klient nie dostaje maili</span>{% endif %}</dd>
+          {% if appointment.notes %}
+            <dt class="col-sm-4">Uwagi</dt>
+            <dd class="col-sm-8">{{ appointment.notes|linebreaksbr }}</dd>
+          {% endif %}
+        </dl>
+      </div>
+      <div class="card-footer bg-transparent">
+        {% include 'panel/appointments/_actions.html' %}
+      </div>
+    </div>
+  </section>
+
+  <section class="col-lg-5">
+    <div class="card panel-card">
+      <div class="card-header"><h2 class="h6 mb-0"><i class="bi bi-clock-history"></i> Historia</h2></div>
+      <ul class="list-group list-group-flush small">
+        <li class="list-group-item">Utworzona: {{ appointment.created_at|date:"d.m.Y H:i" }}</li>
+        <li class="list-group-item">
+          Ostatnia zmiana: {{ appointment.updated_at|date:"d.m.Y H:i" }}
+          {% if appointment.updated_by %}— {{ appointment.updated_by.get_full_name|default:appointment.updated_by.username }}{% endif %}
+        </li>
+      </ul>
+    </div>
+  </section>
+</div>
+{% endblock %}

@@ -1,14 +1,14 @@
 import datetime
-import pytest
+import itertools
+
 from django.utils import timezone
 
 from apps.bookings.models import Appointment
-from apps.bookings.utils import get_available_slots, find_available_specialist
+from apps.bookings.utils import find_available_specialist, get_available_slots
 from tests.conftest import make_appointment, make_time_block
 
 
 class TestGetAvailableSlots:
-
     def test_returns_slots_when_schedule_exists(self, employee, service, schedule, tomorrow):
         slots = get_available_slots(employee, tomorrow, service)
         assert len(slots) > 0
@@ -20,23 +20,19 @@ class TestGetAvailableSlots:
 
     def test_first_slot_equals_schedule_start(self, employee, service, schedule, tomorrow):
         slots = get_available_slots(employee, tomorrow, service)
-        expected_start = timezone.make_aware(
-            datetime.datetime.combine(tomorrow, schedule.start_time)
-        )
+        expected_start = timezone.make_aware(datetime.datetime.combine(tomorrow, schedule.start_time))
         assert slots[0] == expected_start
 
     def test_last_slot_does_not_exceed_end(self, employee, service, schedule, tomorrow):
         slots = get_available_slots(employee, tomorrow, service)
-        end_dt = timezone.make_aware(
-            datetime.datetime.combine(tomorrow, schedule.end_time)
-        )
+        end_dt = timezone.make_aware(datetime.datetime.combine(tomorrow, schedule.end_time))
         service_duration = datetime.timedelta(minutes=service.duration)
         for slot in slots:
             assert slot + service_duration <= end_dt
 
     def test_slots_are_15_min_apart(self, employee, service, schedule, tomorrow):
         slots = get_available_slots(employee, tomorrow, service)
-        for a, b in zip(slots, slots[1:]):
+        for a, b in itertools.pairwise(slots):
             assert (b - a) == datetime.timedelta(minutes=15)
 
     def test_booked_slot_is_excluded(self, employee, service, schedule, tomorrow):
@@ -99,9 +95,7 @@ class TestGetAvailableSlots:
         assert datetime.time(14, 0) in slot_times
 
     def test_time_block_for_other_employee_does_not_affect_slots(self, employee, service, schedule, tomorrow):
-        other = employee.__class__.objects.create(
-            first_name='Ola', last_name='Nowak', bio='Stylistka.'
-        )
+        other = employee.__class__.objects.create(first_name='Ola', last_name='Nowak', bio='Stylistka.')
         make_time_block(other, tomorrow, start_hour=12, end_hour=14)
         slots = get_available_slots(employee, tomorrow, service)
         slot_times = {s.time() for s in slots}
@@ -109,7 +103,6 @@ class TestGetAvailableSlots:
 
 
 class TestFindAvailableSpecialist:
-
     def test_finds_specialist_for_free_slot(self, employee, service, schedule, tomorrow):
         dt = timezone.make_aware(datetime.datetime.combine(tomorrow, datetime.time(9, 0)))
         result = find_available_specialist(service, dt)

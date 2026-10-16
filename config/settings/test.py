@@ -18,6 +18,7 @@ INSTALLED_APPS = [
     'apps.bookings.apps.BookingsConfig',
     'apps.services.apps.ServicesConfig',
     'apps.accounts.apps.AccountsConfig',
+    'apps.panel.apps.PanelConfig',
 ]
 
 MIDDLEWARE = [
@@ -69,3 +70,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
 DEFAULT_FROM_EMAIL = 'test@example.com'
 SALON_EMAIL = 'salon@example.com'
 SITE_URL = 'http://testserver'
+
+LOGIN_URL = 'panel:login'
+LOGIN_REDIRECT_URL = 'panel:dashboard'
+LOGOUT_REDIRECT_URL = 'panel:login'

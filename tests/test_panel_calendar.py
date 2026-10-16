@@ -1,0 +1,348 @@
+import datetime
+
+import pytest
+from django.urls import reverse
+from django.utils import timezone
+
+from apps.bookings.models import Appointment
+from apps.panel.views import hours_label
+from apps.services.models import Schedule
+from tests.conftest import make_appointment, make_time_block
+
+EVENTS_URL = reverse('panel:calendar_events')
+
+
+def in_days(days):
+    return timezone.localdate() + datetime.timedelta(days=days)
+
+
+def week_params(**extra):
+    """The range FullCalendar asks for: today .. +7 days, ISO datetimes with an offset."""
+    start = timezone.localtime().replace(hour=0, minute=0, second=0, microsecond=0)
+    return {'start': start.isoformat(), 'end': (start + datetime.timedelta(days=7)).isoformat(), **extra}
+
+
+@pytest.fixture
+def owner_client(client, owner_user):
+    client.force_login(owner_user)
+    return client
+
+
+@pytest.fixture
+def employee_client(client, employee_user):
+    client.force_login(employee_user)
+    return client
+
+
+@pytest.mark.django_db
+class TestCalendarEvents:
+    def test_returns_appointment_as_event(self, employee_client, employee, service):
+        appointment = make_appointment(employee, service, in_days(1), 10)
+
+        response = employee_client.get(EVENTS_URL, week_params())
+
+        assert response.status_code == 200
+        [event] = response.json()
+        begins = timezone.localtime(appointment.date_time)
+        assert event == {
+            'id': appointment.pk,
+            'title': f'{appointment.client_name} — {service}',
+            'start': begins.isoformat(),
+            'end': (begins + datetime.timedelta(minutes=service.duration)).isoformat(),
+            'url': reverse('panel:appointment_detail', args=[appointment.pk]),
+            'color': '#b07d62',
+            'startEditable': True,
+            'extendedProps': {'moveUrl': reverse('panel:calendar_move', args=[appointment.pk])},
+        }
+
+    def test_only_appointments_inside_the_range(self, employee_client, employee, service):
+        make_appointment(employee, service, in_days(1), 10)
+        make_appointment(employee, service, in_days(10), 10)
+
+        assert len(employee_client.get(EVENTS_URL, week_params()).json()) == 1
+
+    def test_cancelled_appointments_are_skipped(self, employee_client, employee, service):
+        make_appointment(employee, service, in_days(1), 10, status=Appointment.Status.CANCELLED)
+
+        assert employee_client.get(EVENTS_URL, week_params()).json() == []
+
+    def test_pending_has_its_own_color(self, employee_client, employee, service):
+        make_appointment(employee, service, in_days(1), 10, status=Appointment.Status.PENDING)
+
+        [event] = employee_client.get(EVENTS_URL, week_params()).json()
+
+        assert event['color'] == '#e0a100'
+
+    def test_bare_dates_are_accepted(self, employee_client, employee, service):
+        make_appointment(employee, service, in_days(1), 10)
+
+        params = {'start': in_days(0).isoformat(), 'end': in_days(7).isoformat()}
+        assert len(employee_client.get(EVENTS_URL, params).json()) == 1
+
+    @pytest.mark.parametrize('params', [{}, {'start': '2026-10-12'}, {'start': 'wczoraj', 'end': 'jutro'}])
+    def test_bad_params_are_400(self, employee_client, params):
+        assert employee_client.get(EVENTS_URL, params).status_code == 400
+
+
+@pytest.mark.django_db
+class TestCalendarEventsScope:
+    def test_employee_sees_only_her_own(self, employee_client, employee, other_employee, service):
+        mine = make_appointment(employee, service, in_days(1), 10)
+        make_appointment(other_employee, service, in_days(1), 12)
+
+        events = employee_client.get(EVENTS_URL, week_params()).json()
+
+        assert [event['id'] for event in events] == [mine.pk]
+
+    def test_employee_param_is_ignored_for_employees(self, employee_client, employee, other_employee, service):
+        make_appointment(other_employee, service, in_days(1), 12)
+
+        assert employee_client.get(EVENTS_URL, week_params(employee=other_employee.pk)).json() == []
+
+    def test_owner_sees_all_with_employee_name(self, owner_client, employee, other_employee, service):
+        make_appointment(employee, service, in_days(1), 10)
+        make_appointment(other_employee, service, in_days(1), 12)
+
+        events = owner_client.get(EVENTS_URL, week_params()).json()
+
+        assert len(events) == 2
+        assert events[1]['title'].endswith(f'({other_employee})')
+
+    def test_owner_filters_by_employee(self, owner_client, employee, other_employee, service):
+        make_appointment(employee, service, in_days(1), 10)
+        theirs = make_appointment(other_employee, service, in_days(1), 12)
+
+        events = owner_client.get(EVENTS_URL, week_params(employee=other_employee.pk)).json()
+
+        assert [event['id'] for event in events] == [theirs.pk]
+
+    def test_anonymous_is_redirected_to_login(self, client):
+        response = client.get(EVENTS_URL, week_params())
+
+        assert response.status_code == 302
+        assert reverse('panel:login') in response.url
+
+
+@pytest.mark.django_db
+class TestCalendarBackground:
+    @pytest.fixture
+    def tomorrow_setup(self, employee):
+        Schedule.objects.create(
+            employee=employee, date=in_days(1), start_time=datetime.time(9), end_time=datetime.time(17)
+        )
+        make_time_block(employee, in_days(1), 12, 13, reason='przerwa')
+
+    def background(self, events):
+        return [event for event in events if event.get('display') == 'background']
+
+    def test_employee_gets_working_hours_and_blocks(self, employee_client, tomorrow_setup):
+        events = self.background(employee_client.get(EVENTS_URL, week_params()).json())
+
+        working, block = events
+        assert working['color'] == '#d1e7dd'
+        assert (working['start'], working['end']) == (
+            timezone.make_aware(datetime.datetime.combine(in_days(1), datetime.time(9))).isoformat(),
+            timezone.make_aware(datetime.datetime.combine(in_days(1), datetime.time(17))).isoformat(),
+        )
+        assert (block['title'], block['color']) == ('przerwa', '#adb5bd')
+
+    def test_background_outside_the_range_is_skipped(self, employee_client, employee):
+        make_time_block(employee, in_days(10), 12, 13)
+
+        assert self.background(employee_client.get(EVENTS_URL, week_params()).json()) == []
+
+    def test_owner_gets_background_only_for_one_employee(self, owner_client, employee, tomorrow_setup):
+        assert self.background(owner_client.get(EVENTS_URL, week_params()).json()) == []
+        assert len(self.background(owner_client.get(EVENTS_URL, week_params(employee=employee.pk)).json())) == 2
+
+
+@pytest.mark.django_db
+class TestCalendarPage:
+    url = reverse('panel:calendar')
+
+    def test_employee_page_has_no_employee_picker(self, employee_client):
+        response = employee_client.get(self.url)
+
+        assert response.status_code == 200
+        content = response.content.decode()
+        assert f'data-events-url="{EVENTS_URL}"' in content
+        assert 'calendar-employee' not in content
+
+    def test_owner_selected_employee_is_passed_to_the_feed(self, owner_client, employee):
+        response = owner_client.get(self.url, {'employee': employee.pk})
+
+        assert f'data-employee="{employee.pk}"' in response.content.decode()
+
+    def test_garbage_employee_param_is_ignored(self, owner_client):
+        response = owner_client.get(self.url, {'employee': '1; DROP'})
+
+        assert 'data-employee=""' in response.content.decode()
+
+
+@pytest.mark.django_db
+class TestCreatePrefillFromCalendar:
+    url = reverse('panel:appointment_create')
+
+    def test_date_time_and_employee_are_prefilled(self, owner_client, employee):
+        response = owner_client.get(self.url, {'date': '2026-10-12', 'time': '10:15', 'employee': employee.pk})
+
+        initial = response.context['form'].initial
+        assert (initial['date'], initial['time'], initial['employee']) == ('2026-10-12', '10:15', str(employee.pk))
+
+    def test_employee_form_ignores_employee_param(self, employee_client, other_employee):
+        response = employee_client.get(self.url, {'date': '2026-10-12', 'employee': other_employee.pk})
+
+        assert response.status_code == 200
+        assert 'employee' not in response.context['form'].fields
+
+
+def move_url(appointment):
+    return reverse('panel:calendar_move', args=[appointment.pk])
+
+
+def local_dt(date, hour, minute=0):
+    return timezone.make_aware(datetime.datetime.combine(date, datetime.time(hour, minute)))
+
+
+@pytest.mark.django_db
+class TestCalendarMove:
+    @pytest.fixture
+    def appointment(self, employee, service, mailoutbox):
+        Schedule.objects.create(
+            employee=employee, date=in_days(1), start_time=datetime.time(9), end_time=datetime.time(17)
+        )
+        appointment = make_appointment(employee, service, in_days(1), 10)
+        mailoutbox.clear()  # creation e-mails are not what these tests check
+        return appointment
+
+    def move(self, client, appointment, hour, minute=0, date=None):
+        data = {'date': (date or in_days(1)).isoformat(), 'time': f'{hour:02}:{minute:02}'}
+        return client.post(move_url(appointment), data)
+
+    def test_moves_to_a_free_slot_and_tells_the_client(self, employee_client, employee_user, appointment, mailoutbox):
+        response = self.move(employee_client, appointment, 11, 15)
+
+        assert response.status_code == 200
+        assert 'Przeniesiono' in response.json()['message']
+        appointment.refresh_from_db()
+        assert appointment.date_time == local_dt(in_days(1), 11, 15)
+        assert appointment.updated_by == employee_user
+        assert len(mailoutbox) == 1
+
+    def test_slot_outside_working_hours_is_rejected(self, employee_client, appointment, mailoutbox):
+        response = self.move(employee_client, appointment, 18)
+
+        assert response.status_code == 400
+        assert 'niedostępny' in response.json()['error']
+        appointment.refresh_from_db()
+        assert appointment.date_time == local_dt(in_days(1), 10)
+        assert mailoutbox == []
+
+    def test_past_time_is_rejected(self, employee_client, appointment):
+        response = self.move(employee_client, appointment, 10, date=in_days(-1))
+
+        assert response.status_code == 400
+        assert 'przeszłości' in response.json()['error']
+
+    def test_owner_cannot_bypass_availability_by_dragging(self, owner_client, appointment):
+        # `force` exists only on the "Przenieś" page; a stray POST field must not switch it on here
+        response = owner_client.post(
+            move_url(appointment), {'date': in_days(1).isoformat(), 'time': '18:00', 'force': 'on'}
+        )
+
+        assert response.status_code == 400
+
+    def test_owner_keeps_the_same_employee(self, owner_client, appointment, employee):
+        assert self.move(owner_client, appointment, 12).status_code == 200
+        appointment.refresh_from_db()
+        assert appointment.employee == employee
+
+    def test_cancelled_appointment_cannot_be_moved(self, employee_client, appointment):
+        appointment.status = Appointment.Status.CANCELLED
+        appointment.save()
+
+        response = self.move(employee_client, appointment, 11)
+
+        assert response.status_code == 400
+        assert 'nie można' in response.json()['error']
+
+    def test_employee_cannot_move_someone_elses(self, employee_client, other_employee, service):
+        theirs = make_appointment(other_employee, service, in_days(1), 10)
+
+        assert self.move(employee_client, theirs, 11).status_code == 404
+
+    def test_get_is_not_allowed(self, employee_client, appointment):
+        assert employee_client.get(move_url(appointment)).status_code == 405
+
+    def test_events_say_which_appointments_can_be_dragged(self, employee_client, employee, service, appointment):
+        done = make_appointment(employee, service, in_days(1), 14, status=Appointment.Status.COMPLETED)
+
+        events = {
+            event['id']: event for event in employee_client.get(EVENTS_URL, week_params()).json() if 'id' in event
+        }
+
+        assert events[appointment.pk]['startEditable'] is True
+        assert events[appointment.pk]['extendedProps']['moveUrl'] == move_url(appointment)
+        assert events[done.pk]['startEditable'] is False
+
+
+@pytest.mark.parametrize(
+    ('start', 'end', 'label'),
+    [((9, 0), (17, 0), '9–17'), ((9, 30), (17, 0), '9:30–17'), ((12, 15), (13, 5), '12:15–13:05')],
+)
+def test_hours_label(start, end, label):
+    assert hours_label(datetime.time(*start), datetime.time(*end)) == label
+
+
+@pytest.mark.django_db
+class TestCalendarScheduleRow:
+    """The "Grafik" all-day row: who works when, who's off, blocked periods."""
+
+    def chips(self, client, **params):
+        return [e['title'] for e in client.get(EVENTS_URL, week_params(**params)).json() if e.get('allDay')]
+
+    def work(self, employee, days, *hours):
+        for start, end in hours:
+            Schedule.objects.create(
+                employee=employee, date=in_days(days), start_time=datetime.time(start), end_time=datetime.time(end)
+            )
+
+    def test_all_view_lists_everyone_on_working_days(self, owner_client, employee, other_employee):
+        self.work(employee, 1, (9, 13), (14, 18))  # split shift
+        make_time_block(employee, in_days(1), 12, 13, reason='lekarz')
+
+        assert self.chips(owner_client) == ['Anna 9–13, 14–18', 'Ewa — wolne', '⊘ Anna 12–13 lekarz']
+
+    def test_days_nobody_works_stay_empty(self, owner_client, employee):
+        self.work(employee, 2, (9, 17))
+
+        days = {e['start'] for e in owner_client.get(EVENTS_URL, week_params()).json() if e.get('allDay')}
+
+        assert days == {in_days(2).isoformat()}
+
+    def test_one_employee_view_shows_only_her(self, owner_client, employee, other_employee):
+        self.work(employee, 1, (9, 17))
+        self.work(other_employee, 1, (10, 18))
+
+        assert self.chips(owner_client, employee=other_employee.pk) == ['Ewa 10–18']
+
+    def test_employee_sees_only_herself(self, employee_client, employee, other_employee):
+        self.work(employee, 1, (9, 17))
+        self.work(other_employee, 1, (10, 18))
+
+        assert self.chips(employee_client) == ['Anna 9–17']
+
+    def test_inactive_employees_are_left_out(self, owner_client, employee, other_employee):
+        self.work(employee, 1, (9, 17))
+        other_employee.is_active = False
+        other_employee.save()
+
+        assert self.chips(owner_client) == ['Anna 9–17']
+
+    def test_chips_cannot_be_dragged(self, owner_client, employee):
+        self.work(employee, 1, (9, 17))
+
+        [chip] = [e for e in owner_client.get(EVENTS_URL, week_params()).json() if e.get('allDay')]
+
+        assert chip['editable'] is False
+        assert 'url' not in chip

@@ -1,0 +1,89 @@
+{% extends 'panel/base.html' %}
+
+{% block title %}Blokady{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+  <h1 class="panel-title mb-0">Blokady</h1>
+  <a href="{% url 'panel:time_block_create' %}" class="btn panel-btn-primary"><i class="bi bi-plus-lg"></i> Dodaj blokadę</a>
+</div>
+<p class="text-muted small">Urlopy, przerwy i inne nieobecności od dziś. W zablokowanym czasie klienci nie mogą rezerwować wizyt.</p>
+
+<div class="card panel-card">
+  {% if time_blocks %}
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Godziny</th>
+            {% if is_owner %}<th>Specjalistka</th>{% endif %}
+            <th class="d-none d-md-table-cell">Powód</th>
+            {% if is_owner %}<th class="d-none d-lg-table-cell">Dodano</th>{% endif %}
+            <th class="text-end"><span class="visually-hidden">Akcje</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for block in time_blocks %}
+            <tr>
+              <td class="text-nowrap">{{ block.date|date:"D d.m.Y" }}</td>
+              <td class="text-nowrap">{{ block.start_time|time:"H:i" }}–{{ block.end_time|time:"H:i" }}</td>
+              {% if is_owner %}<td>{{ block.employee }}</td>{% endif %}
+              <td class="d-none d-md-table-cell">{{ block.reason|default:"—" }}</td>
+              {% if is_owner %}
+                <td class="d-none d-lg-table-cell small text-muted">
+                  {{ block.updated_at|date:"d.m H:i" }}{% if block.updated_by %} — {{ block.updated_by.get_full_name|default:block.updated_by.username }}{% endif %}
+                </td>
+              {% endif %}
+              <td class="text-end">
+                <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ block.pk }}" aria-label="Usuń blokadę">
+                  <i class="bi bi-trash"></i>
+                </button>
+                <div class="modal fade text-start" id="deleteModal{{ block.pk }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ block.pk }}" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h2 class="modal-title h5" id="deleteModalLabel{{ block.pk }}">Usunąć blokadę?</h2>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Zamknij"></button>
+                      </div>
+                      <div class="modal-body">
+                        <p class="mb-0">
+                          {% if is_owner %}<strong>{{ block.employee }}</strong> — {% endif %}{{ block.date|date:"d.m.Y" }}, {{ block.start_time|time:"H:i" }}–{{ block.end_time|time:"H:i" }}{% if block.reason %} ({{ block.reason }}){% endif %}
+                        </p>
+                        <p class="small text-muted mb-0 mt-1">Ten czas znów będzie dostępny do rezerwacji.</p>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Nie</button>
+                        <form method="post" action="{% url 'panel:time_block_delete' block.pk %}">
+                          {% csrf_token %}
+                          <button type="submit" class="btn btn-danger">Tak, usuń</button>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="card-body text-muted">Brak zaplanowanych blokad.</div>
+  {% endif %}
+</div>
+
+{% if is_paginated %}
+  <nav class="mt-3" aria-label="Strony">
+    <ul class="pagination pagination-sm justify-content-center">
+      {% if page_obj.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">‹</a></li>
+      {% endif %}
+      <li class="page-item disabled"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+      {% if page_obj.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">›</a></li>
+      {% endif %}
+    </ul>
+  </nav>
+{% endif %}
+{% endblock %}

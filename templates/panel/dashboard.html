@@ -1,0 +1,67 @@
+{% extends 'panel/base.html' %}
+
+{% block title %}Pulpit{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap align-items-baseline justify-content-between gap-2 mb-4">
+  <h1 class="panel-title mb-0">Dzień dobry, {{ request.user.first_name|default:request.user.username }}</h1>
+  <div class="d-flex align-items-center gap-3">
+    <span class="text-muted">{% now "l, j E Y" %}</span>
+    <a href="{% url 'panel:appointment_create' %}" class="btn btn-sm panel-btn-primary"><i class="bi bi-plus-lg"></i> Dodaj wizytę</a>
+  </div>
+</div>
+
+<div class="row g-4">
+  <section class="col-lg-7">
+    <div class="card panel-card h-100">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h2 class="h6 mb-0"><i class="bi bi-calendar-day"></i> Dzisiejsze wizyty{% if not is_owner %} (moje){% endif %}</h2>
+        <span class="badge bg-secondary">{{ today_appointments|length }}</span>
+      </div>
+      {% if today_appointments %}
+        <ul class="list-group list-group-flush">
+          {% for appointment in today_appointments %}
+            <li class="list-group-item d-flex flex-wrap gap-2 align-items-center">
+              <strong class="panel-time">{{ appointment.date_time|time:"H:i" }}</strong>
+              <span class="flex-grow-1">
+                <a href="{% url 'panel:appointment_detail' appointment.pk %}">{{ appointment.service }} — {{ appointment.client_name }}</a>
+                {% if is_owner and appointment.employee %}<span class="text-muted small">· {{ appointment.employee }}</span>{% endif %}
+              </span>
+              {% include 'panel/_status_badge.html' %}
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div class="card-body text-muted">Brak wizyt na dziś.</div>
+      {% endif %}
+    </div>
+  </section>
+
+  <section class="col-lg-5">
+    <div class="card panel-card h-100">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h2 class="h6 mb-0"><i class="bi bi-hourglass-split"></i> Oczekują na potwierdzenie</h2>
+        <span class="badge bg-warning text-dark">{{ pending_appointments|length }}</span>
+      </div>
+      {% if pending_appointments %}
+        <ul class="list-group list-group-flush">
+          {% for appointment in pending_appointments|slice:":10" %}
+            <li class="list-group-item d-flex gap-2 align-items-center">
+              <div class="flex-grow-1">
+                <div class="d-flex justify-content-between gap-2">
+                  <a href="{% url 'panel:appointment_detail' appointment.pk %}"><strong>{{ appointment.date_time|date:"d.m H:i" }}</strong></a>
+                  <span class="text-muted small">{{ appointment.employee|default:"—" }}</span>
+                </div>
+                <div class="small">{{ appointment.service }} — {{ appointment.client_name }}, {{ appointment.client_phone }}</div>
+              </div>
+              {% include 'panel/appointments/_actions.html' with compact=True next=request.path %}
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div class="card-body text-muted">Nic nie czeka na potwierdzenie.</div>
+      {% endif %}
+    </div>
+  </section>
+</div>
+{% endblock %}
