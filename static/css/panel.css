@@ -139,3 +139,27 @@ a {
   border-radius: 2px;
   vertical-align: middle;
 }
+
+/* Category tabs (services): gold pills, one row that scrolls sideways on phones */
+.panel-tabs {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  gap: 0.25rem;
+}
+.panel-tabs .nav-link {
+  white-space: nowrap;
+  color: var(--rb-body);
+  border: 1px solid var(--rb-border);
+}
+.panel-tabs .nav-link.active {
+  background: var(--rb-gold);
+  border-color: var(--rb-gold);
+  color: #fff;
+}
+/* Same column widths in every tab, so prices/durations don't jump when switching.
+   Only from tablets up: on a phone fixed widths would squeeze the name/description column. */
+@media (min-width: 768px) {
+  .panel-services-table th:nth-child(2) { width: 8rem; }
+  .panel-services-table th:nth-child(3) { width: 7rem; }
+  .panel-services-table th:nth-child(4) { width: 7rem; }
+}

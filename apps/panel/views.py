@@ -688,12 +688,19 @@ class ServiceListView(OwnerRequiredMixin, ListView):
         return Service.objects.select_related('category').order_by('category__name', '-is_active', 'name')
 
 
+def service_list_url(service):
+    """The services list opened on the service's category tab (see `static/js/panel-tabs.js`)."""
+    return f"{reverse('panel:service_list')}#{service.category.slug}"
+
+
 class ServiceFormViewMixin(OwnerRequiredMixin):
     template_name = 'panel/services/form.html'
     form_class = ServiceForm
     model = Service
-    success_url = reverse_lazy('panel:service_list')
     success_message = ''
+
+    def get_success_url(self):
+        return service_list_url(self.object)
 
     def form_valid(self, form):
         response = super().form_valid(form)
@@ -715,13 +722,13 @@ class ServiceToggleActiveView(OwnerRequiredMixin, View):
     http_method_names = ['post']
 
     def post(self, request, pk):
-        service = get_object_or_404(Service, pk=pk)
+        service = get_object_or_404(Service.objects.select_related('category'), pk=pk)
 
         if not service.is_active:
             service.is_active = True
             service.save(update_fields=['is_active'])
             messages.success(request, f'Usługa „{service}” jest znów dostępna do rezerwacji.')
-            return redirect('panel:service_list')
+            return redirect(service_list_url(service))
 
         upcoming = upcoming_appointments(service=service)
         next_appointment = upcoming.first()
@@ -732,9 +739,9 @@ class ServiceToggleActiveView(OwnerRequiredMixin, View):
                 f'Usługa „{service}” ma zaplanowane wizyty ({upcoming.count()}), najbliższa {when:%d.%m.%Y %H:%M}. '
                 'Wyłącz ją, gdy się odbędą albo zostaną odwołane.',
             )
-            return redirect('panel:service_list')
+            return redirect(service_list_url(service))
 
         service.is_active = False
         service.save(update_fields=['is_active'])
         messages.success(request, f'Usługa „{service}” zniknęła ze strony i z rezerwacji. Historia wizyt zostaje.')
-        return redirect('panel:service_list')
+        return redirect(service_list_url(service))

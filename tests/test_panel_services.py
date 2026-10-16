@@ -7,7 +7,7 @@ from django.utils import timezone
 from apps.bookings.forms import BookingForm
 from apps.bookings.utils import get_available_slots
 from apps.panel.forms import AppointmentCreateForm, ServiceForm
-from apps.services.models import Service
+from apps.services.models import Service, ServiceCategory
 from tests.conftest import make_appointment
 
 LIST_URL = reverse('panel:service_list')
@@ -35,6 +35,12 @@ def service_data(category, **overrides):
         'price': '120.00',
         'duration': 60,
     } | overrides
+
+
+@pytest.fixture
+def other_category_service(db):
+    category = ServiceCategory.objects.create(name='Depilacja woskiem', slug='depilacja-woskiem')
+    return Service.objects.create(name='Depilacja nóg', category=category, price='90.00', duration=45)
 
 
 @pytest.fixture
@@ -82,10 +88,32 @@ class TestServiceViews:
         assert response.status_code == 200
         assert set(response.context['services']) == {service, service_short}
 
+    def test_one_tab_per_category(self, owner_client, service, other_category_service):
+        content = owner_client.get(LIST_URL).content.decode()
+
+        for slug in (service.category.slug, other_category_service.category.slug):
+            assert f'data-hash="{slug}"' in content
+            assert f'id="pane-{slug}"' in content
+
+    def test_long_description_is_shortened_with_full_text_on_hover(self, owner_client, service):
+        service.description = 'Bardzo długi opis zabiegu. ' * 10
+        service.save()
+
+        content = owner_client.get(LIST_URL).content.decode()
+
+        assert f'title="{service.description}"' in content
+        assert f'>{service.description[:89]}…<' in content
+
+    def test_toggle_returns_to_the_category_tab(self, owner_client, service):
+        response = owner_client.post(toggle_url(service))
+
+        assert response.url == f'{LIST_URL}#{service.category.slug}'
+
     def test_owner_adds_service(self, owner_client, category):
         response = owner_client.post(CREATE_URL, service_data(category), follow=True)
 
-        assert response.redirect_chain == [(LIST_URL, 302)]
+        # back on the new service's category tab
+        assert response.redirect_chain == [(f'{LIST_URL}#{category.slug}', 302)]
         assert Service.objects.get(name='Pedicure').duration == 60
         assert 'Zespół' in response.content.decode()  # the hint to assign it to specialists
 
