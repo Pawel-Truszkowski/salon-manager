@@ -66,7 +66,7 @@
           <span class="panel-user small">
             <i class="bi bi-person-circle"></i>
             {{ request.user.get_full_name|default:request.user.username }}
-            {% if is_owner %}<span class="badge panel-badge-role">Właściciel</span>{% elif current_employee %}<span class="badge panel-badge-role">Specjalistka</span>{% endif %}
+            {% if is_owner %}<span class="badge panel-badge-role">Właścicielka</span>{% elif current_employee %}<span class="badge panel-badge-role">Specjalistka</span>{% endif %}
           </span>
           <form method="post" action="{% url 'panel:logout' %}">
             {% csrf_token %}

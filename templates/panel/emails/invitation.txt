@@ -1,4 +1,4 @@
-Dzień dobry {{ user.first_name }},
+Dzień dobry,
 
 zapraszamy do panelu Royal Beauty — zobaczysz w nim swoje wizyty, grafik i kalendarz.
 

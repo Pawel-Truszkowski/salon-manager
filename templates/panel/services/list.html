@@ -54,14 +54,35 @@
                     <td class="text-nowrap">{{ service.duration }} min</td>
                     <td class="text-end text-nowrap">
                       <a href="{% url 'panel:service_update' service.pk %}" class="btn btn-sm btn-outline-secondary" aria-label="Edytuj: {{ service }}"><i class="bi bi-pencil"></i></a>
-                      <form method="post" action="{% url 'panel:service_toggle_active' service.pk %}" class="d-inline">
-                        {% csrf_token %}
-                        {% if service.is_active %}
-                          <button type="submit" class="btn btn-sm btn-outline-danger" aria-label="Wyłącz: {{ service }}" title="Wyłącz (zniknie ze strony)"><i class="bi bi-eye-slash"></i></button>
-                        {% else %}
+                      {% if service.is_active %}
+                        {# Turning off hides it from the website at once, so ask first (like deactivating a specialist) #}
+                        <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#serviceOffModal{{ service.pk }}" aria-label="Wyłącz: {{ service }}" title="Wyłącz (zniknie ze strony)"><i class="bi bi-eye-slash"></i></button>
+                        <div class="modal fade text-start" id="serviceOffModal{{ service.pk }}" tabindex="-1" aria-labelledby="serviceOffModalLabel{{ service.pk }}" aria-hidden="true">
+                          <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h2 class="modal-title h5" id="serviceOffModalLabel{{ service.pk }}">Wyłączyć „{{ service }}”?</h2>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Zamknij"></button>
+                              </div>
+                              <div class="modal-body text-wrap">
+                                <p class="mb-0">Usługa zniknie ze strony i z rezerwacji (także w panelu). Historia wizyt zostaje — można ją później włączyć ponownie.</p>
+                              </div>
+                              <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Nie</button>
+                                <form method="post" action="{% url 'panel:service_toggle_active' service.pk %}">
+                                  {% csrf_token %}
+                                  <button type="submit" class="btn btn-danger">Tak, wyłącz</button>
+                                </form>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      {% else %}
+                        <form method="post" action="{% url 'panel:service_toggle_active' service.pk %}" class="d-inline">
+                          {% csrf_token %}
                           <button type="submit" class="btn btn-sm btn-outline-success" aria-label="Włącz: {{ service }}" title="Włącz ponownie"><i class="bi bi-eye"></i></button>
-                        {% endif %}
-                      </form>
+                        </form>
+                      {% endif %}
                     </td>
                   </tr>
                 {% endfor %}

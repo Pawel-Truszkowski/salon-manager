@@ -101,7 +101,10 @@ class TestEmployeeViews:
         assert employee_client.post(update_url(employee), {'first_name': 'X'}).status_code == 403
 
     def test_team_link_shown_for_owner(self, owner_client):
-        assert LIST_URL in owner_client.get(reverse('panel:dashboard')).content.decode()
+        content = owner_client.get(reverse('panel:dashboard')).content.decode()
+
+        assert LIST_URL in content
+        assert 'Właścicielka</span>' in content
 
     def test_team_link_hidden_for_employee(self, employee_client):
         assert LIST_URL not in employee_client.get(reverse('panel:dashboard')).content.decode()

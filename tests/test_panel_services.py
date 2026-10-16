@@ -104,6 +104,12 @@ class TestServiceViews:
         assert f'title="{service.description}"' in content
         assert f'>{service.description[:89]}…<' in content
 
+    def test_turning_off_asks_for_confirmation_first(self, owner_client, service):
+        content = owner_client.get(LIST_URL).content.decode()
+
+        assert f'data-bs-target="#serviceOffModal{service.pk}"' in content
+        assert 'Tak, wyłącz' in content
+
     def test_toggle_returns_to_the_category_tab(self, owner_client, service):
         response = owner_client.post(toggle_url(service))
 

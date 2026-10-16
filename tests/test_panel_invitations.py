@@ -83,6 +83,8 @@ class TestInviteView:
         [mail] = mailoutbox
         assert mail.to == ['ola@salon.pl']
         assert '/panel/invitation/' in mail.body
+        # no name: it can't be put in the Polish vocative automatically (Ewa -> Ewo)
+        assert mail.body.startswith('Dzień dobry,\n')
         assert 'zaproszona' in response.content.decode()
 
     def test_mail_failure_keeps_the_account_and_says_so(self, owner_client, new_employee, monkeypatch):
