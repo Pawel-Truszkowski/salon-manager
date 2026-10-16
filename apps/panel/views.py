@@ -16,7 +16,7 @@ from django.views.generic import CreateView, DetailView, FormView, ListView, Tem
 from apps.bookings.emails import send_confirmation_email
 from apps.bookings.models import Appointment
 from apps.bookings.utils import get_available_slots
-from apps.services.models import Employee, Service, TimeBlock, WeeklyScheduleEntry
+from apps.services.models import Employee, Schedule, Service, TimeBlock, WeeklyScheduleEntry
 from apps.services.scheduling import generate_schedules
 
 from .forms import (
@@ -391,6 +391,16 @@ class ScheduleGenerateView(TargetEmployeeMixin, View):
         return redirect(schedule_url(employee))
 
 
+def hours_label(start, end):
+    """Short "from–to" label for the calendar's Grafik row, e.g. `9–17`, `9:30–17`, `12:15–13`."""
+
+    def short(t):  # full hours without ":00" and no leading zero: the day column is narrow
+        return f'{t.hour}:{t.minute:02}' if t.minute else str(t.hour)
+
+    # Midnight as an end isn't handled: the panel forms require end > start on the same day, so it can't occur
+    return f'{short(start)}–{short(end)}'
+
+
 class CalendarEventsView(PanelAccessMixin, View):
     """JSON feed for FullCalendar: `GET ?start=<ISO>&end=<ISO>[&employee=<pk>]` -> list of event dicts.
 
@@ -405,6 +415,10 @@ class CalendarEventsView(PanelAccessMixin, View):
     }
     WORKING_HOURS_COLOR = '#d1e7dd'
     TIME_BLOCK_COLOR = '#adb5bd'
+    # "Grafik" row above the time grid (all-day events): who works when, who's off, blocked periods
+    CHIP_WORKING = {'color': '#d1e7dd', 'textColor': '#0f5132'}
+    CHIP_OFF = {'color': '#f1f3f5', 'textColor': '#6c757d'}
+    CHIP_BLOCK = {'color': '#adb5bd', 'textColor': '#212529'}
 
     def get(self, request):
         try:
@@ -423,14 +437,63 @@ class CalendarEventsView(PanelAccessMixin, View):
         )
         events = [self.appointment_event(appointment) for appointment in appointments.order_by('date_time')]
 
-        # Working hours / blocks only make sense for one person (an "all employees" view would be a mess)
         if not self.is_owner:
-            events += self.background_events(self.employee, start, end)
+            employees = [self.employee]
         elif employee_id.isdigit():
-            employee = Employee.objects.filter(pk=employee_id).first()
-            if employee:
-                events += self.background_events(employee, start, end)
+            employees = list(Employee.objects.filter(pk=employee_id))
+        else:
+            employees = list(Employee.objects.active().order_by('first_name', 'last_name'))
+
+        # Shaded working hours / blocks behind the grid only for one person (for everyone they'd overlap);
+        # the "Grafik" row works for any number of people
+        if len(employees) == 1 and (not self.is_owner or employee_id.isdigit()):
+            events += self.background_events(employees[0], start, end)
+        events += self.schedule_chips(employees, start, end)
         return JsonResponse(events, safe=False)
+
+    def schedule_chips(self, employees, start, end):
+        """All-day events for the "Grafik" row: per day, each employee's hours (or "wolne"), then blocked periods.
+
+        Days on which none of `employees` works (salon closed, weekend) get no chips at all, so the row stays empty.
+        """
+        first_day, last_day = timezone.localtime(start).date(), timezone.localtime(end).date()
+        in_range = {'employee__in': employees, 'date__gte': first_day, 'date__lt': last_day}
+
+        shifts = defaultdict(list)  # (date, employee_id) -> that day's Schedule rows, earliest first
+        for schedule in Schedule.objects.filter(**in_range).order_by('start_time'):
+            shifts[schedule.date, schedule.employee_id].append(schedule)
+        blocks = defaultdict(list)  # date -> TimeBlocks
+        for block in TimeBlock.objects.filter(**in_range).select_related('employee').order_by('start_time'):
+            blocks[block.date].append(block)
+        working_days = {date for date, _ in shifts}
+
+        def chip(date, title, style, order):
+            return {
+                'title': title,
+                'start': date.isoformat(),
+                'allDay': True,
+                'editable': False,
+                'classNames': ['calendar-chip'],
+                'extendedProps': {'order': order},
+                **style,
+            }
+
+        events = []
+        for date in sorted(working_days):
+            for order, employee in enumerate(employees):
+                day_shifts = shifts.get((date, employee.pk))
+                if day_shifts:
+                    hours = ', '.join(hours_label(s.start_time, s.end_time) for s in day_shifts)
+                    events.append(chip(date, f'{employee} {hours}', self.CHIP_WORKING, order))
+                else:
+                    events.append(chip(date, f'{employee} — wolne', self.CHIP_OFF, order))
+        for date, day_blocks in blocks.items():
+            for block in day_blocks:
+                title = f'⊘ {block.employee} {hours_label(block.start_time, block.end_time)}'
+                if block.reason:
+                    title = f'{title} {block.reason}'
+                events.append(chip(date, title, self.CHIP_BLOCK, len(employees)))  # after everyone's hours
+        return events
 
     def background_events(self, employee, start, end):
         """`Schedule` rows (working hours) and `TimeBlock`s of `employee` in [start, end) as background events.

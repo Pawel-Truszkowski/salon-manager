@@ -16,7 +16,10 @@
       ? { left: 'prev,next', center: 'title', right: 'today' }
       : { left: 'prev,next today', center: 'title', right: 'timeGridWeek,timeGridDay,listWeek' },
     firstDay: 1,
-    allDaySlot: false,
+    // The all-day row is the "Grafik" strip: who works when and blocked periods (chips from the server)
+    allDaySlot: true,
+    allDayText: 'Grafik',
+    eventOrder: 'order,title',
     slotMinTime: '07:00:00',
     slotMaxTime: '21:00:00',
     slotDuration: '00:15:00',

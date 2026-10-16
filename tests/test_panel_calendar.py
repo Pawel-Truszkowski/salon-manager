@@ -5,6 +5,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from apps.bookings.models import Appointment
+from apps.panel.views import hours_label
 from apps.services.models import Schedule
 from tests.conftest import make_appointment, make_time_block
 
@@ -283,3 +284,65 @@ class TestCalendarMove:
         assert events[appointment.pk]['startEditable'] is True
         assert events[appointment.pk]['extendedProps']['moveUrl'] == move_url(appointment)
         assert events[done.pk]['startEditable'] is False
+
+
+@pytest.mark.parametrize(
+    ('start', 'end', 'label'),
+    [((9, 0), (17, 0), '9–17'), ((9, 30), (17, 0), '9:30–17'), ((12, 15), (13, 5), '12:15–13:05')],
+)
+def test_hours_label(start, end, label):
+    assert hours_label(datetime.time(*start), datetime.time(*end)) == label
+
+
+@pytest.mark.django_db
+class TestCalendarScheduleRow:
+    """The "Grafik" all-day row: who works when, who's off, blocked periods."""
+
+    def chips(self, client, **params):
+        return [e['title'] for e in client.get(EVENTS_URL, week_params(**params)).json() if e.get('allDay')]
+
+    def work(self, employee, days, *hours):
+        for start, end in hours:
+            Schedule.objects.create(
+                employee=employee, date=in_days(days), start_time=datetime.time(start), end_time=datetime.time(end)
+            )
+
+    def test_all_view_lists_everyone_on_working_days(self, owner_client, employee, other_employee):
+        self.work(employee, 1, (9, 13), (14, 18))  # split shift
+        make_time_block(employee, in_days(1), 12, 13, reason='lekarz')
+
+        assert self.chips(owner_client) == ['Anna 9–13, 14–18', 'Ewa — wolne', '⊘ Anna 12–13 lekarz']
+
+    def test_days_nobody_works_stay_empty(self, owner_client, employee):
+        self.work(employee, 2, (9, 17))
+
+        days = {e['start'] for e in owner_client.get(EVENTS_URL, week_params()).json() if e.get('allDay')}
+
+        assert days == {in_days(2).isoformat()}
+
+    def test_one_employee_view_shows_only_her(self, owner_client, employee, other_employee):
+        self.work(employee, 1, (9, 17))
+        self.work(other_employee, 1, (10, 18))
+
+        assert self.chips(owner_client, employee=other_employee.pk) == ['Ewa 10–18']
+
+    def test_employee_sees_only_herself(self, employee_client, employee, other_employee):
+        self.work(employee, 1, (9, 17))
+        self.work(other_employee, 1, (10, 18))
+
+        assert self.chips(employee_client) == ['Anna 9–17']
+
+    def test_inactive_employees_are_left_out(self, owner_client, employee, other_employee):
+        self.work(employee, 1, (9, 17))
+        other_employee.is_active = False
+        other_employee.save()
+
+        assert self.chips(owner_client) == ['Anna 9–17']
+
+    def test_chips_cannot_be_dragged(self, owner_client, employee):
+        self.work(employee, 1, (9, 17))
+
+        [chip] = [e for e in owner_client.get(EVENTS_URL, week_params()).json() if e.get('allDay')]
+
+        assert chip['editable'] is False
+        assert 'url' not in chip

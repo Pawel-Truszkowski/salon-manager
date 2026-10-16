@@ -163,3 +163,12 @@ a {
   .panel-services-table th:nth-child(3) { width: 7rem; }
   .panel-services-table th:nth-child(4) { width: 7rem; }
 }
+
+/* Calendar "Grafik" row chips (all-day events): compact, not clickable */
+#calendar .calendar-chip {
+  font-size: 0.75rem;
+  cursor: default;
+}
+#calendar .calendar-chip .fc-event-title {
+  white-space: normal;
+}
