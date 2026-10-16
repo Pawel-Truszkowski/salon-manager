@@ -7,6 +7,7 @@ from django.urls import reverse
 from apps.panel.forms import InviteEmployeeForm
 from apps.panel.invitations import create_invited_account, invitation_url
 from apps.services.models import Employee
+from tests.conftest import TEST_PASSWORD
 
 User = get_user_model()
 LIST_URL = reverse('panel:employee_list')
@@ -129,16 +130,16 @@ class TestAcceptInvitation:
         response = client.get(path, follow=True)
         assert response.context['validlink']
         form_url = response.redirect_chain[-1][0]
-        response = client.post(form_url, {'new_password1': 'Bardzo-Trudne-77', 'new_password2': 'Bardzo-Trudne-77'})
+        response = client.post(form_url, {'new_password1': TEST_PASSWORD, 'new_password2': TEST_PASSWORD})
         assert response.status_code == 302
 
         user.refresh_from_db()
-        assert user.check_password('Bardzo-Trudne-77')
+        assert user.check_password(TEST_PASSWORD)
         # The token hashed the old (unusable) password, so the same link is dead now
         client.logout()
         assert not client.get(path, follow=True).context['validlink']
         # ...and the new account opens her panel
-        assert client.login(username='ola@salon.pl', password='Bardzo-Trudne-77')
+        assert client.login(username='ola@salon.pl', password=TEST_PASSWORD)
         assert client.get(reverse('panel:dashboard')).status_code == 200
 
     def test_link_in_the_mail_works(self, owner_client, client, new_employee, mailoutbox):
