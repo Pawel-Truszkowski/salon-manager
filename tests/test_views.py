@@ -337,3 +337,36 @@ class TestSeoMeta:
         body = client.get('/robots.txt').content.decode()
         assert 'Sitemap: http://testserver/sitemap.xml' in body
         assert 'Disallow: /panel/' in body
+
+
+class TestErrorPages:
+    def test_404_is_polish_and_links_to_booking(self, client, db, settings):
+        settings.DEBUG = False
+        response = client.get('/nie-ma-takiej-strony/')
+        assert response.status_code == 404
+        html = response.content.decode()
+        assert 'Nie ma takiej strony' in html
+        assert f'href="{reverse("home")}#rezerwacja"' in html
+
+    def test_500_renders_without_request_context(self, rf):
+        from django.views.defaults import server_error
+
+        response = server_error(rf.get('/'))
+        assert response.status_code == 500
+        html = response.content.decode()
+        assert 'Coś poszło nie tak' in html
+        assert 'href="tel:+48793355756"' in html
+
+
+class TestImagesAndLinks:
+    def test_gallery_images_have_descriptive_alt_text(self, client, db):
+        html = client.get(reverse('home')).content.decode()
+        alts = re.findall(r'<img [^>]*alt="([^"]*)"', html)
+        assert 'Sprzęt' not in alts
+        assert 'Kosmetyki' not in alts
+        assert alts.count('') == 1  # only the lightbox placeholder; JS copies the alt in when it opens
+
+    def test_external_links_in_new_tab_use_noopener(self, client, db):
+        html = client.get(reverse('home')).content.decode()
+        for tag in re.findall(r'<a [^>]*target="_blank"[^>]*>', html):
+            assert 'noopener' in tag, tag

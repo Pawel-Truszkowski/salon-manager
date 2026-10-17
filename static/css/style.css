@@ -136,6 +136,17 @@ body {
   text-underline-offset: 0.2em;
 }
 
+.rb-error h1 {
+  font-family: var(--ff-display);
+  font-weight: 400;
+  font-size: clamp(2.2rem, 5vw, 3.5rem);
+  color: var(--rb-dark);
+  margin-bottom: 1rem;
+}
+.rb-error .rb-body-text {
+  max-width: 34rem;
+}
+
 /* ---------- buttons: one solid, one quiet; small radius (the arch is the only round shape) ---------- */
 .rb-btn {
   display: inline-flex;

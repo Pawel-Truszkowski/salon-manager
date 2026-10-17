@@ -38,8 +38,8 @@ Według `docs/redesign/README.md` (tokeny, typografia) i prototypu.
   *Akceptacja:* test `assertContains(response, '<h1', count=1)`.
 - [ ] **Title** ≤ 60 znaków. **Open Graph + Twitter Card** w `base.html` przez bloki (podstrony je nadpiszą), `og:image` 1200×630.
 - [ ] **JSON-LD BeautySalon** (wzór w prototypie): `@id`, `geo`, `priceRange: "20–400 zł"`, `openingHoursSpecification` pn–nd 09:00–21:00, `description` z „wyłącznie po wcześniejszym umówieniu”, `founder` → `Person` (Paulina), `logo`, `email`.
-- [ ] Alty opisowe, `rel="noopener"` przy `target="_blank"`.
-- [ ] Polskie `404.html` / `500.html`.
+- [x] Alty opisowe, `rel="noopener"` przy `target="_blank"`.
+- [x] Polskie `404.html` / `500.html`.
   *Akceptacja:* test z `@override_settings(DEBUG=False)`.
 - [ ] **www → 301** na domenę główną (`nginx/prod.conf` albo reguła w Cloudflare).
 

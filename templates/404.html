@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Nie ma takiej strony — Royal Beauty{% endblock %}
+{% block content %}
+<section class="rb-section rb-error">
+  <div class="container-xl px-4 px-lg-5">
+    <h1>Nie ma takiej strony</h1>
+    <p class="rb-body-text">Adres mógł się zmienić albo zawiera literówkę. Cennik, rezerwacja i kontakt są na stronie głównej.</p>
+    <div class="rb-hero-actions">
+      <a class="btn rb-btn rb-btn-solid" href="{% url 'home' %}#rezerwacja">Zarezerwuj wizytę</a>
+      <a class="btn rb-btn rb-btn-quiet" href="{% url 'home' %}">Strona główna</a>
+    </div>
+    <p class="rb-body-text mt-4">Wolisz zadzwonić? <a class="rb-tel" href="tel:+48793355756">+48 793 355 756</a></p>
+  </div>
+</section>
+{% endblock %}
