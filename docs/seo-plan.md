@@ -41,7 +41,7 @@ Według `docs/redesign/README.md` (tokeny, typografia) i prototypu.
 - [x] Alty opisowe, `rel="noopener"` przy `target="_blank"`.
 - [x] Polskie `404.html` / `500.html`.
   *Akceptacja:* test z `@override_settings(DEBUG=False)`.
-- [ ] **www → 301** na domenę główną (`nginx/prod.conf` albo reguła w Cloudflare).
+- [x] **www → 301** na domenę główną (`nginx/prod.conf`; zadziała po deployu, patrz etap 6).
 
 ### 2. Cennik renderowany po stronie serwera ⭐
 - [ ] Usługi pogrupowane w widoku `home` i wyrenderowane w Django jako wiersze `<details>`: nazwa (`<h3>`), czas, cena, opis (listy z „- ” jako `<ul>`). Spis kategorii z liczbą zabiegów i zakresem cen.
@@ -82,6 +82,7 @@ Termin docelowy: przed 8 listopada. Jeśli nie zdążymy, laser na pierwszy term
 
 ### 6. Publikacja na produkcji
 - [ ] Merge `dev` → `main`, ręczny deploy na Droplet (jak dotąd), sprawdzenie na stagingu przed deployem.
+- [ ] Po deployu przeładować nginx (`docker compose -f docker-compose.prod.yml exec nginx nginx -s reload`): `prod.conf` jest montowany jako plik, więc `up -d --build` go nie podchwyci. Sprawdzenie: `curl -sI https://www.royalbeauty-studiourody.pl/` → `301` na domenę bez www.
 - [ ] Zaraz po deployu na produkcji: etap 0 (Marika, Wiola → `is_active = False`, bio Pauliny).
 - [ ] Paulina ustawia w panelu szablon tygodnia i generuje grafik (dziś na produkcji nikt nie ma grafiku, więc formularz nie pokazuje żadnych terminów, a „najbliższy wolny termin” pokazałby „zadzwoń”). Do tego wynajem lasera 8–9.11, jeśli etap 5 jest gotowy.
 - [ ] `robots.txt` z `Disallow: /panel/` trafi na produkcję razem z panelem.
