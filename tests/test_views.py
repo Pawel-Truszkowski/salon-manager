@@ -1,7 +1,9 @@
 import datetime
 import json
+import re
 
 import pytest
+from django.conf import settings
 from django.test import Client
 from django.urls import reverse
 from django.utils import timezone
@@ -256,3 +258,23 @@ class TestCancelBookingView:
         response = self.client.post(reverse('cancel_booking', args=[appt.cancellation_token]))
         assert response.status_code == 200
         assert len(mailoutbox) == 0
+
+
+class TestSelfHostedFonts:
+    """Fonts are served from static/ so no visitor IP reaches Google Fonts (GDPR)."""
+
+    @pytest.mark.parametrize('url_name', ['home', 'panel:login'])
+    def test_page_uses_local_fonts_only(self, client, db, url_name):
+        response = client.get(reverse(url_name))
+        assert response.status_code == 200
+        assert 'css/fonts.css' in response.content.decode()
+        assert 'fonts.googleapis.com' not in response.content.decode()
+        assert 'fonts.gstatic.com' not in response.content.decode()
+
+    def test_every_font_face_points_to_an_existing_file(self):
+        static_dir = settings.STATICFILES_DIRS[0]
+        css = (static_dir / 'css' / 'fonts.css').read_text()
+        urls = re.findall(r'url\("\.\./(fonts/[^"]+)"\)', css)
+        assert urls
+        missing = [u for u in urls if not (static_dir / u).is_file()]
+        assert missing == []

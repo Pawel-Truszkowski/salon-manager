@@ -7,7 +7,7 @@
   --rb-gold-dk: #8b6b35;
   --rb-border: rgba(184, 147, 90, 0.25);
   --ff-display: "Playfair Display", Georgia, serif;
-  --ff-body: "Raleway", sans-serif;
+  --ff-body: "Jost", "Helvetica Neue", Arial, sans-serif;
 }
 
 body.panel {
@@ -28,7 +28,7 @@ a {
 
 .panel-brand {
   font-family: var(--ff-display);
-  font-weight: 700;
+  font-weight: 500;
   color: var(--rb-dark);
   font-size: 1.25rem;
 }
