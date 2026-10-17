@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Royal Beauty — Salon Kosmetyczny Wrocław | Rzęsy, Paznokcie</title>
+<meta name="description" content="Royal Beauty — salon urody we Wrocławiu. Zabiegi na twarz, przedłużanie rzęs, manicure oraz pedicure. Zarezerwuj wizytę online już dziś!" />
+<meta property="og:title" content="Royal Beauty — salon kosmetyczny we Wrocławiu" />
+<meta property="og:image" content="https://royalbeauty-studiourody.pl/static/img/og-salon.jpg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet" />
+<script type="application/ld+json">{{SALON_LD}}</script>
+<script type="application/ld+json">{{FAQ_LD}}</script>
+<style>
+/* PROTOTYP — referencja wizualna do przeniesienia na templates/home.html + static/css/style.css */
+:root {
+  --cream: #f5efe6;   /* tło strony (bez zmian) */
+  --sand: #ede5d8;    /* drugie tło sekcji (bez zmian) */
+  --paper: #fdf9f4;   /* karty, formularz (bez zmian) */
+  --espresso: #2c2418;/* nagłówki, ciemne pasma (bez zmian) */
+  --ink: #3d2e1e;     /* tekst (bez zmian) */
+  --gold: #b8935a;    /* tylko linie, wypełnienia, obramowania — za słaby kontrast na tekst */
+  --gold-ink: #7d5f2e;/* złoto do tekstu i linków (AA na cream) */
+  --line: rgba(184, 147, 90, .35);
+  --serif: "Playfair Display", Georgia, serif;
+  --sans: "Jost", "Helvetica Neue", Arial, sans-serif;
+  --wrap: 72rem;
+  --gutter: clamp(1rem, 4vw, 2.5rem);
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 5rem; }
+body { margin: 0; background: var(--cream); color: var(--ink); font: 300 1.0625rem/1.65 var(--sans); -webkit-font-smoothing: antialiased; }
+img { display: block; max-width: 100%; height: auto; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--gold-ink); outline-offset: 3px; }
+.wrap { max-width: var(--wrap); margin: 0 auto; padding: 0 var(--gutter); }
+.wrap > *, .form > * { min-width: 0; } /* grid items default to min-width:auto: the category strip and long <option>s would widen columns */
+h1, h2, h3 { font-family: var(--serif); font-weight: 400; color: var(--espresso); margin: 0; }
+h2 { font-size: clamp(2rem, 4.2vw, 3rem); line-height: 1.1; letter-spacing: -.01em; }
+.section { padding: clamp(4rem, 9vw, 7rem) 0; }
+.section-head { display: grid; gap: 1rem; align-content: start; margin-bottom: clamp(2rem, 5vw, 3.5rem); max-width: 40rem; }
+.section-head p { margin: 0; }
+.muted { color: #6b5a45; }
+
+/* Buttons: one solid, one quiet. Small radius — the arch is the only round shape on the page. */
+.btn { display: inline-flex; align-items: center; justify-content: center; min-height: 3rem; padding: .75rem 1.6rem; font: 500 .95rem/1 var(--sans); letter-spacing: .02em; text-decoration: none; border-radius: 2px; border: 1px solid var(--espresso); cursor: pointer; transition: background .2s, color .2s; }
+.btn-solid { background: var(--espresso); color: var(--paper); }
+.btn-solid:hover { background: var(--ink); }
+.btn-quiet { background: transparent; color: var(--espresso); }
+.btn-quiet:hover { background: var(--espresso); color: var(--paper); }
+.text-link { color: var(--gold-ink); font-weight: 500; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: .25em; }
+
+/* The arch: a salon mirror. Used for photos and portraits, nowhere else. */
+.arch { border-radius: 999px 999px 0 0; overflow: hidden; background: var(--sand); }
+
+/* ---------- header ---------- */
+.top { position: sticky; top: 0; z-index: 10; background: rgba(245, 239, 230, .94); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+.top .wrap { display: flex; align-items: center; gap: 2rem; height: 4.5rem; }
+.brand { display: flex; align-items: center; gap: .75rem; text-decoration: none; font-family: var(--serif); font-size: 1.15rem; color: var(--espresso); }
+.brand img { width: 3.4rem; margin: -.4rem 0; }
+.nav { display: flex; gap: 1.75rem; margin-left: auto; list-style: none; padding: 0; }
+.nav a { text-decoration: none; font-size: .95rem; }
+.nav a:hover { color: var(--gold-ink); }
+.top .tel { text-decoration: none; font-weight: 400; white-space: nowrap; }
+.top .btn { min-height: 2.6rem; padding: .6rem 1.1rem; }
+
+/* ---------- hero ---------- */
+.hero { padding: clamp(2.5rem, 6vw, 5rem) 0 clamp(4rem, 8vw, 6rem); }
+.hero .wrap { display: grid; grid-template-columns: 1.15fr .85fr; gap: clamp(2rem, 6vw, 5rem); align-items: end; }
+.hero h1 { font-size: clamp(2.6rem, 6.4vw, 5.25rem); line-height: 1.02; letter-spacing: -.02em; }
+.hero h1 span { display: block; font-size: .42em; line-height: 1.3; letter-spacing: 0; color: var(--gold-ink); font-style: italic; margin-top: .9rem; }
+.hero .lead { font-size: 1.15rem; max-width: 34rem; margin: 1.75rem 0 2.25rem; }
+.hero .actions { display: flex; flex-wrap: wrap; gap: .75rem; }
+.facts { display: grid; grid-template-columns: repeat(3, auto); justify-content: start; gap: 2.5rem; margin: 3rem 0 0; padding: 1.5rem 0 0; border-top: 1px solid var(--line); }
+.facts div { display: grid; gap: .1rem; }
+.facts dt { font-size: .85rem; color: #6b5a45; }
+.facts dd { margin: 0; font-weight: 400; }
+.facts a { text-decoration: none; }
+.hero-photo { position: relative; }
+.hero-photo .arch { aspect-ratio: 4 / 5.4; }
+.hero-photo img { width: 100%; height: 100%; object-fit: cover; }
+.hero-photo::before { content: ""; position: absolute; inset: -14px -14px 14px 14px; border: 1px solid var(--gold); border-bottom: 0; border-radius: 999px 999px 0 0; z-index: -1; }
+@media (prefers-reduced-motion: no-preference) {
+  .hero-photo .arch { animation: rise 1.1s cubic-bezier(.2, .7, .1, 1) both; }
+  @keyframes rise { from { clip-path: inset(100% 0 0 0); } to { clip-path: inset(0 0 0 0); } }
+}
+
+/* ---------- about ---------- */
+.about { background: var(--paper); }
+.about .wrap { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(2rem, 6vw, 5rem); }
+.about-text p:first-child { font-family: var(--serif); font-size: clamp(1.35rem, 2.4vw, 1.75rem); line-height: 1.4; color: var(--espresso); margin-top: 0; }
+.team { list-style: none; padding: 0; margin: 0; display: grid; gap: 1.5rem; }
+.team .person { display: grid; grid-template-columns: 10rem 1fr; gap: 1.5rem; align-items: end; }
+.person h3 { font-size: 1.6rem; }
+.person p { margin: .25rem 0 0; font-size: .95rem; }
+.person-skills { color: #6b5a45; }
+.portrait { aspect-ratio: 3 / 4; display: grid; place-items: center; border: 1px dashed var(--gold); background: var(--cream); }
+.portrait span { font-family: var(--serif); font-size: 2.5rem; color: var(--gold-ink); }
+
+/* ---------- price list: the one bold element ---------- */
+.menu .wrap { display: grid; grid-template-columns: 17rem 1fr; gap: clamp(2rem, 5vw, 4.5rem); align-items: start; }
+.menu-index { position: sticky; top: 6rem; }
+.menu-index ol { list-style: none; margin: 2rem 0 0; padding: 0; border-top: 1px solid var(--line); }
+.menu-index a { display: grid; padding: .9rem 0; border-bottom: 1px solid var(--line); text-decoration: none; }
+.menu-index a:hover .idx-name, .menu-index a[aria-current] .idx-name { color: var(--gold-ink); }
+.idx-name { font-family: var(--serif); font-size: 1.3rem; color: var(--espresso); }
+.idx-meta { font-size: .85rem; color: #6b5a45; }
+.menu-group + .menu-group { margin-top: 4rem; }
+.menu-group-title { font-size: clamp(1.75rem, 3vw, 2.25rem); padding-bottom: 1rem; border-bottom: 2px solid var(--espresso); }
+.treat { border-bottom: 1px solid var(--line); }
+.treat summary { display: flex; align-items: baseline; gap: .75rem; padding: .75rem 0; cursor: pointer; list-style: none; }
+.treat summary::-webkit-details-marker { display: none; }
+.treat-name { font: 400 1.05rem/1.35 var(--sans); color: var(--espresso); }
+.treat summary:hover .treat-name { color: var(--gold-ink); }
+.leader { flex: 1; min-width: 1.5rem; border-bottom: 1px dotted var(--gold); transform: translateY(-.3em); }
+.treat-time { font-size: .9rem; color: #6b5a45; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.treat-price { font-family: var(--serif); font-size: 1.2rem; color: var(--espresso); min-width: 5.5rem; text-align: right; white-space: nowrap; font-variant-numeric: lining-nums tabular-nums; }
+.treat[open] .treat-name { font-weight: 500; }
+.treat-body { padding: 0 6.5rem 1.4rem 0; max-width: 46rem; font-size: .98rem; }
+.treat-body p { margin: 0 0 .6rem; }
+.treat-body ul { margin: 0 0 .8rem; padding-left: 1.1rem; }
+.treat[open] .treat-body { animation: open .25s ease-out; }
+@keyframes open { from { opacity: 0; transform: translateY(-4px); } }
+@media (prefers-reduced-motion: reduce) { .treat[open] .treat-body { animation: none; } }
+
+.laser-note { margin: 1.25rem 0 .5rem; padding: 1.25rem 1.5rem; background: var(--paper); border-left: 2px solid var(--gold); }
+.laser-note p { margin: 0 0 .6rem; max-width: 40rem; }
+.laser-when { font-family: var(--serif); font-size: 1.25rem; color: var(--espresso); }
+.laser-when strong { font-weight: 400; }
+
+/* ---------- gallery ---------- */
+.gallery { background: var(--sand); }
+.mosaic { display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: 15rem; gap: .75rem; }
+.mosaic img { width: 100%; height: 100%; object-fit: cover; }
+.mosaic .tall { grid-row: span 2; }
+.mosaic .wide { grid-column: span 2; }
+
+/* ---------- reviews ---------- */
+.reviews .wrap { display: grid; grid-template-columns: 1fr 2fr; gap: clamp(2rem, 6vw, 5rem); }
+.quotes { display: grid; gap: 2.5rem; }
+.quote { margin: 0; padding-left: 1.5rem; border-left: 2px solid var(--gold); }
+.quote p { font-family: var(--serif); font-size: clamp(1.25rem, 2.2vw, 1.6rem); line-height: 1.45; color: var(--espresso); margin: 0 0 .75rem; }
+.quote footer { font-size: .9rem; color: #6b5a45; }
+.todo { display: inline-block; margin-top: 1rem; padding: .35rem .6rem; border: 1px dashed var(--gold-ink); color: var(--gold-ink); font-size: .85rem; }
+
+/* ---------- FAQ ---------- */
+.faq-section { background: var(--paper); }
+.faq-section .wrap { display: grid; grid-template-columns: 1fr 2fr; gap: clamp(2rem, 6vw, 5rem); }
+.faq { border-bottom: 1px solid var(--line); }
+.faq:first-child { border-top: 1px solid var(--line); }
+.faq summary { display: flex; justify-content: space-between; gap: 1rem; padding: 1.25rem 0; cursor: pointer; list-style: none; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary h3 { font-size: 1.3rem; line-height: 1.35; }
+.faq summary::after { content: "+"; font: 300 1.6rem/1 var(--sans); color: var(--gold-ink); transition: transform .2s; }
+.faq[open] summary::after { transform: rotate(45deg); }
+.faq p { margin: 0 0 1.5rem; max-width: 40rem; }
+
+/* ---------- booking ---------- */
+.booking { background: var(--espresso); color: #e9dfd0; }
+.booking .wrap { display: grid; grid-template-columns: 1fr 1.2fr; gap: clamp(2rem, 6vw, 5rem); }
+.booking h2 { color: var(--paper); }
+.booking .steps { margin: 2rem 0 0; padding-left: 1.2rem; }
+.booking .steps li { margin-bottom: .6rem; }
+.booking .side-contact { margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(212, 184, 150, .3); }
+.booking .side-contact a { color: var(--paper); text-decoration: none; font-size: 1.15rem; }
+.form { background: var(--paper); color: var(--ink); padding: clamp(1.5rem, 4vw, 2.5rem); display: grid; grid-template-columns: 1fr 1fr; gap: 1.1rem 1rem; }
+.field { display: grid; gap: .35rem; }
+.field.full { grid-column: 1 / -1; }
+.field small { font-size: .85rem; }
+.field label { font-size: .9rem; font-weight: 400; color: var(--espresso); }
+.field input, .field select, .field textarea { width: 100%; font: 300 1rem var(--sans); color: var(--ink); background: #fff; border: 1px solid #d9cbb5; border-radius: 2px; padding: .75rem .85rem; min-height: 3rem; }
+.field input:focus, .field select:focus, .field textarea:focus { outline: 2px solid var(--gold-ink); outline-offset: 0; border-color: var(--gold-ink); }
+.form .btn { grid-column: 1 / -1; min-height: 3.4rem; }
+.form .consent { grid-column: 1 / -1; margin: 0; font-size: .85rem; color: #6b5a45; }
+
+/* ---------- contact ---------- */
+.contact .wrap { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(2rem, 6vw, 5rem); align-items: center; }
+.contact .arch { aspect-ratio: 1 / 1.1; }
+.contact .arch img { width: 100%; height: 100%; object-fit: cover; }
+.nap { font-style: normal; font-size: 1.2rem; line-height: 1.6; margin: 1.5rem 0; }
+.nap a { text-decoration: none; }
+.by-appt { margin: 1.5rem 0 2rem; padding-top: 1.25rem; border-top: 1px solid var(--line); }
+.by-appt p { margin: 0 0 .5rem; }
+.by-appt strong { font-weight: 500; color: var(--espresso); }
+
+/* ---------- footer ---------- */
+.foot { background: var(--espresso); color: #cbbda8; padding: 3.5rem 0 2rem; font-size: .95rem; }
+.foot .wrap { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 2rem; }
+.foot a { color: #efe6d8; text-decoration: none; }
+.foot ul { list-style: none; padding: 0; margin: 0; display: grid; gap: .4rem; }
+.foot .legal { grid-column: 1 / -1; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; padding-top: 1.5rem; margin-top: 1rem; border-top: 1px solid rgba(212, 184, 150, .2); font-size: .85rem; }
+
+/* ---------- responsive ---------- */
+@media (max-width: 960px) {
+  .nav { display: none; }
+  .top .tel { margin-left: auto; }
+  .hero .wrap, .about .wrap, .menu .wrap, .reviews .wrap, .faq-section .wrap, .booking .wrap, .contact .wrap { grid-template-columns: 1fr; }
+  .hero-photo { max-width: 26rem; }
+  .menu-index { position: static; }
+  .menu-index ol { display: flex; gap: .5rem; overflow-x: auto; border: 0; margin-top: 1.5rem; padding-bottom: .25rem; }
+  .menu-index a { border: 1px solid var(--line); padding: .6rem .9rem; white-space: nowrap; }
+  .idx-name { font-size: 1.05rem; }
+  .idx-meta { display: none; }
+  .mosaic { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 11rem; }
+}
+@media (max-width: 600px) {
+  .top .brand span, .top .tel { display: none; }
+  .top .btn { margin-left: auto; }
+  .facts { grid-template-columns: 1fr; gap: 1rem; }
+  .team .person { grid-template-columns: 7rem 1fr; }
+  .treat summary { flex-wrap: wrap; row-gap: .2rem; }
+  .treat-name { flex: 1 0 100%; }
+  .leader { display: none; }
+  .treat-time { flex: 1; }
+  .treat-body { padding-right: 0; }
+  .form { grid-template-columns: 1fr; }
+  .foot .wrap { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#"><img src="{{IMG}}Logo_Royal_Beauty.PNG" alt="" width="42" height="42" /><span>Royal Beauty</span></a>
+    <ul class="nav">
+      <li><a href="#cennik">Cennik</a></li>
+      <li><a href="#o-salonie">O salonie</a></li>
+      <li><a href="#opinie">Opinie</a></li>
+      <li><a href="#faq">Pytania</a></li>
+      <li><a href="#kontakt">Kontakt</a></li>
+    </ul>
+    <a class="tel" href="tel:+48793355756">793 355 756</a>
+    <a class="btn btn-solid" href="#rezerwacja">Zarezerwuj wizytę</a>
+  </div>
+</header>
+
+<main>
+<section class="hero">
+  <div class="wrap">
+    <div>
+      <h1>Salon kosmetyczny we Wrocławiu<span>Royal Beauty Studio Urody</span></h1>
+      <p class="lead">Przedłużamy i laminujemy rzęsy, robimy manicure i pedicure hybrydowy, depilację woskiem oraz zabiegi na twarz, od oczyszczania wodorowego po mezoterapię mikroigłową.</p>
+      <div class="actions">
+        <a class="btn btn-solid" href="#rezerwacja">Zarezerwuj wizytę</a>
+        <a class="btn btn-quiet" href="#cennik">Zobacz cennik</a>
+      </div>
+      <dl class="facts">
+        <div><dt>Adres</dt><dd><a href="https://www.google.com/maps/search/?api=1&query=Royal+Beauty+Ma%C5%82opanewska+24B+Wroc%C5%82aw">ul. Małopanewska 24B/5</a></dd></div>
+        <div><dt>Najbliższy wolny termin</dt><dd><a href="#rezerwacja">wtorek, 20 października</a></dd></div>
+        <div><dt>Telefon</dt><dd><a href="tel:+48793355756">+48 793 355 756</a></dd></div>
+      </dl>
+    </div>
+    <div class="hero-photo">
+      <div class="arch"><img src="{{IMG}}zabieg-twarzy.jpeg" alt="Kosmetolożka Royal Beauty wykonuje zabieg na twarz" width="800" height="1080" /></div>
+    </div>
+  </div>
+</section>
+
+<section class="section about" id="o-salonie" aria-labelledby="about-h">
+  <div class="wrap">
+    <div class="about-text">
+      <p>Royal Beauty to kameralne studio urody. Przyjmujemy po wcześniejszym umówieniu, więc na wizycie jesteś tylko Ty i nikt nie czeka w kolejce.</p>
+      <p>Termin dopasowujemy do Ciebie: także wieczorem, w sobotę i w niedzielę, codziennie od 9:00 do 21:00. Na każdą wizytę rezerwujemy tyle czasu, ile wymaga zabieg. Jeśli nie wiesz, co wybrać, zacznij od bezpłatnej konsultacji z kosmetologiem.</p>
+    </div>
+    <div>
+      <h2 id="about-h" style="margin-bottom:2rem">Kto Cię przyjmie</h2>
+      <!-- {% if employees|length > 1 %} lista zespołu {% else %} profil jednej osoby — tu wariant dla 1 aktywnej osoby -->
+      <ul class="team">{{TEAM}}</ul>
+    </div>
+  </div>
+</section>
+
+<section class="section menu" id="cennik" aria-labelledby="menu-h">
+  <div class="wrap">
+    <nav class="menu-index" aria-label="Kategorie cennika">
+      <h2 id="menu-h">Cennik</h2>
+      <p class="muted" style="margin:.75rem 0 0">Kliknij zabieg, żeby przeczytać, na czym polega.</p>
+      <ol>{{MENU_INDEX}}</ol>
+    </nav>
+    <div>{{MENU_GROUPS}}</div>
+  </div>
+</section>
+
+<section class="section gallery" aria-labelledby="gal-h">
+  <div class="wrap">
+    <div class="section-head"><h2 id="gal-h">Salon od środka</h2></div>
+    <div class="mosaic">
+      <img class="tall wide" src="{{IMG}}wnetrze-salonu.jpeg" alt="Wnętrze salonu Royal Beauty we Wrocławiu" loading="lazy" />
+      <img class="tall" src="{{IMG}}zabieg-na-twarz.jpeg" alt="Zabieg na twarz w Royal Beauty" loading="lazy" />
+      <img src="{{IMG}}kosmetyki.jpeg" alt="Kosmetyki używane w salonie" loading="lazy" />
+      <img src="{{IMG}}salon.jpeg" alt="Stanowisko do zabiegów w salonie" loading="lazy" />
+      <img class="wide" src="{{IMG}}sprzet.jpeg" alt="Urządzenie do zabiegów na twarz" loading="lazy" />
+      <img class="wide" src="{{IMG}}zabieg-kosmetyczny.jpeg" alt="Specjalistka przygotowuje zabieg kosmetyczny" loading="lazy" />
+    </div>
+  </div>
+</section>
+
+<section class="section reviews" id="opinie" aria-labelledby="rev-h">
+  <div class="wrap">
+    <div class="section-head">
+      <h2 id="rev-h">Opinie klientek</h2>
+      <p><a class="text-link" href="#">Wszystkie opinie w Google</a></p>
+    </div>
+    <div class="quotes">
+      <blockquote class="quote"><p>Tu wstawimy prawdziwą opinię z wizytówki Google, z imieniem i datą.</p><footer>Imię, Google, miesiąc i rok</footer></blockquote>
+      <blockquote class="quote"><p>Druga opinia, najlepiej o innym zabiegu niż pierwsza, np. o rzęsach lub paznokciach.</p><footer>Imię, Google, miesiąc i rok</footer></blockquote>
+      <span class="todo">Miejsce na 2–3 prawdziwe opinie (decyzja właścicielki, patrz docs/seo-plan.md)</span>
+    </div>
+  </div>
+</section>
+
+<section class="section faq-section" id="faq" aria-labelledby="faq-h">
+  <div class="wrap">
+    <div class="section-head"><h2 id="faq-h">Częste pytania</h2><p class="muted">Nie ma Twojego pytania? Zadzwoń, odpowiemy od ręki.</p></div>
+    <div>{{FAQ}}</div>
+  </div>
+</section>
+
+<section class="section booking" id="rezerwacja" aria-labelledby="book-h">
+  <div class="wrap">
+    <div>
+      <h2 id="book-h">Rezerwacja wizyty</h2>
+      <ol class="steps">
+        <li>Wybierz zabieg.</li>
+        <li>Wybierz dzień. Pokażemy tylko wolne godziny, a dla depilacji laserowej tylko dni z laserem.</li>
+        <li>Potwierdzimy wizytę e-mailem w ciągu 24 godzin.</li>
+      </ol>
+      <div class="side-contact">
+        <p style="margin:0 0 .4rem">Wolisz zadzwonić?</p>
+        <a href="tel:+48793355756">+48 793 355 756</a><br /><a href="tel:+48792646256">+48 792 646 256</a>
+      </div>
+    </div>
+    <form class="form" onsubmit="event.preventDefault()">
+      <div class="field"><label for="n">Imię i nazwisko</label><input id="n" autocomplete="name" required /></div>
+      <div class="field"><label for="t">Telefon</label><input id="t" type="tel" autocomplete="tel" required /></div>
+      <div class="field full"><label for="m">E-mail</label><input id="m" type="email" autocomplete="email" required /></div>
+      <div class="field full"><label for="s">Zabieg</label><select id="s" required><option value="">Wybierz zabieg</option>{{OPTIONS}}</select></div>
+      <!-- Pole "Specjalistka" renderowane tylko przy 2+ aktywnych pracownikach -->
+      <div class="field"><label for="d">Dzień</label><input id="d" type="date" required /></div>
+      <div class="field"><label for="h">Godzina</label><select id="h" required><option>Najpierw wybierz zabieg i dzień</option></select></div>
+      <div class="field full"><label for="x">Uwagi (opcjonalnie)</label><textarea id="x" rows="3" aria-describedby="x-hint"></textarea><small id="x-hint" class="muted">Nie wpisuj tu informacji o zdrowiu, omówimy je na miejscu.</small></div>
+      <p class="consent">Twoje dane wykorzystamy tylko do obsługi tej rezerwacji. Szczegóły: <a class="text-link" href="#">polityka prywatności</a>.</p>
+      <button class="btn btn-solid" style="background:var(--gold-ink);border-color:var(--gold-ink)" type="submit">Wyślij rezerwację</button>
+    </form>
+  </div>
+</section>
+
+<section class="section contact" id="kontakt" aria-labelledby="con-h">
+  <div class="wrap">
+    <div class="arch"><img src="{{IMG}}contact.jpg" alt="Wejście do salonu Royal Beauty" loading="lazy" /></div>
+    <div>
+      <h2 id="con-h">Jak do nas trafić</h2>
+      <address class="nap">Royal Beauty Studio Urody<br />ul. Małopanewska 24B/5<br />54-212 Wrocław<br /><a href="tel:+48793355756">+48 793 355 756</a><br /><a href="tel:+48792646256">+48 792 646 256</a></address>
+      <div class="by-appt">
+        <p><strong>Przyjmujemy po wcześniejszym umówieniu</strong><br />codziennie 9:00–21:00, także w weekendy</p>
+        <p class="muted">Najbliższy wolny termin: <a class="text-link" href="#rezerwacja">wtorek, 20 października</a></p>
+      </div>
+      <a class="btn btn-quiet" href="https://www.google.com/maps/dir/?api=1&destination=Ma%C5%82opanewska+24B+Wroc%C5%82aw">Wyznacz trasę</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div><p style="font-family:var(--serif);font-size:1.4rem;color:#fdf9f4;margin:0 0 .5rem">Royal Beauty Studio Urody</p><p style="margin:0">ul. Małopanewska 24B/5, 54-212 Wrocław</p></div>
+    <ul><li><a href="#cennik">Cennik</a></li><li><a href="#faq">Częste pytania</a></li><li><a href="#rezerwacja">Rezerwacja</a></li></ul>
+    <ul><li><a href="https://www.instagram.com/royalbeauty_studiourody_/" rel="noopener" target="_blank">Instagram</a></li><li><a href="https://www.facebook.com/p/Royal-Beauty-100063223181002/" rel="noopener" target="_blank">Facebook</a></li></ul>
+    <div class="legal"><span>© 2026 Royal Beauty</span><span><a href="#">Polityka prywatności</a> &nbsp; <a href="#">Regulamin rezerwacji</a></span><span>Wykonanie: <a href="https://github.com/Pawel-Truszkowski" rel="noopener">Paweł Truszkowski</a></span></div>
+  </div>
+</footer>
+
+</body>
+</html>
