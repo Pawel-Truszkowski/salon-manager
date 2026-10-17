@@ -13,7 +13,7 @@
         <strong>{{ appointment.date_time|time:"H:i" }}</strong> została odwołana.
       </p>
       <p>Zapraszamy do dokonania nowej rezerwacji.</p>
-      <a href="{% url 'home' %}" class="btn rb-btn-gold mt-3">Wróć na stronę główną</a>
+      <a href="{% url 'home' %}" class="btn rb-btn rb-btn-solid mt-3">Wróć na stronę główną</a>
 
     {% elif appointment.status == 'cancelled' %}
       <h1 class="mb-4">Ta wizyta jest już odwołana</h1>
@@ -21,7 +21,7 @@
         <strong>{{ appointment.date_time|date:"d.m.Y" }}</strong> o godzinie
         <strong>{{ appointment.date_time|time:"H:i" }}</strong> została już wcześniej odwołana.
       </p>
-      <a href="{% url 'home' %}" class="btn rb-btn-outline-dark mt-3">Wróć na stronę główną</a>
+      <a href="{% url 'home' %}" class="btn rb-btn rb-btn-quiet mt-3">Wróć na stronę główną</a>
 
     {% elif not appointment.can_be_cancelled %}
       <h1 class="mb-4">Nie można odwołać tej wizyty</h1>
@@ -31,7 +31,7 @@
         (termin już minął lub wizyta została zrealizowana).
       </p>
       <p>Jeśli mimo to potrzebujesz zmiany, skontaktuj się z nami telefonicznie.</p>
-      <a href="{% url 'home' %}" class="btn rb-btn-outline-dark mt-3">Wróć na stronę główną</a>
+      <a href="{% url 'home' %}" class="btn rb-btn rb-btn-quiet mt-3">Wróć na stronę główną</a>
 
     {% else %}
       <h1 class="mb-4">Odwołaj wizytę</h1>
@@ -46,8 +46,8 @@
 
       <form method="post" class="d-flex flex-wrap gap-3">
         {% csrf_token %}
-        <button type="submit" class="btn rb-btn-gold">Tak, odwołaj wizytę</button>
-        <a href="{% url 'home' %}" class="btn rb-btn-outline-dark">Nie, wróć na stronę główną</a>
+        <button type="submit" class="btn rb-btn rb-btn-solid">Tak, odwołaj wizytę</button>
+        <a href="{% url 'home' %}" class="btn rb-btn rb-btn-quiet">Nie, wróć na stronę główną</a>
       </form>
     {% endif %}
   </div>

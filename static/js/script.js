@@ -1,30 +1,17 @@
-window.addEventListener(
-  "scroll",
-  function () {
-    document
-      .getElementById("navbar")
-      .classList.toggle("scrolled", window.scrollY > 60);
-  },
-  { passive: true },
-);
+// Same-page links (logo, menu, "#rezerwacja" buttons): smooth scroll, close the mobile menu.
+// Header offset comes from `scroll-padding-top` in CSS. Links to other pages (e.g. the menu on
+// the cancel-booking page pointing at "/#uslugi") just navigate.
+var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
-function scrollToTop(e) {
-  e.preventDefault();
-  window.scrollTo({ top: 0, behavior: "smooth" });
-}
-
-document.querySelectorAll('a[href^="#"]').forEach(function (a) {
+document.querySelectorAll("a[href]").forEach(function (a) {
+  if (a.origin !== location.origin || a.pathname !== location.pathname) return;
   a.addEventListener("click", function (e) {
-    var t = document.querySelector(this.getAttribute("href"));
-    if (!t) return;
+    var target = a.hash ? document.querySelector(a.hash) : document.body;
+    if (!target) return;
     e.preventDefault();
-    window.scrollTo({
-      top: t.getBoundingClientRect().top + window.scrollY - 80,
-      behavior: "smooth",
-    });
+    target.scrollIntoView({ behavior: reduceMotion.matches ? "auto" : "smooth" });
     var m = document.getElementById("navMenu");
-    if (m && m.classList.contains("show"))
-      bootstrap.Collapse.getInstance(m).hide();
+    if (m && m.classList.contains("show")) bootstrap.Collapse.getInstance(m).hide();
   });
 });
 

@@ -2,28 +2,38 @@
 {% load static %}
 {% block content %}
 
-<section id="hero" class="rb-hero d-flex align-items-center justify-content-center text-center">
-  <div class="rb-hero-overlay"></div>
-  <div class="rb-hero-overlay-bottom"></div>
-  <div class="rb-hero-frame d-none d-md-block"></div>
-  <div class="rb-hero-frame-inner d-none d-md-block"></div>
-  <div class="rb-hero-content position-relative">
-    <img src="{% static 'img/Logo_Royal_Beauty.PNG' %}" alt="Royal Beauty Studio Urody" class="rb-hero-logo mb-4" />
-    <div class="rb-divider-line mb-4">
-      <span class="rb-line"></span>
-      <span class="rb-divider-text">Elegancja &middot; Luksus &middot; Piękno</span>
-      <span class="rb-line"></span>
-    </div>
-    <p class="rb-hero-subtitle mb-5">
-      Odkryj wyjątkowe doświadczenie piękna w sercu miasta.<br>
-      Podkreślamy Twoją naturalną elegancję z mistrzowską precyzją.
-    </p>
-    <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center">
-      <a href="#rezerwacja" class="btn rb-btn-gold">Zarezerwuj wizytę</a>
-      <a href="#uslugi" class="btn rb-btn-outline-dark">Nasze usługi</a>
+<section id="hero" class="rb-hero">
+  <div class="container-xl px-4 px-lg-5">
+    <div class="rb-hero-grid">
+      <div>
+        <h1>Salon kosmetyczny we Wrocławiu<span>Royal Beauty Studio Urody</span></h1>
+        <p class="rb-hero-lead">Przedłużamy i laminujemy rzęsy, robimy manicure i pedicure hybrydowy, depilację woskiem oraz zabiegi na twarz, od oczyszczania wodorowego po mezoterapię mikroigłową.</p>
+        <div class="rb-hero-actions">
+          <a href="#rezerwacja" class="btn rb-btn rb-btn-solid">Zarezerwuj wizytę</a>
+          <a href="#uslugi" class="btn rb-btn rb-btn-quiet">Zobacz cennik</a>
+        </div>
+        <dl class="rb-hero-facts">
+          <div>
+            <dt>Adres</dt>
+            <dd><a href="https://www.google.com/maps/search/?api=1&amp;query=Royal+Beauty+Ma%C5%82opanewska+24B+Wroc%C5%82aw" target="_blank" rel="noopener">ul. Małopanewska 24B/5</a></dd>
+          </div>
+          <div>
+            <dt>Wizyty po umówieniu</dt>
+            <dd>codziennie 9–21</dd>
+          </div>
+          <div>
+            <dt>Telefon</dt>
+            <dd><a href="tel:+48793355756">+48 793 355 756</a></dd>
+          </div>
+        </dl>
+      </div>
+      <div class="rb-hero-photo">
+        <div class="rb-arch">
+          <img src="{% static 'img/zabieg-twarzy.jpeg' %}" alt="Kosmetolożka Royal Beauty wykonuje zabieg na twarz" width="1102" height="1600" fetchpriority="high" />
+        </div>
+      </div>
     </div>
   </div>
-  <a href="#o-nas" class="rb-hero-scroll-btn"><i class="bi bi-chevron-down"></i></a>
 </section>
 
 <section id="o-nas" class="rb-section rb-bg-beige">
@@ -31,7 +41,7 @@
     <div class="row align-items-center g-5">
       <div class="col-md-6">
         <div class="rb-about-img-wrap position-relative">
-          <img src="{% static 'img/zabieg-twarzy.jpeg' %}" alt="Zabieg twarzy" class="rb-about-img w-100" />
+          <img src="{% static 'img/hero.jpg' %}" alt="Wnętrze salonu Royal Beauty we Wrocławiu" class="rb-about-img w-100" width="1755" height="2340" loading="lazy" />
           <div class="rb-about-badge d-none d-md-flex flex-column align-items-center justify-content-center">
             <span class="rb-badge-num">10+</span>
             <span class="rb-badge-label">lat doświadczenia</span>
@@ -69,7 +79,7 @@
     </div>
     <div id="servicesGrid" class="row g-0 rb-services-grid"></div>
     <div class="text-center mt-5">
-      <a href="#rezerwacja" class="btn rb-btn-outline-dark">Zarezerwuj usługę</a>
+      <a href="#rezerwacja" class="btn rb-btn rb-btn-quiet">Zarezerwuj usługę</a>
     </div>
   </div>
 </section>
@@ -156,7 +166,7 @@
         <div class="rb-gold-line mb-4"></div>
         <p class="rb-body-text mb-5">Skontaktuj się z nami i zaplanuj swój rytuał piękna. Możesz wybrać preferowaną specjalistkę lub pozostawić nam wybór. Potwierdzimy termin w ciągu 24 godzin.</p>
         <div class="d-flex flex-column gap-4 mb-5">
-          <div class="d-flex gap-3"><div class="rb-contact-line"></div><div><p class="rb-label mb-1">Telefon</p><p class="rb-body-text mb-0">+48 793 355 756</p><p class="rb-body-text mb-0">+48 792 646 256</p></div></div>
+          <div class="d-flex gap-3"><div class="rb-contact-line"></div><div><p class="rb-label mb-1">Telefon</p><p class="rb-body-text mb-0"><a class="rb-tel" href="tel:+48793355756">+48 793 355 756</a></p><p class="rb-body-text mb-0"><a class="rb-tel" href="tel:+48792646256">+48 792 646 256</a></p></div></div>
           <div class="d-flex gap-3"><div class="rb-contact-line"></div><div><p class="rb-label mb-1">E-mail</p><p class="rb-body-text mb-0">royalbeauty.studiourody@gmail.com</p></div></div>
           <div class="d-flex gap-3"><div class="rb-contact-line"></div><div><p class="rb-label mb-1">Godziny</p><p class="rb-body-text mb-0">Pn–Pt: 9:00–21:00<br>Sob: 9:00–17:00</p></div></div>
         </div>
@@ -174,7 +184,7 @@
           <i class="bi bi-check-circle rb-success-icon mb-3 d-block"></i>
           <h3 class="rb-heading mb-3" style="font-size:1.5rem;">Dziękujemy za rezerwację!</h3>
           <p class="rb-body-text mb-4">Potwierdzimy Twoją wizytę w ciągu 24 godzin.</p>
-          <button class="btn rb-btn-outline-dark" onclick="resetBookingForm()">Nowa rezerwacja</button>
+          <button class="btn rb-btn rb-btn-quiet" onclick="resetBookingForm()">Nowa rezerwacja</button>
         </div>
         <form id="bookingForm" class="rb-form" onsubmit="submitBooking(event)" novalidate>
           {% csrf_token %}
@@ -205,7 +215,7 @@
             </div>
           </div>
           <div class="mb-4"><label class="rb-form-label">Dodatkowe informacje</label><textarea id="bookingNotes" name="notes" class="rb-input rb-textarea" rows="3" placeholder="Wszelkie uwagi..."></textarea></div>
-          <button type="submit" class="btn rb-btn-gold w-100">Wyślij prośbę o rezerwację</button>
+          <button type="submit" class="btn rb-btn rb-btn-solid w-100">Wyślij prośbę o rezerwację</button>
         </form>
       </div>
     </div>
@@ -232,7 +242,7 @@
       <div class="col-md-6 rb-contact-info p-5">
         <div class="d-flex flex-column gap-4">
           <div class="d-flex gap-3 align-items-start"><i class="bi bi-geo-alt rb-contact-icon mt-1"></i><div><p class="rb-label mb-1">Adres</p><p class="rb-body-text mb-0">ul. Małopanewska 24B/5<br>54-212 Wrocław</p></div></div>
-          <div class="d-flex gap-3 align-items-start"><i class="bi bi-telephone rb-contact-icon mt-1"></i><div><p class="rb-label mb-1">Telefon</p><p class="rb-body-text mb-0">+48 792 646 256</p><p class="rb-body-text mb-0">+48 793 355 756</p></div></div>
+          <div class="d-flex gap-3 align-items-start"><i class="bi bi-telephone rb-contact-icon mt-1"></i><div><p class="rb-label mb-1">Telefon</p><p class="rb-body-text mb-0"><a class="rb-tel" href="tel:+48792646256">+48 792 646 256</a></p><p class="rb-body-text mb-0"><a class="rb-tel" href="tel:+48793355756">+48 793 355 756</a></p></div></div>
           <div class="d-flex gap-3 align-items-start"><i class="bi bi-envelope rb-contact-icon mt-1"></i><div><p class="rb-label mb-1">E-mail</p><p class="rb-body-text mb-0">royalbeauty.studiourody@gmail.com</p></div></div>
           <div class="d-flex gap-3 align-items-start"><i class="bi bi-clock rb-contact-icon mt-1"></i><div><p class="rb-label mb-1">Godziny otwarcia</p><p class="rb-body-text mb-0">Pn–Pt: 9:00–21:00<br>Sob: 9:00–17:00<br>Niedz: nieczynne</p></div></div>
         </div>
