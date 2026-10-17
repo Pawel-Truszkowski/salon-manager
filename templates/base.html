@@ -55,22 +55,24 @@
   </script>
 </head>
 <body>
-  <nav id="navbar" class="navbar navbar-expand-md fixed-top rb-nav">
+  {% url 'home' as home_url %}
+  <nav id="navbar" class="navbar navbar-expand-lg sticky-top rb-nav">
     <div class="container-xl px-4 px-lg-5">
-      <a class="navbar-brand" href="#" onclick="scrollToTop(event)">
-        <img src="{% static 'img/Logo_Royal_Beauty.PNG' %}" alt="Royal Beauty" class="rb-nav-logo" />
+      <a class="navbar-brand" href="{{ home_url }}">
+        <img src="{% static 'img/Logo_Royal_Beauty.PNG' %}" alt="Royal Beauty — strona główna" class="rb-nav-logo" />
       </a>
-      <button class="navbar-toggler rb-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
-        <i class="bi bi-list"></i>
+      <button class="navbar-toggler rb-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu" aria-controls="navMenu" aria-expanded="false" aria-label="Menu">
+        <i class="bi bi-list" aria-hidden="true"></i>
       </button>
       <div class="collapse navbar-collapse justify-content-end" id="navMenu">
-        <ul class="navbar-nav align-items-md-center gap-md-4 py-3 py-md-0">
-          <li class="nav-item"><a class="nav-link rb-nav-link" href="#o-nas">O nas</a></li>
-          <li class="nav-item"><a class="nav-link rb-nav-link" href="#uslugi">Usługi</a></li>
-          <li class="nav-item"><a class="nav-link rb-nav-link" href="#galeria">Galeria</a></li>
-          <li class="nav-item"><a class="nav-link rb-nav-link" href="#opinie">Opinie</a></li>
-          <li class="nav-item"><a class="nav-link rb-nav-link" href="#kontakt">Kontakt</a></li>
-          <li class="nav-item ms-md-3"><a class="btn rb-btn-outline" href="#rezerwacja">Rezerwacja</a></li>
+        <ul class="navbar-nav align-items-lg-center gap-3 gap-lg-4 py-3 py-lg-0">
+          <li class="nav-item"><a class="nav-link rb-nav-link" href="{{ home_url }}#uslugi">Cennik</a></li>
+          <li class="nav-item"><a class="nav-link rb-nav-link" href="{{ home_url }}#o-nas">O salonie</a></li>
+          <li class="nav-item"><a class="nav-link rb-nav-link" href="{{ home_url }}#galeria">Galeria</a></li>
+          <li class="nav-item"><a class="nav-link rb-nav-link" href="{{ home_url }}#opinie">Opinie</a></li>
+          <li class="nav-item"><a class="nav-link rb-nav-link" href="{{ home_url }}#kontakt">Kontakt</a></li>
+          <li class="nav-item ms-lg-2"><a class="rb-nav-tel" href="tel:+48793355756">793 355 756</a></li>
+          <li class="nav-item"><a class="btn rb-btn rb-btn-solid rb-btn-sm" href="{{ home_url }}#rezerwacja">Zarezerwuj wizytę</a></li>
         </ul>
       </div>
     </div>
@@ -88,14 +90,14 @@
         <div class="col-md-4">
           <p class="rb-label mb-3" style="color:#b8935a;">Nawigacja</p>
           <ul class="list-unstyled rb-footer-links">
-            <li><a href="#o-nas">O nas</a></li><li><a href="#uslugi">Usługi</a></li>
-            <li><a href="#galeria">Galeria</a></li><li><a href="#opinie">Opinie</a></li>
-            <li><a href="#kontakt">Kontakt</a></li><li><a href="#rezerwacja">Rezerwacja</a></li>
+            <li><a href="{{ home_url }}#uslugi">Cennik</a></li><li><a href="{{ home_url }}#o-nas">O salonie</a></li>
+            <li><a href="{{ home_url }}#galeria">Galeria</a></li><li><a href="{{ home_url }}#opinie">Opinie</a></li>
+            <li><a href="{{ home_url }}#kontakt">Kontakt</a></li><li><a href="{{ home_url }}#rezerwacja">Rezerwacja</a></li>
           </ul>
         </div>
         <div class="col-md-4">
           <p class="rb-label mb-3" style="color:#b8935a;">Kontakt</p>
-          <p class="rb-footer-text">ul. Małopanewska 24B/5<br>54-212 Wrocław<br>+ 48 793 355 756<br>+ 48 792 646 256<br>royalbeauty.studiourody@gmail.com</p>
+          <p class="rb-footer-text">ul. Małopanewska 24B/5<br>54-212 Wrocław<br><a class="rb-tel" href="tel:+48793355756">+48 793 355 756</a><br><a class="rb-tel" href="tel:+48792646256">+48 792 646 256</a><br>royalbeauty.studiourody@gmail.com</p>
           <p class="rb-footer-text mt-3">Pn–Pt: 9:00–21:00 / Sob: 9:00–17:00</p>
         </div>
       </div>

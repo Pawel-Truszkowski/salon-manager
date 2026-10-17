@@ -32,9 +32,9 @@ Pole `Employee.is_active` istnieje dopiero na `dev` (panel), a na `main` (produk
 
 ### 1. Fundamenty wyglądu + quick wins SEO
 Według `docs/redesign/README.md` (tokeny, typografia) i prototypu.
-- [ ] Tokeny w `:root` (`--gold-ink` do tekstu w złocie), Jost zamiast Raleway i Cormorant, usunięcie ozdobników (wersaliki nad nagłówkami, złota kursywa w nagłówkach, kreski, „Elegancja · Luksus · Piękno”).
-- [ ] **Czcionki hostowane lokalnie** w `static/fonts/` zamiast Google Fonts. Strona przestaje przekazywać IP odwiedzających do Google (RODO) i szybciej się ładuje.
-- [ ] Nagłówek i hero z prototypu: dokładnie jeden `<h1>`, `tel:` w linkach, nawigacja do kotwic.
+- [x] Tokeny w `:root` (`--rb-gold-ink` do tekstu w złocie), Jost zamiast Raleway i Cormorant (PR #29). Ozdobniki w hero usunięte w 1.2; wersaliki nad nagłówkami, złota kursywa i kreski w pozostałych sekcjach znikną przy ich przebudowie (etapy 2–4).
+- [x] **Czcionki hostowane lokalnie** w `static/fonts/` zamiast Google Fonts. Strona przestaje przekazywać IP odwiedzających do Google (RODO) i szybciej się ładuje.
+- [x] Nagłówek i hero z prototypu: dokładnie jeden `<h1>`, `tel:` w linkach, nawigacja do kotwic.
   *Akceptacja:* test `assertContains(response, '<h1', count=1)`.
 - [ ] **Title** ≤ 60 znaków. **Open Graph + Twitter Card** w `base.html` przez bloki (podstrony je nadpiszą), `og:image` 1200×630.
 - [ ] **JSON-LD BeautySalon** (wzór w prototypie): `@id`, `geo`, `priceRange: "20–400 zł"`, `openingHoursSpecification` pn–nd 09:00–21:00, `description` z „wyłącznie po wcześniejszym umówieniu”, `founder` → `Person` (Paulina), `logo`, `email`.

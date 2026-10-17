@@ -278,3 +278,26 @@ class TestSelfHostedFonts:
         assert urls
         missing = [u for u in urls if not (static_dir / u).is_file()]
         assert missing == []
+
+
+class TestHeaderAndHero:
+    def test_home_has_exactly_one_h1_with_the_main_phrase(self, client, db):
+        html = client.get(reverse('home')).content.decode()
+        assert html.count('<h1') == 1
+        assert 'Salon kosmetyczny we Wrocławiu' in html
+
+    def test_phone_numbers_are_tel_links(self, client, db):
+        html = client.get(reverse('home')).content.decode()
+        assert 'href="tel:+48793355756"' in html
+        assert 'href="tel:+48792646256"' in html
+
+    def test_hero_does_not_claim_fixed_opening_hours(self, client, db):
+        html = client.get(reverse('home')).content.decode()
+        assert 'po umówieniu' in html
+        assert 'w sercu miasta' not in html
+
+    def test_menu_on_other_pages_links_back_to_home_sections(self, client, employee, service, tomorrow):
+        appt = make_appointment(employee, service, tomorrow, hour=10)
+        html = client.get(reverse('cancel_booking', args=[appt.cancellation_token])).content.decode()
+        assert f'href="{reverse("home")}#uslugi"' in html
+        assert 'href="#uslugi"' not in html
