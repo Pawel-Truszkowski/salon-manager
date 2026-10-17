@@ -301,3 +301,39 @@ class TestHeaderAndHero:
         html = client.get(reverse('cancel_booking', args=[appt.cancellation_token])).content.decode()
         assert f'href="{reverse("home")}#uslugi"' in html
         assert 'href="#uslugi"' not in html
+
+
+def json_ld_blocks(html):
+    return [json.loads(m) for m in re.findall(r'<script type="application/ld\+json">(.*?)</script>', html, re.S)]
+
+
+class TestSeoMeta:
+    def test_title_fits_in_search_results(self, client, db):
+        html = client.get(reverse('home')).content.decode()
+        title = re.search(r'<title>(.*?)</title>', html, re.S).group(1)
+        assert len(title) <= 60
+
+    def test_open_graph_uses_absolute_urls_from_site_url(self, client, db, settings):
+        settings.SITE_URL = 'https://example.test/'
+        html = client.get(reverse('home')).content.decode()
+        assert '<meta property="og:url" content="https://example.test/"' in html
+        assert re.search(
+            r'<meta property="og:image" content="https://example\.test/static/img/og-salon[^"]*\.jpg"', html
+        )
+        assert '<link rel="canonical" href="https://example.test/"' in html
+        assert 'name="twitter:card" content="summary_large_image"' in html
+
+    def test_salon_json_ld(self, client, db):
+        html = client.get(reverse('home')).content.decode()
+        (salon,) = [b for b in json_ld_blocks(html) if b['@type'] == 'BeautySalon']
+        assert salon['@id'] == 'http://testserver/#salon'
+        assert 'Sunday' in salon['openingHoursSpecification'][0]['dayOfWeek']
+        assert 'po wcześniejszym umówieniu' in salon['description']
+        assert salon['founder']['name'] == 'Paulina'
+        assert salon['priceRange'] != 'PLN'
+        assert salon['geo']['latitude']
+
+    def test_robots_txt_points_to_sitemap_on_this_site(self, client, db):
+        body = client.get('/robots.txt').content.decode()
+        assert 'Sitemap: http://testserver/sitemap.xml' in body
+        assert 'Disallow: /panel/' in body
