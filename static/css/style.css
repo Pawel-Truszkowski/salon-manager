@@ -7,10 +7,12 @@
   --rb-gold: #b8935a;
   --rb-gold-dk: #8b6b35;
   --rb-gold-lt: #d4b896;
+  /* Gold for text on light backgrounds: #b8935a is only ~2.5:1 on cream, this passes WCAG AA (≥4.7:1).
+     On the dark espresso background keep --rb-gold (5.4:1); --rb-gold-ink would fail there. */
+  --rb-gold-ink: #7d5f2e;
   --rb-border: rgba(184, 147, 90, 0.25);
   --ff-display: "Playfair Display", Georgia, serif;
-  --ff-body: "Raleway", sans-serif;
-  --ff-italic: "Cormorant Garamond", Georgia, serif;
+  --ff-body: "Jost", "Helvetica Neue", Arial, sans-serif;
 }
 *,
 *::before,
@@ -43,10 +45,10 @@ body {
 .rb-label {
   font-family: var(--ff-body);
   font-size: 0.7rem;
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: var(--rb-gold);
+  color: var(--rb-gold-ink);
   margin-bottom: 0.5rem;
 }
 .rb-heading {
@@ -58,12 +60,13 @@ body {
 }
 .rb-heading em,
 .rb-gold {
-  color: var(--rb-gold);
+  color: var(--rb-gold-ink);
   font-style: italic;
 }
 .rb-body-text {
-  font-family: var(--ff-italic);
-  font-size: 1.1rem;
+  font-family: var(--ff-body);
+  font-weight: 300;
+  font-size: 1.0625rem;
   line-height: 1.75;
   color: rgba(61, 46, 30, 0.82);
 }
@@ -100,11 +103,11 @@ body {
   padding: 0 !important;
 }
 .rb-nav-link:hover {
-  color: var(--rb-gold) !important;
+  color: var(--rb-gold-ink) !important;
 }
 .rb-toggler {
   border: none;
-  color: var(--rb-gold);
+  color: var(--rb-gold-ink);
   font-size: 1.5rem;
   padding: 0;
 }
@@ -118,7 +121,7 @@ body {
   border-radius: 0;
   font-family: var(--ff-body);
   font-size: 0.7rem;
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: 0.25em;
   text-transform: uppercase;
   padding: 0.75rem 2.5rem;
@@ -130,7 +133,7 @@ body {
 }
 .rb-btn-outline {
   border: 1px solid var(--rb-gold);
-  color: var(--rb-gold);
+  color: var(--rb-gold-ink);
   border-radius: 0;
   background: transparent;
   font-family: var(--ff-body);
@@ -149,12 +152,12 @@ body {
 }
 .rb-btn-outline-dark {
   border: 1px solid var(--rb-gold);
-  color: var(--rb-gold);
+  color: var(--rb-gold-ink);
   border-radius: 0;
   background: transparent;
   font-family: var(--ff-body);
   font-size: 0.7rem;
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: 0.25em;
   text-transform: uppercase;
   padding: 0.75rem 2.5rem;
@@ -222,14 +225,14 @@ body {
 .rb-divider-text {
   font-family: var(--ff-body);
   font-size: 0.7rem;
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: 0.25em;
   text-transform: uppercase;
   color: var(--rb-gold-dk);
   white-space: nowrap;
 }
 .rb-hero-subtitle {
-  font-family: var(--ff-italic);
+  font-family: var(--ff-display);
   font-size: 1.2rem;
   font-style: italic;
   line-height: 1.7;
@@ -240,7 +243,7 @@ body {
   bottom: 2.5rem;
   left: 50%;
   transform: translateX(-50%);
-  color: var(--rb-gold);
+  color: var(--rb-gold-ink);
   font-size: 1.6rem;
   animation: bounce 2s infinite;
   text-decoration: none;
@@ -276,7 +279,7 @@ body {
   display: block;
   font-family: var(--ff-display);
   font-size: 2.8rem;
-  color: var(--rb-gold);
+  color: var(--rb-gold-ink);
   line-height: 1;
 }
 .rb-badge-label {
@@ -296,7 +299,7 @@ body {
   display: block;
   font-family: var(--ff-display);
   font-size: 1.5rem;
-  color: var(--rb-gold);
+  color: var(--rb-gold-ink);
 }
 .rb-stat-label {
   display: block;
@@ -320,7 +323,7 @@ body {
 }
 .rb-tab-btn:hover {
   border-color: var(--rb-gold);
-  color: var(--rb-gold);
+  color: var(--rb-gold-ink);
 }
 .rb-tab-btn.active {
   background: var(--rb-gold);
@@ -341,7 +344,7 @@ body {
   background: var(--rb-bg);
 }
 .rb-service-card:hover .rb-service-name {
-  color: var(--rb-gold);
+  color: var(--rb-gold-ink);
 }
 .rb-service-name {
   font-family: var(--ff-display);
@@ -362,7 +365,7 @@ body {
 .rb-service-price {
   font-family: var(--ff-display);
   font-size: 1.15rem;
-  color: var(--rb-gold);
+  color: var(--rb-gold-ink);
 }
 .rb-service-duration {
   font-family: var(--ff-body);
@@ -475,12 +478,12 @@ body {
   z-index: 1;
 }
 .rb-stars {
-  color: var(--rb-gold);
+  color: var(--rb-gold-ink);
   font-size: 1.1rem;
   letter-spacing: 0.15em;
 }
 .rb-quote {
-  font-family: var(--ff-italic);
+  font-family: var(--ff-display);
   font-size: clamp(1.1rem, 2vw, 1.35rem);
   font-style: italic;
   line-height: 1.8;
@@ -507,7 +510,7 @@ body {
 .rb-author-role {
   font-family: var(--ff-body);
   font-size: 0.7rem;
-  color: var(--rb-gold);
+  color: var(--rb-gold-ink);
   letter-spacing: 0.1em;
 }
 .rb-carousel-btn {
@@ -516,7 +519,7 @@ body {
   border: 1px solid rgba(184, 147, 90, 0.4);
   border-radius: 0;
   background: transparent;
-  color: var(--rb-gold);
+  color: var(--rb-gold-ink);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -610,7 +613,7 @@ body {
 }
 .rb-success-icon {
   font-size: 3.5rem;
-  color: var(--rb-gold);
+  color: var(--rb-gold-ink);
 }
 .rb-contact-box {
   border: 1px solid var(--rb-border);
@@ -625,7 +628,7 @@ body {
 }
 .rb-map-pin {
   font-size: 2.2rem;
-  color: var(--rb-gold);
+  color: var(--rb-gold-ink);
 }
 .rb-map-street {
   font-family: var(--ff-display);
@@ -644,7 +647,7 @@ body {
 }
 .rb-contact-icon {
   font-size: 1.1rem;
-  color: var(--rb-gold);
+  color: var(--rb-gold-ink);
 }
 .rb-social-btn {
   width: 2.5rem;
@@ -653,7 +656,7 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: var(--rb-gold);
+  color: var(--rb-gold-ink);
   font-size: 1.1rem;
   text-decoration: none;
   transition: all 0.3s;
@@ -827,7 +830,7 @@ body {
   color: var(--rb-gold-dk);
   font-family: var(--ff-body);
   font-size: 0.6rem;
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
@@ -867,7 +870,7 @@ body {
 .flatpickr-day.today {
   border-color: var(--rb-gold-lt);
   color: var(--rb-gold-dk);
-  font-weight: 600;
+  font-weight: 500;
 }
 .flatpickr-day.today:hover {
   background: var(--rb-bg-sand);
