@@ -6,13 +6,13 @@ from decimal import Decimal
 import pytest
 from django.conf import settings
 from django.db import connection
-from django.test import Client
+from django.test import Client, override_settings
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from django.utils import timezone
 
 from apps.bookings.models import Appointment
-from apps.services.models import Service, ServiceCategory
+from apps.services.models import Employee, Service, ServiceCategory
 from tests.conftest import make_appointment, make_time_block
 
 
@@ -332,6 +332,8 @@ class TestSeoMeta:
         (salon,) = [b for b in json_ld_blocks(html) if b['@type'] == 'BeautySalon']
         assert salon['@id'] == 'http://testserver/#salon'
         assert (salon['name'], salon['alternateName']) == ('Royal Beauty Studio Urody', 'Royal Beauty')
+        assert salon['foundingDate'] == '2023'
+        assert salon['hasMap'] in salon['sameAs']
         assert 'Sunday' in salon['openingHoursSpecification'][0]['dayOfWeek']
         assert 'po wcześniejszym umówieniu' in salon['description']
         assert salon['founder']['name'] == 'Paulina'
@@ -437,4 +439,77 @@ class TestPriceList:
         other = ServiceCategory.objects.create(name='Inna', slug='inna', order=5)
         for i in range(10):
             Service.objects.create(name=f'Zabieg {i}', category=other, price='10', duration=10)
+        assert count_queries() == few
+
+
+def home_html(client):
+    return client.get(reverse('home')).content.decode()
+
+
+class TestSalonTruth:
+    """The home page shows only what is true today: who works, when the next free slot is, real reviews."""
+
+    def test_one_employee_profile_without_specialist_picker(self, client, employee):
+        html = home_html(client)
+        assert 'Kto Cię przyjmie' in html
+        assert '<h4 class="rb-person-name">Anna</h4>' in html
+        assert 'Doświadczona stylistka.' in html
+        assert '<p class="rb-person-skills">Zabiegi kosmetyczne</p>' in html  # from the employee's services
+        assert 'id="bookingEmployee"' not in html
+
+    def test_two_employees_team_with_specialist_picker(self, client, employee, other_employee):
+        html = home_html(client)
+        assert 'Nasz zespół' in html
+        assert html.count('class="rb-person"') == 2
+        assert 'id="bookingEmployee"' in html
+
+    def test_inactive_employee_is_not_shown(self, client, employee, other_employee):
+        other_employee.is_active = False
+        other_employee.save()
+        html = home_html(client)
+        assert 'Ewa' not in html
+        assert 'id="bookingEmployee"' not in html
+
+    def test_no_made_up_numbers_or_staff(self, client, employee):
+        html = home_html(client)
+        for text in [
+            '2000+',
+            'Ekspertów urody',
+            'Usług premium',
+            'Marika',
+            'Wiola',
+            'w sercu',
+            'w centrum',
+            'unsplash',
+        ]:
+            assert text not in html, text
+
+    @override_settings(LANGUAGE_CODE='pl')
+    def test_next_free_date(self, client, employee, tomorrow):
+        html = home_html(client)
+        assert html.count('<a href="#rezerwacja">jutro</a>') == 2  # hero and contact
+
+    def test_no_free_date_asks_to_call(self, client, employee):
+        assert home_html(client).count('zadzwoń, znajdziemy termin') == 2
+
+    def test_reviews_link_to_google(self, client, db):
+        html = home_html(client)
+        assert 'href="https://maps.google.com/?cid=16009745620444220515"' in html
+        assert 'href="https://g.page/r/CWOM8YrRCi7eEBM/review"' in html
+        assert 'testimonial' not in html
+
+    def test_notes_field_warns_about_health_data(self, client, db):
+        html = home_html(client)
+        assert 'aria-describedby="bookingNotesHint"' in html
+        assert 'Nie wpisuj tu informacji o zdrowiu' in html
+
+    def test_query_count_does_not_grow_with_employees(self, client, employee, tomorrow):
+        def count_queries():
+            with CaptureQueriesContext(connection) as ctx:
+                client.get(reverse('home'))
+            return len(ctx)
+
+        few = count_queries()
+        for i in range(5):
+            Employee.objects.create(first_name=f'Osoba {i}', bio='').services.add(*employee.services.all())
         assert count_queries() == few

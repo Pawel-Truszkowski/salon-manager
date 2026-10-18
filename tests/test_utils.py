@@ -4,7 +4,8 @@ import itertools
 from django.utils import timezone
 
 from apps.bookings.models import Appointment
-from apps.bookings.utils import find_available_specialist, get_available_slots
+from apps.bookings.utils import find_available_specialist, get_available_slots, next_available_date
+from apps.services.models import Schedule
 from tests.conftest import make_appointment, make_time_block
 
 
@@ -123,3 +124,40 @@ class TestFindAvailableSpecialist:
         naive_dt = datetime.datetime.combine(tomorrow, datetime.time(9, 0))
         result = find_available_specialist(service, naive_dt)
         assert result == employee
+
+
+class TestNextAvailableDate:
+    def test_none_without_schedules(self, employee):
+        assert next_available_date() is None
+
+    def test_first_day_with_a_free_slot(self, employee, tomorrow):
+        assert next_available_date() == tomorrow
+
+    def test_skips_a_fully_booked_day(self, employee, service, tomorrow):
+        make_time_block(employee, tomorrow, 9, 17, reason='Urlop')
+        later = tomorrow + datetime.timedelta(days=3)
+        Schedule.objects.create(employee=employee, date=later, start_time=datetime.time(10), end_time=datetime.time(12))
+        assert next_available_date() == later
+
+    def test_shortest_service_decides(self, employee, service, service_short, tomorrow):
+        # Only 30 minutes are free: too short for the 60-min manicure, enough for the 30-min consultation
+        make_time_block(employee, tomorrow, 9, 16)
+        Schedule.objects.filter(employee=employee).update(end_time=datetime.time(16, 30))
+        assert next_available_date() is None
+        employee.services.add(service_short)
+        assert next_available_date() == tomorrow
+
+    def test_ignores_inactive_employees_and_services(self, employee, service, tomorrow):
+        service.is_active = False
+        service.save()
+        assert next_available_date() is None
+        service.is_active = True
+        service.save()
+        employee.is_active = False
+        employee.save()
+        assert next_available_date() is None
+
+    def test_looks_only_days_ahead(self, employee, tomorrow):
+        Schedule.objects.filter(employee=employee).update(date=timezone.localdate() + datetime.timedelta(days=40))
+        assert next_available_date(days_ahead=30) is None
+        assert next_available_date(days_ahead=45) is not None

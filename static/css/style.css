@@ -342,56 +342,199 @@ body {
 .container-xl {
   max-width: 72rem;
 }
-.rb-about-img {
+/* ---------- about: salon in two sentences + who will see you ---------- */
+.rb-about-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(2rem, 6vw, 5rem);
+}
+.rb-about-text p {
+  max-width: 34rem;
+  font-weight: 300;
+  line-height: 1.75;
+}
+.rb-about-text .rb-about-lead {
+  margin-top: 1.5rem;
+  font-family: var(--ff-display);
+  font-size: clamp(1.35rem, 2.4vw, 1.75rem);
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--rb-dark);
+}
+.rb-about-team-heading {
+  font-family: var(--ff-display);
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-weight: 400;
+  color: var(--rb-dark);
+  margin-bottom: 2rem;
+}
+.rb-team {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 1.5rem;
+}
+.rb-person {
+  display: grid;
+  grid-template-columns: 10rem 1fr;
+  gap: 1.5rem;
+  align-items: end;
+}
+.rb-portrait {
+  aspect-ratio: 3 / 4;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--rb-border);
+  background: var(--rb-bg);
+}
+.rb-portrait span {
+  font-family: var(--ff-display);
+  font-size: 2.5rem;
+  color: var(--rb-gold-ink);
+}
+.rb-person-name {
+  font-family: var(--ff-display);
+  font-size: 1.6rem;
+  font-weight: 400;
+  color: var(--rb-dark);
+  margin: 0;
+}
+.rb-person p {
+  margin: 0.25rem 0 0;
+  font-size: 0.95rem;
+  font-weight: 300;
+}
+.rb-person-skills {
+  color: #6b5a45;
+}
+@media (max-width: 767.98px) {
+  .rb-about-grid {
+    grid-template-columns: 1fr;
+  }
+  .rb-person {
+    grid-template-columns: 7rem 1fr;
+  }
+}
+
+/* ---------- reviews: no quotes of our own, the Google profile is the source ---------- */
+.rb-reviews-box {
+  max-width: 40rem;
+}
+.rb-reviews-box p {
+  margin: 1.25rem 0 2rem;
+  font-weight: 300;
+  line-height: 1.75;
+}
+
+/* ---------- booking: the one dark section ---------- */
+.rb-booking {
+  background: var(--rb-dark);
+  color: #e9dfd0;
+}
+.rb-booking .rb-heading {
+  color: var(--rb-bg-white);
+}
+.rb-steps {
+  margin: 2rem 0 0;
+  padding-left: 1.2rem;
+  font-weight: 300;
+}
+.rb-steps li {
+  margin-bottom: 0.6rem;
+}
+.rb-booking-phone {
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(212, 184, 150, 0.3);
+}
+.rb-booking-phone p {
+  margin: 0 0 0.4rem;
+}
+.rb-booking-phone a {
+  color: var(--rb-bg-white);
+  font-size: 1.15rem;
+  text-decoration: none;
+}
+.rb-booking-phone a:hover {
+  color: var(--rb-gold-lt);
+}
+.rb-booking .rb-form {
+  background: var(--rb-bg-white);
+  color: var(--rb-body);
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+}
+.rb-field-hint,
+.rb-consent {
   display: block;
-  height: auto;
-  aspect-ratio: 3/4;
+  margin-top: 0.35rem;
+  font-size: 0.85rem;
+  color: #6b5a45;
+}
+.rb-consent {
+  margin: 0 0 1.25rem;
+}
+
+/* ---------- contact: NAP + by appointment ---------- */
+.rb-contact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(2rem, 6vw, 5rem);
+  align-items: center;
+}
+.rb-contact-photo {
+  aspect-ratio: 1 / 1.1;
+}
+.rb-contact-photo img {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
 }
-.rb-about-badge {
-  position: absolute;
-  bottom: -1.5rem;
-  right: -1.5rem;
-  width: 40%;
-  aspect-ratio: 1;
-  background: var(--rb-bg-white);
-  border: 1px solid var(--rb-border);
-  padding: 1.5rem;
-  text-align: center;
+.rb-nap {
+  font-style: normal;
+  font-size: 1.2rem;
+  line-height: 1.6;
+  margin: 1.5rem 0;
 }
-.rb-badge-num {
-  display: block;
-  font-family: var(--ff-display);
-  font-size: 2.8rem;
-  color: var(--rb-gold-ink);
-  line-height: 1;
+.rb-nap a {
+  color: inherit;
+  text-decoration: none;
 }
-.rb-badge-label {
-  display: block;
-  font-family: var(--ff-body);
-  font-size: 0.65rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: rgba(61, 46, 30, 0.65);
-  margin-top: 0.4rem;
-}
-.rb-stat {
-  border-left: 2px solid var(--rb-gold);
-  padding-left: 1rem;
-}
-.rb-stat-num {
-  display: block;
-  font-family: var(--ff-display);
-  font-size: 1.5rem;
+.rb-nap a:hover {
   color: var(--rb-gold-ink);
 }
-.rb-stat-label {
-  display: block;
-  font-family: var(--ff-body);
-  font-size: 0.7rem;
-  color: rgba(61, 46, 30, 0.65);
-  margin-top: 0.2rem;
+.rb-by-appt {
+  margin: 1.5rem 0 2rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--rb-border);
 }
+.rb-by-appt p {
+  margin: 0 0 0.5rem;
+}
+.rb-by-appt strong {
+  font-weight: 500;
+  color: var(--rb-dark);
+}
+.rb-muted {
+  color: #6b5a45;
+}
+.rb-muted a {
+  color: var(--rb-gold-ink);
+}
+.rb-contact-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+@media (max-width: 767.98px) {
+  .rb-contact-grid {
+    grid-template-columns: 1fr;
+  }
+  .rb-contact-photo {
+    max-width: 22rem;
+  }
+}
+
 /* ---------- price list: the one bold element (a printed salon price card) ---------- */
 .rb-menu-grid {
   display: grid;
@@ -677,111 +820,6 @@ body {
 .rb-lightbox-close:hover {
   color: #fff;
 }
-.rb-testimonials {
-  position: relative;
-  background-size: cover;
-  background-position: center 30%;
-}
-.rb-testimonials-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(245, 239, 230, 0.88);
-  z-index: 1;
-}
-.rb-stars {
-  color: var(--rb-gold-ink);
-  font-size: 1.1rem;
-  letter-spacing: 0.15em;
-}
-.rb-quote {
-  font-family: var(--ff-display);
-  font-size: clamp(1.1rem, 2vw, 1.35rem);
-  font-style: italic;
-  line-height: 1.8;
-  color: rgba(61, 46, 30, 0.85);
-}
-.rb-avatar {
-  width: 3rem;
-  height: 3rem;
-  border-radius: 50%;
-  background: var(--rb-gold);
-  color: var(--rb-bg-white);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--ff-display);
-  font-size: 0.95rem;
-  flex-shrink: 0;
-}
-.rb-author-name {
-  font-family: var(--ff-display);
-  font-size: 1rem;
-  color: var(--rb-dark);
-}
-.rb-author-role {
-  font-family: var(--ff-body);
-  font-size: 0.7rem;
-  color: var(--rb-gold-ink);
-  letter-spacing: 0.1em;
-}
-.rb-carousel-btn {
-  width: 2.5rem;
-  height: 2.5rem;
-  border: 1px solid rgba(184, 147, 90, 0.4);
-  border-radius: 0;
-  background: transparent;
-  color: var(--rb-gold-ink);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  transition: all 0.3s;
-}
-.rb-carousel-btn:hover {
-  background: var(--rb-gold);
-  color: var(--rb-bg-white);
-  border-color: var(--rb-gold);
-}
-.rb-dot {
-  height: 1px;
-  background: rgba(184, 147, 90, 0.35);
-  border: none;
-  cursor: pointer;
-  transition: all 0.3s;
-  padding: 0;
-}
-.rb-dot.active {
-  background: var(--rb-gold);
-}
-.rb-contact-line {
-  width: 2px;
-  align-self: stretch;
-  background: var(--rb-gold);
-  flex-shrink: 0;
-}
-.rb-team-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  border: 1px solid var(--rb-border);
-  background: var(--rb-bg);
-  padding: 0.3rem 0.75rem;
-  font-family: var(--ff-body);
-  font-size: 0.75rem;
-  color: rgba(61, 46, 30, 0.75);
-}
-.rb-chip-dot {
-  width: 1.4rem;
-  height: 1.4rem;
-  border-radius: 50%;
-  background: var(--rb-gold);
-  color: var(--rb-bg-white);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--ff-display);
-  font-size: 0.7rem;
-}
 .rb-form-label {
   font-family: var(--ff-body);
   font-size: 0.65rem;
@@ -824,40 +862,6 @@ body {
 }
 .rb-success-icon {
   font-size: 3.5rem;
-  color: var(--rb-gold-ink);
-}
-.rb-contact-box {
-  border: 1px solid var(--rb-border);
-}
-.rb-contact-img {
-  min-height: 350px;
-  background-size: cover;
-  background-position: center;
-}
-.rb-contact-img-overlay {
-  background: rgba(245, 239, 230, 0.52);
-}
-.rb-map-pin {
-  font-size: 2.2rem;
-  color: var(--rb-gold-ink);
-}
-.rb-map-street {
-  font-family: var(--ff-display);
-  font-size: 1.15rem;
-  color: var(--rb-dark);
-  margin: 0;
-}
-.rb-map-city {
-  font-family: var(--ff-body);
-  font-size: 0.85rem;
-  color: rgba(44, 36, 24, 0.6);
-  margin: 0;
-}
-.rb-contact-info {
-  background: var(--rb-bg-white);
-}
-.rb-contact-icon {
-  font-size: 1.1rem;
   color: var(--rb-gold-ink);
 }
 .rb-social-btn {

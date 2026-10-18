@@ -18,8 +18,8 @@
             <dd><a href="https://www.google.com/maps/search/?api=1&amp;query=Royal+Beauty+Ma%C5%82opanewska+24B+Wroc%C5%82aw" target="_blank" rel="noopener">ul. Małopanewska 24B/5</a></dd>
           </div>
           <div>
-            <dt>Wizyty po umówieniu</dt>
-            <dd>codziennie 9–21</dd>
+            <dt>Najbliższy wolny termin</dt>
+            <dd>{% include "includes/next_date.html" %}</dd>
           </div>
           <div>
             <dt>Telefon</dt>
@@ -29,37 +29,39 @@
       </div>
       <div class="rb-hero-photo">
         <div class="rb-arch">
-          <img src="{% static 'img/zabieg-twarzy.jpeg' %}" alt="Kosmetolożka Royal Beauty wykonuje zabieg na twarz" width="1102" height="1600" fetchpriority="high" />
+          <img src="{% static 'img/zabieg-twarzy.webp' %}" alt="Kosmetolożka Royal Beauty wykonuje zabieg na twarz" width="1000" height="1452" fetchpriority="high" />
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<section id="o-nas" class="rb-section rb-bg-beige">
+<section id="o-nas" class="rb-section rb-bg-white rb-about" aria-labelledby="o-nas-heading">
   <div class="container-xl px-4 px-lg-5">
-    <div class="row align-items-center g-5">
-      <div class="col-md-6">
-        <div class="rb-about-img-wrap position-relative">
-          <img src="{% static 'img/hero.jpg' %}" alt="Wnętrze salonu Royal Beauty we Wrocławiu" class="rb-about-img w-100" width="1755" height="2340" loading="lazy" />
-          <div class="rb-about-badge d-none d-md-flex flex-column align-items-center justify-content-center">
-            <span class="rb-badge-num">10+</span>
-            <span class="rb-badge-label">lat doświadczenia</span>
-          </div>
-        </div>
+    <div class="rb-about-grid">
+      <div class="rb-about-text">
+        <h2 id="o-nas-heading" class="rb-heading">O salonie</h2>
+        <p class="rb-about-lead">Royal Beauty to kameralne studio urody we Wrocławiu. Przyjmujemy po wcześniejszym umówieniu, więc na wizycie jesteś tylko Ty i nikt nie czeka w kolejce.</p>
+        <p>Salon prowadzi od 2023 roku Paulina, magister kosmetologii z ponad 10-letnim doświadczeniem w zawodzie.</p>
+        <p>Termin dopasowujemy do Ciebie: także wieczorem, w sobotę i w niedzielę, codziennie od 9:00 do 21:00. Na każdą wizytę rezerwujemy tyle czasu, ile wymaga zabieg. Jeśli nie wiesz, co wybrać, zacznij od bezpłatnej konsultacji z kosmetologiem.</p>
       </div>
-      <div class="col-md-6">
-        <p class="rb-label">O nas</p>
-        <h2 class="rb-heading mb-3">Sztuka piękna<br><em class="rb-gold">w każdym detalu</em></h2>
-        <div class="rb-gold-line mb-4"></div>
-        <p class="rb-body-text mb-3">Royal Beauty to przestrzeń stworzona dla kobiet, które cenią luksus, dyskrecję i profesjonalizm. Nasz salon łączy ponadczasową elegancję z najnowszymi trendami w świecie urody.</p>
-        <p class="rb-body-text mb-5">Każda wizyta to rytuał — od momentu przekroczenia progu do ostatniego akcentu. Używamy wyłącznie produktów premium, a nasz zespół specjalistów dba o każdy szczegół Twojego wyglądu.</p>
-        <div class="row g-3">
-          <div class="col-4"><div class="rb-stat"><span class="rb-stat-num">2000+</span><span class="rb-stat-label">Zadowolonych klientek</span></div></div>
-          <div class="col-4"><div class="rb-stat"><span class="rb-stat-num">3</span><span class="rb-stat-label">Ekspertów urody</span></div></div>
-          <div class="col-4"><div class="rb-stat"><span class="rb-stat-num">20+</span><span class="rb-stat-label">Usług premium</span></div></div>
+      {% if employees %}
+        <div>
+          <h3 class="rb-about-team-heading">{% if employees|length > 1 %}Nasz zespół{% else %}Kto Cię przyjmie{% endif %}</h3>
+          <ul class="rb-team">
+            {% for employee in employees %}
+              <li class="rb-person">
+                <div class="rb-arch rb-portrait" aria-hidden="true"><span>{{ employee.first_name|first }}</span></div>
+                <div>
+                  <h4 class="rb-person-name">{{ employee.first_name }}</h4>
+                  {% if employee.bio %}<p class="rb-person-bio">{{ employee.bio }}</p>{% endif %}
+                  {% if employee.specialties %}<p class="rb-person-skills">{{ employee.specialties|join:", "|lower|capfirst }}</p>{% endif %}
+                </div>
+              </li>
+            {% endfor %}
+          </ul>
         </div>
-      </div>
+      {% endif %}
     </div>
   </div>
 </section>
@@ -108,36 +110,32 @@
   </div>
 </section>
 
-<section id="galeria" class="rb-section rb-bg-beige">
+<section id="galeria" class="rb-section rb-bg-beige" aria-labelledby="galeria-heading">
   <div class="container-xl px-4 px-lg-5">
-    <div class="text-center mb-5">
-      <p class="rb-label">Galeria</p>
-      <h2 class="rb-heading">Nasze <em class="rb-gold">wnętrza</em></h2>
-      <div class="rb-gold-line mx-auto mt-3"></div>
-    </div>
+    <h2 id="galeria-heading" class="rb-heading mb-5">Salon od środka</h2>
     <div class="rb-gallery-grid">
       <div class="rb-gallery-item rb-gallery-large" onclick="openLightbox(this)">
-        <img src="{% static 'img/wnetrze-salonu.jpeg' %}" alt="Stylistka wykonuje pedicure, klientka odpoczywa w fotelu przy oknie" width="1179" height="757" loading="lazy" />
+        <img src="{% static 'img/wnetrze-salonu.webp' %}" alt="Stylistka wykonuje pedicure, klientka odpoczywa w fotelu przy oknie" width="1179" height="757" loading="lazy" />
         <div class="rb-gallery-hover"><span>Powiększ</span></div>
       </div>
       <div class="rb-gallery-item" onclick="openLightbox(this)">
-        <img src="{% static 'img/kosmetyki.jpeg' %}" alt="Kosmetyki do pielęgnacji używane w Royal Beauty" width="1179" height="1450" loading="lazy" />
+        <img src="{% static 'img/kosmetyki.webp' %}" alt="Kosmetyki do pielęgnacji używane w Royal Beauty" width="1179" height="1450" loading="lazy" />
         <div class="rb-gallery-hover"><span>Powiększ</span></div>
       </div>
       <div class="rb-gallery-item" onclick="openLightbox(this)">
-        <img src="{% static 'img/zabieg-na-twarz.jpeg' %}" alt="Zabieg na twarz w salonie Royal Beauty we Wrocławiu" width="1178" height="1744" loading="lazy" />
+        <img src="{% static 'img/zabieg-na-twarz.webp' %}" alt="Zabieg na twarz w salonie Royal Beauty we Wrocławiu" width="1178" height="1744" loading="lazy" />
         <div class="rb-gallery-hover"><span>Powiększ</span></div>
       </div>
       <div class="rb-gallery-item" onclick="openLightbox(this)">
-        <img src="{% static 'img/salon.jpeg' %}" alt="Stanowisko do zabiegów w studiu urody Royal Beauty" width="1536" height="2048" loading="lazy" />
+        <img src="{% static 'img/salon.webp' %}" alt="Stanowisko do zabiegów w studiu urody Royal Beauty" width="1200" height="1600" loading="lazy" />
         <div class="rb-gallery-hover"><span>Powiększ</span></div>
       </div>
       <div class="rb-gallery-item" onclick="openLightbox(this)">
-        <img src="{% static 'img/sprzet.jpeg' %}" alt="Urządzenie do zabiegów na twarz w Royal Beauty" width="1178" height="1444" loading="lazy" />
+        <img src="{% static 'img/sprzet.webp' %}" alt="Urządzenie do zabiegów na twarz w Royal Beauty" width="1178" height="1444" loading="lazy" />
         <div class="rb-gallery-hover"><span>Powiększ</span></div>
       </div>
       <div class="rb-gallery-item" onclick="openLightbox(this)">
-        <img src="{% static 'img/zabieg-kosmetyczny.jpeg' %}" alt="Kosmetolożka przygotowuje urządzenie do zabiegu kosmetycznego" width="1178" height="1772" loading="lazy" />
+        <img src="{% static 'img/zabieg-kosmetyczny.webp' %}" alt="Kosmetolożka przygotowuje urządzenie do zabiegu kosmetycznego" width="1178" height="1772" loading="lazy" />
         <div class="rb-gallery-hover"><span>Powiększ</span></div>
       </div>
     </div>
@@ -149,61 +147,36 @@
   <img id="lightboxImg" src="" alt="" onclick="event.stopPropagation()" />
 </div>
 
-<section id="opinie" class="rb-section rb-testimonials"
-  style="background-image:url('https://images.unsplash.com/photo-1643684391140-c5056cfd3436?w=1800&h=900&fit=crop&auto=format');">
-  <div class="rb-testimonials-overlay"></div>
-  <div class="container-xl px-4 px-lg-5 position-relative" style="z-index:2;">
-    <div class="text-center mb-5">
-      <p class="rb-label">Opinie</p>
-      <h2 class="rb-heading">Co mówią nasze <em class="rb-gold">klientki</em></h2>
-      <div class="rb-gold-line mx-auto mt-3"></div>
-    </div>
-    <div class="row justify-content-center">
-      <div class="col-lg-8 text-center">
-        <div class="rb-stars mb-4">
-          <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
-        </div>
-        <blockquote id="testimonialText" class="rb-quote mb-4"></blockquote>
-        <div class="d-flex align-items-center justify-content-center gap-3">
-          <div id="testimonialAvatar" class="rb-avatar"></div>
-          <div class="text-start">
-            <p id="testimonialName" class="rb-author-name mb-0"></p>
-            <p id="testimonialRole" class="rb-author-role mb-0"></p>
-          </div>
-        </div>
-        <div class="d-flex align-items-center justify-content-center gap-4 mt-5">
-          <button class="btn rb-carousel-btn" onclick="prevTestimonial()"><i class="bi bi-chevron-left"></i></button>
-          <div id="testimonialDots" class="d-flex gap-2 align-items-center"></div>
-          <button class="btn rb-carousel-btn" onclick="nextTestimonial()"><i class="bi bi-chevron-right"></i></button>
-        </div>
+<section id="opinie" class="rb-section rb-bg-white rb-reviews" aria-labelledby="opinie-heading">
+  <div class="container-xl px-4 px-lg-5">
+    <div class="rb-reviews-box">
+      <h2 id="opinie-heading" class="rb-heading">Opinie klientek</h2>
+      <p>Opinie zbieramy w wizytówce Google. Przeczytasz tam, co klientki piszą o zabiegach, a po wizycie możesz dodać własną.</p>
+      <div class="rb-hero-actions">
+        <a class="btn rb-btn rb-btn-solid" href="{{ google_maps_url }}" target="_blank" rel="noopener">Zobacz opinie w Google</a>
+        <a class="btn rb-btn rb-btn-quiet" href="{{ google_review_url }}" target="_blank" rel="noopener">Wystaw opinię</a>
       </div>
     </div>
   </div>
 </section>
 
-<section id="rezerwacja" class="rb-section rb-bg-white">
+<section id="rezerwacja" class="rb-section rb-booking" aria-labelledby="rezerwacja-heading">
   <div class="container-xl px-4 px-lg-5">
     <div class="row g-5">
-      <div class="col-md-6">
-        <p class="rb-label">Rezerwacja</p>
-        <h2 class="rb-heading mb-3">Zarezerwuj<br><em class="rb-gold">swoją wizytę</em></h2>
-        <div class="rb-gold-line mb-4"></div>
-        <p class="rb-body-text mb-5">Skontaktuj się z nami i zaplanuj swój rytuał piękna. Możesz wybrać preferowaną specjalistkę lub pozostawić nam wybór. Potwierdzimy termin w ciągu 24 godzin.</p>
-        <div class="d-flex flex-column gap-4 mb-5">
-          <div class="d-flex gap-3"><div class="rb-contact-line"></div><div><p class="rb-label mb-1">Telefon</p><p class="rb-body-text mb-0"><a class="rb-tel" href="tel:+48793355756">+48 793 355 756</a></p><p class="rb-body-text mb-0"><a class="rb-tel" href="tel:+48792646256">+48 792 646 256</a></p></div></div>
-          <div class="d-flex gap-3"><div class="rb-contact-line"></div><div><p class="rb-label mb-1">E-mail</p><p class="rb-body-text mb-0">royalbeauty.studiourody@gmail.com</p></div></div>
-          <div class="d-flex gap-3"><div class="rb-contact-line"></div><div><p class="rb-label mb-1">Godziny</p><p class="rb-body-text mb-0">Pn–Pt: 9:00–21:00<br>Sob: 9:00–17:00</p></div></div>
-        </div>
-        <div class="pt-4" style="border-top:1px solid rgba(184,147,90,.25);">
-          <p class="rb-label mb-3">Nasz zespół</p>
-          <div class="d-flex flex-wrap gap-2">
-            <span class="rb-team-chip"><span class="rb-chip-dot">P</span>Paula</span>
-            <span class="rb-team-chip"><span class="rb-chip-dot">M</span>Marika</span>
-            <span class="rb-team-chip"><span class="rb-chip-dot">w</span>Wiola</span>
-          </div>
+      <div class="col-md-5">
+        <h2 id="rezerwacja-heading" class="rb-heading">Rezerwacja wizyty</h2>
+        <ol class="rb-steps">
+          <li>Wybierz zabieg{% if employees|length > 1 %} i, jeśli chcesz, specjalistkę{% endif %}.</li>
+          <li>Wybierz dzień. Pokażemy tylko wolne godziny.</li>
+          <li>Potwierdzimy wizytę e-mailem w ciągu 24 godzin.</li>
+        </ol>
+        <div class="rb-booking-phone">
+          <p>Wolisz zadzwonić?</p>
+          <a class="rb-tel" href="tel:+48793355756">+48 793 355 756</a><br>
+          <a class="rb-tel" href="tel:+48792646256">+48 792 646 256</a>
         </div>
       </div>
-      <div class="col-md-6">
+      <div class="col-md-7">
         <div id="bookingSuccess" class="rb-booking-success d-none text-center p-5">
           <i class="bi bi-check-circle rb-success-icon mb-3 d-block"></i>
           <h3 class="rb-heading mb-3" style="font-size:1.5rem;">Dziękujemy za rezerwację!</h3>
@@ -213,14 +186,14 @@
         <form id="bookingForm" class="rb-form" onsubmit="submitBooking(event)" novalidate>
           {% csrf_token %}
           <div class="row g-3 mb-3">
-            <div class="col-sm-6"><label class="rb-form-label">Imię i nazwisko</label><input type="text" id="clientName" name="client_name" class="rb-input" placeholder="Anna Kowalska" required /></div>
-            <div class="col-sm-6"><label class="rb-form-label">Telefon</label><input type="tel" id="clientPhone" name="client_phone" class="rb-input" placeholder="+48 000 000 000" required /></div>
+            <div class="col-sm-6"><label class="rb-form-label" for="clientName">Imię i nazwisko</label><input type="text" id="clientName" autocomplete="name" name="client_name" class="rb-input" placeholder="Anna Kowalska" required /></div>
+            <div class="col-sm-6"><label class="rb-form-label" for="clientPhone">Telefon</label><input type="tel" id="clientPhone" autocomplete="tel" name="client_phone" class="rb-input" placeholder="+48 000 000 000" required /></div>
           </div>
-          <div class="mb-3"><label class="rb-form-label">E-mail</label><input type="email" id="clientEmail" name="client_email" class="rb-input" placeholder="twoj@email.pl" required/></div>
+          <div class="mb-3"><label class="rb-form-label" for="clientEmail">E-mail</label><input type="email" id="clientEmail" autocomplete="email" name="client_email" class="rb-input" placeholder="twoj@email.pl" required/></div>
           <div class="mb-3">
-            <label class="rb-form-label">Usługa</label>
+            <label class="rb-form-label" for="bookingService">Zabieg</label>
             <select id="bookingService" name="service" class="rb-input rb-select" required>
-              <option value="" disabled selected>Wybierz usługę...</option>
+              <option value="" disabled selected>Wybierz zabieg</option>
               {% for group in price_list %}
                 <optgroup label="{{ group.category.name }}">
                   {% for service in group.services %}
@@ -230,22 +203,29 @@
               {% endfor %}
             </select>
           </div>
-          <div class="mb-3">
-            <label class="rb-form-label">Specjalistka</label>
-            <select id="bookingEmployee" name="employee" class="rb-input rb-select">
-              <option value="">Dowolna specjalistka</option>
-            </select>
-          </div>
+          {% if employees|length > 1 %}
+            <div class="mb-3">
+              <label class="rb-form-label" for="bookingEmployee">Specjalistka</label>
+              <select id="bookingEmployee" name="employee" class="rb-input rb-select">
+                <option value="">Dowolna specjalistka</option>
+              </select>
+            </div>
+          {% endif %}
           <div class="row g-3 mb-3">
-            <div class="col-sm-6"><label class="rb-form-label">Data</label><input type="date" class="rb-input" id="bookingDate" name="date" required /></div>
+            <div class="col-sm-6"><label class="rb-form-label" for="bookingDate">Dzień</label><input type="date" class="rb-input" id="bookingDate" name="date" required /></div>
             <div class="col-sm-6">
-              <label class="rb-form-label">Godzina</label>
+              <label class="rb-form-label" for="bookingTime">Godzina</label>
               <select id="bookingTime" name="time" class="rb-input rb-select" required>
-                <option value="" disabled selected>Najpierw wybierz usługę i datę</option>
+                <option value="" disabled selected>Najpierw wybierz zabieg i dzień</option>
               </select>
             </div>
           </div>
-          <div class="mb-4"><label class="rb-form-label">Dodatkowe informacje</label><textarea id="bookingNotes" name="notes" class="rb-input rb-textarea" rows="3" placeholder="Wszelkie uwagi..."></textarea></div>
+          <div class="mb-3">
+            <label class="rb-form-label" for="bookingNotes">Uwagi (opcjonalnie)</label>
+            <textarea id="bookingNotes" name="notes" class="rb-input rb-textarea" rows="3" aria-describedby="bookingNotesHint"></textarea>
+            <small id="bookingNotesHint" class="rb-field-hint">Nie wpisuj tu informacji o zdrowiu, omówimy je na miejscu.</small>
+          </div>
+          <p class="rb-consent">Twoje dane wykorzystamy tylko do obsługi tej rezerwacji.</p>
           <button type="submit" class="btn rb-btn rb-btn-solid w-100">Wyślij prośbę o rezerwację</button>
         </form>
       </div>
@@ -253,36 +233,30 @@
   </div>
 </section>
 
-<section id="kontakt" class="rb-section rb-bg-sand">
+<section id="kontakt" class="rb-section rb-bg-sand rb-contact" aria-labelledby="kontakt-heading">
   <div class="container-xl px-4 px-lg-5">
-    <div class="text-center mb-5">
-      <p class="rb-label">Kontakt</p>
-      <h2 class="rb-heading">Znajdź nas <em class="rb-gold">w centrum</em></h2>
-      <div class="rb-gold-line mx-auto mt-3"></div>
-    </div>
-    <div class="row g-0 rb-contact-box">
-      <div class="col-md-6">
-        <div class="rb-contact-img h-100" style="background-image:url('static/img/contact.jpg');">
-          <div class="rb-contact-img-overlay d-flex flex-column align-items-center justify-content-center h-100">
-            <i class="bi bi-geo-alt-fill rb-map-pin mb-2"></i>
-            <p class="rb-map-street">ul. Małopanewska 24B/5</p>
-            <p class="rb-map-city">54-212 Wrocław</p>
-          </div>
-        </div>
+    <div class="rb-contact-grid">
+      <div class="rb-arch rb-contact-photo">
+        <img src="{% static 'img/stanowisko-manicure.webp' %}" alt="Stanowisko do manicure w salonie Royal Beauty" width="1000" height="1334" loading="lazy" />
       </div>
-      <div class="col-md-6 rb-contact-info p-5">
-        <div class="d-flex flex-column gap-4">
-          <div class="d-flex gap-3 align-items-start"><i class="bi bi-geo-alt rb-contact-icon mt-1"></i><div><p class="rb-label mb-1">Adres</p><p class="rb-body-text mb-0">ul. Małopanewska 24B/5<br>54-212 Wrocław</p></div></div>
-          <div class="d-flex gap-3 align-items-start"><i class="bi bi-telephone rb-contact-icon mt-1"></i><div><p class="rb-label mb-1">Telefon</p><p class="rb-body-text mb-0"><a class="rb-tel" href="tel:+48792646256">+48 792 646 256</a></p><p class="rb-body-text mb-0"><a class="rb-tel" href="tel:+48793355756">+48 793 355 756</a></p></div></div>
-          <div class="d-flex gap-3 align-items-start"><i class="bi bi-envelope rb-contact-icon mt-1"></i><div><p class="rb-label mb-1">E-mail</p><p class="rb-body-text mb-0">royalbeauty.studiourody@gmail.com</p></div></div>
-          <div class="d-flex gap-3 align-items-start"><i class="bi bi-clock rb-contact-icon mt-1"></i><div><p class="rb-label mb-1">Godziny otwarcia</p><p class="rb-body-text mb-0">Pn–Pt: 9:00–21:00<br>Sob: 9:00–17:00<br>Niedz: nieczynne</p></div></div>
+      <div>
+        <h2 id="kontakt-heading" class="rb-heading">Jak do nas trafić</h2>
+        <address class="rb-nap">
+          Royal Beauty Studio Urody<br>
+          ul. Małopanewska 24B/5<br>
+          54-212 Wrocław<br>
+          <a class="rb-tel" href="tel:+48793355756">+48 793 355 756</a><br>
+          <a class="rb-tel" href="tel:+48792646256">+48 792 646 256</a><br>
+          <a href="mailto:royalbeauty.studiourody@gmail.com">royalbeauty.studiourody@gmail.com</a>
+        </address>
+        <div class="rb-by-appt">
+          <p><strong>Przyjmujemy po wcześniejszym umówieniu</strong><br>codziennie 9:00–21:00, także w weekendy</p>
+          <p class="rb-muted">Najbliższy wolny termin: {% include "includes/next_date.html" %}</p>
         </div>
-        <div class="mt-4 pt-4" style="border-top:1px solid rgba(184,147,90,.2);">
-          <p class="rb-label mb-3">Obserwuj nas</p>
-          <div class="d-flex gap-3">
-            <a href="https://www.instagram.com/royalbeauty_studiourody_/" target="_blank" rel="noopener" class="rb-social-btn" aria-label="Royal Beauty na Instagram"><i class="bi bi-instagram" aria-hidden="true"></i></a>
-            <a href="https://www.facebook.com/p/Royal-Beauty-100063223181002/" target="_blank" rel="noopener" class="rb-social-btn" aria-label="Royal Beauty na Facebook"><i class="bi bi-facebook" aria-hidden="true"></i></a>
-          </div>
+        <div class="rb-contact-actions">
+          <a class="btn rb-btn rb-btn-quiet" href="https://www.google.com/maps/dir/?api=1&amp;destination=Ma%C5%82opanewska+24B+Wroc%C5%82aw" target="_blank" rel="noopener">Wyznacz trasę</a>
+          <a href="https://www.instagram.com/royalbeauty_studiourody_/" target="_blank" rel="noopener" class="rb-social-btn" aria-label="Royal Beauty na Instagram"><i class="bi bi-instagram" aria-hidden="true"></i></a>
+          <a href="https://www.facebook.com/p/Royal-Beauty-100063223181002/" target="_blank" rel="noopener" class="rb-social-btn" aria-label="Royal Beauty na Facebook"><i class="bi bi-facebook" aria-hidden="true"></i></a>
         </div>
       </div>
     </div>
