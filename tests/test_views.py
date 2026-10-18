@@ -284,6 +284,32 @@ class TestSelfHostedFonts:
         assert missing == []
 
 
+class TestMobilePerformance:
+    """The public site loads everything from our own domain: no CDN handshake delays the first paint on a phone."""
+
+    def test_home_loads_no_third_party_css_or_js(self, client, db):
+        html = home_html(client)
+        assert re.findall(r'<link rel="(?:stylesheet|preload)"[^>]+href="https?://', html) == []
+        assert re.findall(r'<script[^>]+src="https?://', html) == []
+        assert 'bootstrap-icons' not in html  # inline SVG instead of a 128 KB icon font
+
+    def test_scripts_do_not_block_parsing(self, client, db):
+        scripts = re.findall(r'<script src="[^"]+"[^>]*>', home_html(client))
+        assert scripts
+        assert all(' defer' in tag for tag in scripts)
+
+    def test_content_is_in_a_main_landmark(self, client, db):
+        html = home_html(client)
+        assert html.count('<main') == 1
+        assert html.index('<main') < html.index('<h1') < html.index('</main>')
+
+    def test_every_static_file_referenced_by_the_page_exists(self, client, db):
+        static_dir = settings.STATICFILES_DIRS[0]
+        paths = re.findall(r'(?:href|src)="/static/([^"]+)"', home_html(client))
+        assert paths
+        assert [p for p in paths if not (static_dir / p).is_file()] == []
+
+
 class TestHeaderAndHero:
     def test_home_has_exactly_one_h1_with_the_main_phrase(self, client, db):
         html = client.get(reverse('home')).content.decode()

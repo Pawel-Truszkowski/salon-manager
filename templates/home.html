@@ -143,7 +143,7 @@
 </section>
 
 <div id="lightbox" class="rb-lightbox" onclick="closeLightbox()">
-  <button class="rb-lightbox-close" onclick="closeLightbox()"><i class="bi bi-x-lg"></i></button>
+  <button type="button" class="rb-lightbox-close" onclick="closeLightbox()" aria-label="Zamknij podgląd">{% include "includes/icon.html" with name="x-lg" %}</button>
   <img id="lightboxImg" src="" alt="" onclick="event.stopPropagation()" />
 </div>
 
@@ -178,7 +178,7 @@
       </div>
       <div class="col-md-7">
         <div id="bookingSuccess" class="rb-booking-success d-none text-center p-5">
-          <i class="bi bi-check-circle rb-success-icon mb-3 d-block"></i>
+          {% include "includes/icon.html" with name="check-circle" class="rb-success-icon mb-3 d-block mx-auto" %}
           <h3 class="rb-heading mb-3" style="font-size:1.5rem;">Dziękujemy za rezerwację!</h3>
           <p class="rb-body-text mb-4">Potwierdzimy Twoją wizytę w ciągu 24 godzin.</p>
           <button class="btn rb-btn rb-btn-quiet" onclick="resetBookingForm()">Nowa rezerwacja</button>
@@ -255,8 +255,8 @@
         </div>
         <div class="rb-contact-actions">
           <a class="btn rb-btn rb-btn-quiet" href="https://www.google.com/maps/dir/?api=1&amp;destination=Ma%C5%82opanewska+24B+Wroc%C5%82aw" target="_blank" rel="noopener">Wyznacz trasę</a>
-          <a href="https://www.instagram.com/royalbeauty_studiourody_/" target="_blank" rel="noopener" class="rb-social-btn" aria-label="Royal Beauty na Instagram"><i class="bi bi-instagram" aria-hidden="true"></i></a>
-          <a href="https://www.facebook.com/p/Royal-Beauty-100063223181002/" target="_blank" rel="noopener" class="rb-social-btn" aria-label="Royal Beauty na Facebook"><i class="bi bi-facebook" aria-hidden="true"></i></a>
+          <a href="https://www.instagram.com/royalbeauty_studiourody_/" target="_blank" rel="noopener" class="rb-social-btn" aria-label="Royal Beauty na Instagram">{% include "includes/icon.html" with name="instagram" %}</a>
+          <a href="https://www.facebook.com/p/Royal-Beauty-100063223181002/" target="_blank" rel="noopener" class="rb-social-btn" aria-label="Royal Beauty na Facebook">{% include "includes/icon.html" with name="facebook" %}</a>
         </div>
       </div>
     </div>
