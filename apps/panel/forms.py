@@ -9,7 +9,7 @@ from django.utils import timezone
 
 from apps.bookings.models import Appointment
 from apps.bookings.utils import find_available_specialist, get_available_slots
-from apps.services.models import Employee, Service, TimeBlock, WeeklyScheduleEntry
+from apps.services.models import Employee, Equipment, EquipmentRental, Service, TimeBlock, WeeklyScheduleEntry
 
 FORCE_HELP = 'Pozwala zapisać wizytę poza grafikiem lub na zajęty termin. Używaj świadomie.'
 
@@ -356,15 +356,18 @@ class ServiceForm(forms.ModelForm):
 
     class Meta:
         model = Service
-        fields = ['category', 'name', 'description', 'price', 'duration']
+        fields = ['category', 'name', 'description', 'price', 'duration', 'required_equipment']
         labels = {
             'category': 'Kategoria',
             'name': 'Nazwa',
             'description': 'Opis',
             'price': 'Cena (zł)',
             'duration': 'Czas trwania (min)',
+            'required_equipment': 'Wymaga urządzenia',
         }
         help_texts = {
+            'required_equipment': 'Wtedy usługę można zarezerwować tylko w dni, w które urządzenie jest w salonie '
+            '(Urządzenia → terminy).',
             'description': 'Widoczny na stronie w zakładce usług.',
             'price': 'Zmiana dotyczy też już zapisanych wizyt (szczegóły wizyty pokazują aktualną cenę).',
             'duration': 'Zmiana dotyczy też już zapisanych wizyt: zmieni się ich długość w kalendarzu i dostępność.',
@@ -380,6 +383,7 @@ class ServiceForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['category'].empty_label = None  # every service belongs to a category tab on the website
+        self.fields['required_equipment'].empty_label = 'Nie, zawsze dostępna'
         add_bootstrap_classes(self)
 
     def clean_price(self):
@@ -399,3 +403,58 @@ class ServiceForm(forms.ModelForm):
         if duration % 15:
             raise forms.ValidationError('Czas trwania musi być wielokrotnością 15 minut (np. 45, 60, 90).')
         return duration
+
+
+class EquipmentForm(forms.ModelForm):
+    """Owner adds/edits a device that comes and goes, e.g. the rented laser."""
+
+    class Meta:
+        model = Equipment
+        fields = ['name', 'description', 'is_active']
+        labels = {'name': 'Nazwa', 'description': 'Opis', 'is_active': 'W użyciu'}
+        help_texts = {
+            'description': 'Widoczny na stronie przy usługach, które wymagają tego urządzenia.',
+            'is_active': 'Odznacz, gdy salon przestaje z niego korzystać: jego usług nie da się wtedy zarezerwować.',
+        }
+        widgets = {'description': forms.Textarea(attrs={'rows': 3})}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        add_bootstrap_classes(self)
+
+
+class EquipmentRentalForm(forms.ModelForm):
+    """The days a device is in the salon. Both ends inclusive; one-day rental = the same date twice."""
+
+    class Meta:
+        model = EquipmentRental
+        fields = ['date_from', 'date_to']
+        labels = {'date_from': 'Od', 'date_to': 'Do (włącznie)'}
+        widgets = {
+            'date_from': forms.DateInput(attrs={'type': 'date'}, format='%Y-%m-%d'),
+            'date_to': forms.DateInput(attrs={'type': 'date'}, format='%Y-%m-%d'),
+        }
+
+    def __init__(self, *args, equipment, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.instance.equipment = equipment
+        add_bootstrap_classes(self)
+
+    def clean(self):
+        cleaned = super().clean()  # also runs EquipmentRental.clean(): date_from <= date_to
+        date_from, date_to = cleaned.get('date_from'), cleaned.get('date_to')
+        if not (date_from and date_to):
+            return cleaned
+        if date_to < timezone.localdate():
+            self.add_error('date_to', 'Ten termin już minął.')
+        overlapping = (
+            EquipmentRental.objects.filter(equipment=self.instance.equipment)
+            .filter(date_from__lte=date_to, date_to__gte=date_from)
+            .exclude(pk=self.instance.pk)
+            .first()
+        )
+        if overlapping:
+            raise forms.ValidationError(
+                f'Ten termin nachodzi na już zapisany: {overlapping.date_from:%d.%m}–{overlapping.date_to:%d.%m.%Y}.'
+            )
+        return cleaned

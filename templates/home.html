@@ -87,6 +87,17 @@
         {% for group in price_list %}
           <section class="rb-menu-group" id="{{ group.category.slug }}" aria-labelledby="{{ group.category.slug }}-heading">
             <h3 class="rb-menu-group-title" id="{{ group.category.slug }}-heading">{{ group.category.name }}</h3>
+            {% if group.equipment %}
+              {# Services that need rented equipment (the laser): bookable only on its days #}
+              <div class="rb-equipment-note">
+                {% if group.next_rental %}
+                  <p class="rb-equipment-when">Zabiegi wykonujemy w wybrane dni. Najbliżej: <strong>{{ group.next_rental.label }}</strong>.</p>
+                {% else %}
+                  <p class="rb-equipment-when">Kolejny termin wkrótce. Zadzwoń, zapiszemy Cię jako pierwszą: <a class="rb-tel" href="tel:+48793355756">793 355 756</a>.</p>
+                {% endif %}
+                {% if group.equipment.description %}<p>{{ group.equipment.description }}</p>{% endif %}
+              </div>
+            {% endif %}
             {% for service in group.services %}
               <details class="rb-treat">
                 <summary>

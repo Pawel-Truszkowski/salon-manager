@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils import timezone
 
 
 def format_price(value):
@@ -8,6 +9,25 @@ def format_price(value):
     if value == value.to_integral_value():
         return f'{value:.0f} zł'
     return f'{value:.2f} zł'.replace('.', ',')
+
+
+MONTHS_GENITIVE = [
+    'stycznia', 'lutego', 'marca', 'kwietnia', 'maja', 'czerwca',
+    'lipca', 'sierpnia', 'września', 'października', 'listopada', 'grudnia',
+]  # fmt: skip
+
+
+def format_date_range(date_from, date_to):
+    """Polish day range as people write it: "8 listopada", "8–9 listopada", "30 listopada – 1 grudnia"."""
+
+    def day_month(d):
+        return f'{d.day} {MONTHS_GENITIVE[d.month - 1]}'
+
+    if date_from == date_to:
+        return day_month(date_from)
+    if (date_from.year, date_from.month) == (date_to.year, date_to.month):
+        return f'{date_from.day}–{day_month(date_to)}'
+    return f'{day_month(date_from)} – {day_month(date_to)}'
 
 
 class ServiceCategory(models.Model):
@@ -24,6 +44,61 @@ class ServiceCategory(models.Model):
         return self.name
 
 
+class Equipment(models.Model):
+    """A device that isn't in the salon all the time, e.g. the rented laser.
+
+    Services that need it (`Service.required_equipment`) can be booked only on the days of an `EquipmentRental`.
+    """
+
+    name = models.CharField(max_length=100, unique=True)
+    # Shown on the website next to the services that need it
+    description = models.TextField(blank=True)
+    # Inactive = no longer used: its services can't be booked on any day
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['name']
+        verbose_name_plural = 'Equipment'
+
+    def __str__(self):
+        return self.name
+
+
+class EquipmentRentalQuerySet(models.QuerySet):
+    def upcoming(self):
+        """Rentals that haven't ended yet (today's included), soonest first."""
+        return self.filter(date_to__gte=timezone.localdate()).order_by('date_from')
+
+    def covering(self, date):
+        return self.filter(date_from__lte=date, date_to__gte=date)
+
+
+class EquipmentRental(models.Model):
+    """The days a piece of equipment is in the salon, both ends inclusive (e.g. the laser on 8–9 November)."""
+
+    equipment = models.ForeignKey(Equipment, on_delete=models.CASCADE, related_name='rentals')
+    date_from = models.DateField()
+    date_to = models.DateField()
+
+    objects = EquipmentRentalQuerySet.as_manager()
+
+    class Meta:
+        ordering = ['date_from']
+
+    def __str__(self):
+        return f'{self.equipment}: {self.date_from:%d.%m.%Y}–{self.date_to:%d.%m.%Y}'
+
+    @property
+    def label(self):
+        """For the website: "8–9 listopada"."""
+        return format_date_range(self.date_from, self.date_to)
+
+    def clean(self):
+        # Either date may be None here if its own field validation already failed
+        if self.date_from and self.date_to and self.date_from > self.date_to:
+            raise ValidationError({'date_to': 'Data końca nie może być wcześniejsza niż data początku.'})
+
+
 class ServiceQuerySet(models.QuerySet):
     def active(self):
         return self.filter(is_active=True)
@@ -38,6 +113,10 @@ class Service(models.Model):
     # Inactive = no longer offered: hidden from the website, API and new bookings; past appointments keep it
     # (appointments PROTECT their service, so it can't be deleted once booked)
     is_active = models.BooleanField(default=True)
+    # Set = bookable only on the days this equipment is rented (`is_service_available_on`)
+    required_equipment = models.ForeignKey(
+        Equipment, on_delete=models.PROTECT, null=True, blank=True, related_name='services'
+    )
 
     objects = ServiceQuerySet.as_manager()
 
