@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load static %}
+{% load static services_extras %}
 {% block content %}
 
 <section id="hero" class="rb-hero">
@@ -10,7 +10,7 @@
         <p class="rb-hero-lead">Przedłużamy i laminujemy rzęsy, robimy manicure i pedicure hybrydowy, depilację woskiem oraz zabiegi na twarz, od oczyszczania wodorowego po mezoterapię mikroigłową.</p>
         <div class="rb-hero-actions">
           <a href="#rezerwacja" class="btn rb-btn rb-btn-solid">Zarezerwuj wizytę</a>
-          <a href="#uslugi" class="btn rb-btn rb-btn-quiet">Zobacz cennik</a>
+          <a href="#cennik" class="btn rb-btn rb-btn-quiet">Zobacz cennik</a>
         </div>
         <dl class="rb-hero-facts">
           <div>
@@ -64,22 +64,46 @@
   </div>
 </section>
 
-<section id="uslugi" class="rb-section rb-bg-sand">
+<section id="cennik" class="rb-section rb-bg-sand rb-menu" aria-labelledby="cennik-heading">
   <div class="container-xl px-4 px-lg-5">
-    <div class="text-center mb-5">
-      <p class="rb-label">Oferta</p>
-      <h2 class="rb-heading">Nasze <em class="rb-gold">usługi</em></h2>
-      <div class="rb-gold-line mx-auto mt-3"></div>
-    </div>
-    <div class="d-flex flex-wrap justify-content-center gap-2 mb-5" id="serviceTabs">
-      <button class="btn rb-tab-btn active" data-category="zabiegi-kosmetyczne"><i class="bi bi-stars me-1"></i>Zabiegi kosmetyczne</button>
-      <button class="btn rb-tab-btn" data-category="rzesy-i-brwi"><i class="bi bi-eye me-1"></i>Rzęsy &amp; Brwi</button>
-      <button class="btn rb-tab-btn" data-category="dlonie-i-stopy"><i class="bi bi-hand-index me-1"></i>Dłonie &amp; Stopy</button>
-      <button class="btn rb-tab-btn" data-category="depilacja-woskiem"><i class="bi bi-flower1 me-1"></i>Depilacja woskiem</button>
-    </div>
-    <div id="servicesGrid" class="row g-0 rb-services-grid"></div>
-    <div class="text-center mt-5">
-      <a href="#rezerwacja" class="btn rb-btn rb-btn-quiet">Zarezerwuj usługę</a>
+    <div class="rb-menu-grid">
+      <nav class="rb-menu-index" aria-label="Kategorie cennika">
+        <h2 id="cennik-heading" class="rb-heading">Cennik</h2>
+        <p class="rb-menu-hint">Kliknij zabieg, żeby przeczytać, na czym polega.</p>
+        <ol>
+          {% for group in price_list %}
+            <li>
+              <a href="#{{ group.category.slug }}">
+                <span class="rb-menu-index-name">{{ group.category.name }}</span>
+                <span class="rb-menu-index-meta">{{ group.services|length }} zabiegów{% if group.min_price %}, {{ group.min_price|floatformat:"-2" }}–{{ group.max_price|floatformat:"-2" }} zł{% endif %}</span>
+              </a>
+            </li>
+          {% endfor %}
+        </ol>
+      </nav>
+      <div>
+        {% for group in price_list %}
+          <section class="rb-menu-group" id="{{ group.category.slug }}" aria-labelledby="{{ group.category.slug }}-heading">
+            <h3 class="rb-menu-group-title" id="{{ group.category.slug }}-heading">{{ group.category.name }}</h3>
+            {% for service in group.services %}
+              <details class="rb-treat">
+                <summary>
+                  <h4 class="rb-treat-name">{{ service.name }}</h4>
+                  <span class="rb-treat-leader" aria-hidden="true"></span>
+                  <span class="rb-treat-time">{{ service.duration }} min</span>
+                  <span class="rb-treat-price">{{ service.price_label }}</span>
+                </summary>
+                <div class="rb-treat-body">
+                  {{ service.description|description_html }}
+                  <a class="rb-text-link" href="#rezerwacja" data-book-service="{{ service.pk }}">Zarezerwuj ten zabieg</a>
+                </div>
+              </details>
+            {% endfor %}
+          </section>
+        {% empty %}
+          <p class="rb-body-text">Cennik jest chwilowo niedostępny. Zadzwoń: <a class="rb-tel" href="tel:+48793355756">+48 793 355 756</a>.</p>
+        {% endfor %}
+      </div>
     </div>
   </div>
 </section>
@@ -196,7 +220,14 @@
           <div class="mb-3">
             <label class="rb-form-label">Usługa</label>
             <select id="bookingService" name="service" class="rb-input rb-select" required>
-              <option value="" disabled selected>Ładowanie usług...</option>
+              <option value="" disabled selected>Wybierz usługę...</option>
+              {% for group in price_list %}
+                <optgroup label="{{ group.category.name }}">
+                  {% for service in group.services %}
+                    <option value="{{ service.pk }}">{{ service.name }} — {{ service.price_label }}</option>
+                  {% endfor %}
+                </optgroup>
+              {% endfor %}
             </select>
           </div>
           <div class="mb-3">

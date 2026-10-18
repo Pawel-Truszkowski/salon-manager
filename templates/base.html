@@ -36,6 +36,7 @@
     "@type": "BeautySalon",
     "@id": "{{ site_url }}/#salon",
     "name": "Royal Beauty Studio Urody",
+    "alternateName": "Royal Beauty",
     "url": "{{ site_url }}/",
     "logo": "{{ site_url }}{% static 'img/Logo_Royal_Beauty.PNG' %}",
     "image": "{{ site_url }}{% static 'img/og-salon.jpg' %}",
@@ -84,15 +85,16 @@
   {% url 'home' as home_url %}
   <nav id="navbar" class="navbar navbar-expand-lg sticky-top rb-nav">
     <div class="container-xl px-4 px-lg-5">
-      <a class="navbar-brand" href="{{ home_url }}">
-        <img src="{% static 'img/Logo_Royal_Beauty.PNG' %}" alt="Royal Beauty — strona główna" class="rb-nav-logo" />
+      <a class="navbar-brand rb-brand" href="{{ home_url }}">
+        <img src="{% static 'img/Logo_Royal_Beauty.PNG' %}" alt="" class="rb-nav-logo" />
+        <span class="rb-brand-name">Royal Beauty<span>Studio Urody</span></span>
       </a>
       <button class="navbar-toggler rb-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu" aria-controls="navMenu" aria-expanded="false" aria-label="Menu">
         <i class="bi bi-list" aria-hidden="true"></i>
       </button>
       <div class="collapse navbar-collapse justify-content-end" id="navMenu">
         <ul class="navbar-nav align-items-lg-center gap-3 gap-lg-4 py-3 py-lg-0">
-          <li class="nav-item"><a class="nav-link rb-nav-link" href="{{ home_url }}#uslugi">Cennik</a></li>
+          <li class="nav-item"><a class="nav-link rb-nav-link" href="{{ home_url }}#cennik">Cennik</a></li>
           <li class="nav-item"><a class="nav-link rb-nav-link" href="{{ home_url }}#o-nas">O salonie</a></li>
           <li class="nav-item"><a class="nav-link rb-nav-link" href="{{ home_url }}#galeria">Galeria</a></li>
           <li class="nav-item"><a class="nav-link rb-nav-link" href="{{ home_url }}#opinie">Opinie</a></li>
@@ -116,7 +118,7 @@
         <div class="col-md-4">
           <p class="rb-label mb-3" style="color:#b8935a;">Nawigacja</p>
           <ul class="list-unstyled rb-footer-links">
-            <li><a href="{{ home_url }}#uslugi">Cennik</a></li><li><a href="{{ home_url }}#o-nas">O salonie</a></li>
+            <li><a href="{{ home_url }}#cennik">Cennik</a></li><li><a href="{{ home_url }}#o-nas">O salonie</a></li>
             <li><a href="{{ home_url }}#galeria">Galeria</a></li><li><a href="{{ home_url }}#opinie">Opinie</a></li>
             <li><a href="{{ home_url }}#kontakt">Kontakt</a></li><li><a href="{{ home_url }}#rezerwacja">Rezerwacja</a></li>
           </ul>

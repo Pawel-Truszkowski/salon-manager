@@ -6,8 +6,11 @@ from django.db import models
 class ServiceCategory(models.Model):
     name = models.CharField(max_length=50, unique=True)
     slug = models.SlugField(max_length=50, unique=True)
+    # Position in the price list on the website (lower first)
+    order = models.PositiveSmallIntegerField(default=0)
 
     class Meta:
+        ordering = ['order', 'name']
         verbose_name_plural = "Service Categories"
 
     def __str__(self):
@@ -36,6 +39,15 @@ class Service(models.Model):
 
     def __str__(self):
         return self.name
+
+    @property
+    def price_label(self):
+        """Price as shown on the website: "bezpłatnie", "30 zł" or "30,50 zł"."""
+        if self.price == 0:
+            return 'bezpłatnie'
+        if self.price == self.price.to_integral_value():
+            return f'{self.price:.0f} zł'
+        return f'{self.price:.2f} zł'.replace('.', ',')
 
 
 class EmployeeQuerySet(models.QuerySet):

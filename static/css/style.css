@@ -92,6 +92,24 @@ body {
   object-fit: contain;
   filter: brightness(0) saturate(100%) invert(62%) sepia(35%) saturate(700%) hue-rotate(5deg) brightness(0.95);
 }
+.rb-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.rb-brand-name {
+  display: flex;
+  flex-direction: column;
+  font-family: var(--ff-display);
+  font-size: 1.15rem;
+  line-height: 1.15;
+  color: var(--rb-dark);
+}
+.rb-brand-name span {
+  font-family: var(--ff-body);
+  font-size: 0.8rem;
+  color: var(--rb-gold-ink);
+}
 .rb-nav-link {
   font-family: var(--ff-body);
   font-size: 0.95rem;
@@ -320,6 +338,10 @@ body {
     gap: 1rem;
   }
 }
+/* Narrower than Bootstrap's 1320px, as in the prototype: shorter lines, calmer page */
+.container-xl {
+  max-width: 72rem;
+}
 .rb-about-img {
   display: block;
   height: auto;
@@ -370,69 +392,196 @@ body {
   color: rgba(61, 46, 30, 0.65);
   margin-top: 0.2rem;
 }
-.rb-tab-btn {
-  border: 1px solid var(--rb-border);
-  border-radius: 0;
-  background: transparent;
-  color: rgba(44, 36, 24, 0.7);
-  font-family: var(--ff-body);
-  font-size: 0.65rem;
-  font-weight: 500;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  padding: 0.55rem 1.1rem;
-  transition: all 0.25s;
+/* ---------- price list: the one bold element (a printed salon price card) ---------- */
+.rb-menu-grid {
+  display: grid;
+  grid-template-columns: 17rem 1fr;
+  gap: clamp(2rem, 5vw, 4.5rem);
+  align-items: start;
 }
-.rb-tab-btn:hover {
-  border-color: var(--rb-gold);
-  color: var(--rb-gold-ink);
+.rb-menu-grid > * {
+  min-width: 0; /* grid items default to min-width:auto; the scrolling category strip would widen the column */
 }
-.rb-tab-btn.active {
-  background: var(--rb-gold);
-  color: var(--rb-bg-white);
-  border-color: var(--rb-gold);
+.rb-menu-index {
+  position: sticky;
+  top: 6.5rem;
 }
-.rb-services-grid {
-  border: 1px solid rgba(184, 147, 90, 0.2);
+.rb-menu-hint {
+  margin: 0.75rem 0 0;
+  color: #6b5a45;
 }
-.rb-service-card {
-  background: var(--rb-bg-white);
-  padding: 2rem;
-  border-right: 1px solid rgba(184, 147, 90, 0.15);
-  border-bottom: 1px solid rgba(184, 147, 90, 0.15);
-  transition: background 0.3s;
+.rb-menu-index ol {
+  list-style: none;
+  margin: 2rem 0 0;
+  padding: 0;
+  border-top: 1px solid var(--rb-border);
 }
-.rb-service-card:hover {
-  background: var(--rb-bg);
+.rb-menu-index a {
+  display: grid;
+  padding: 0.9rem 0;
+  border-bottom: 1px solid var(--rb-border);
+  text-decoration: none;
 }
-.rb-service-card:hover .rb-service-name {
-  color: var(--rb-gold-ink);
-}
-.rb-service-name {
+.rb-menu-index-name {
   font-family: var(--ff-display);
-  font-size: 1.05rem;
-  font-weight: 400;
+  font-size: 1.3rem;
   color: var(--rb-dark);
-  transition: color 0.3s;
-  margin-bottom: 0.6rem;
 }
-.rb-service-desc {
-  font-family: var(--ff-body);
-  font-size: 0.82rem;
-  font-weight: 300;
-  color: rgba(61, 46, 30, 0.65);
-  line-height: 1.6;
-  flex: 1;
-}
-.rb-service-price {
-  font-family: var(--ff-display);
-  font-size: 1.15rem;
+.rb-menu-index a:hover .rb-menu-index-name {
   color: var(--rb-gold-ink);
 }
-.rb-service-duration {
+.rb-menu-index-meta {
+  font-size: 0.85rem;
+  color: #6b5a45;
+}
+.rb-menu-group + .rb-menu-group {
+  margin-top: 4rem;
+}
+.rb-menu-group-title {
+  font-family: var(--ff-display);
+  font-weight: 400;
+  font-size: clamp(1.75rem, 3vw, 2.25rem);
+  color: var(--rb-dark);
+  margin: 0;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--rb-dark);
+}
+.rb-treat {
+  border-bottom: 1px solid var(--rb-border);
+}
+.rb-treat summary {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  padding: 0.75rem 0;
+  cursor: pointer;
+  list-style: none;
+}
+.rb-treat summary::-webkit-details-marker {
+  display: none;
+}
+.rb-treat summary:focus-visible {
+  outline: 2px solid var(--rb-gold-ink);
+  outline-offset: 2px;
+}
+.rb-treat-name {
   font-family: var(--ff-body);
-  font-size: 0.72rem;
-  color: rgba(61, 46, 30, 0.5);
+  font-weight: 400;
+  font-size: 1.05rem;
+  line-height: 1.35;
+  color: var(--rb-dark);
+  margin: 0;
+}
+.rb-treat summary:hover .rb-treat-name {
+  color: var(--rb-gold-ink);
+}
+.rb-treat[open] .rb-treat-name {
+  font-weight: 500;
+}
+.rb-treat-leader {
+  flex: 1;
+  min-width: 1.5rem;
+  border-bottom: 1px dotted var(--rb-gold);
+  transform: translateY(-0.3em);
+}
+.rb-treat-time {
+  font-size: 0.9rem;
+  color: #6b5a45;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.rb-treat-price {
+  font-family: var(--ff-display);
+  font-size: 1.2rem;
+  color: var(--rb-dark);
+  min-width: 5.5rem;
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+.rb-treat-body {
+  max-width: 46rem;
+  padding: 0 6.5rem 1.4rem 0;
+  font-weight: 300;
+  font-size: 0.98rem;
+  line-height: 1.65;
+}
+.rb-treat-body p {
+  margin: 0 0 0.6rem;
+}
+.rb-treat-body ul {
+  margin: 0 0 0.8rem;
+  padding-left: 1.1rem;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .rb-treat[open] .rb-treat-body {
+    animation: rb-open 0.25s ease-out;
+  }
+}
+@keyframes rb-open {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+.rb-text-link {
+  color: var(--rb-gold-ink);
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.25em;
+}
+.rb-text-link:hover {
+  color: var(--rb-dark);
+}
+@media (max-width: 991.98px) {
+  .rb-menu-grid {
+    grid-template-columns: 1fr;
+  }
+  .rb-menu-index {
+    position: static;
+  }
+  .rb-menu-index ol {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    border: 0;
+    margin-top: 1.5rem;
+    padding-bottom: 0.25rem;
+    scrollbar-width: none; /* the cut-off last chip already shows it scrolls */
+  }
+  .rb-menu-index ol::-webkit-scrollbar {
+    display: none;
+  }
+  .rb-menu-index a {
+    border: 1px solid var(--rb-border);
+    padding: 0.6rem 0.9rem;
+    white-space: nowrap;
+  }
+  .rb-menu-index-name {
+    font-size: 1.05rem;
+  }
+  .rb-menu-index-meta {
+    display: none;
+  }
+}
+@media (max-width: 575.98px) {
+  .rb-treat summary {
+    flex-wrap: wrap;
+    row-gap: 0.2rem;
+  }
+  .rb-treat-name {
+    flex: 1 0 100%;
+  }
+  .rb-treat-leader {
+    display: none;
+  }
+  .rb-treat-time {
+    flex: 1;
+  }
+  .rb-treat-body {
+    padding-right: 0;
+  }
 }
 .rb-gallery-grid {
   display: grid;

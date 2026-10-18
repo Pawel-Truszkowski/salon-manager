@@ -1,9 +1,11 @@
 import datetime
+from decimal import Decimal
 
 import pytest
 from django.utils import timezone
 
 from apps.bookings.models import Appointment
+from apps.services.models import Service
 from tests.conftest import make_appointment
 
 
@@ -89,3 +91,12 @@ class TestAppointmentCancel:
     def test_get_cancel_url_contains_token(self, employee, service, tomorrow):
         appt = make_appointment(employee, service, tomorrow, hour=10)
         assert str(appt.cancellation_token) in appt.get_cancel_url()
+
+
+class TestServicePriceLabel:
+    @pytest.mark.parametrize(
+        ('price', 'label'),
+        [('0', 'bezpłatnie'), ('0.00', 'bezpłatnie'), ('30.00', '30 zł'), ('400', '400 zł'), ('30.50', '30,50 zł')],
+    )
+    def test_label(self, price, label):
+        assert Service(price=Decimal(price)).price_label == label

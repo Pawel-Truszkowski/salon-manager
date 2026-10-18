@@ -1,6 +1,6 @@
 // Same-page links (logo, menu, "#rezerwacja" buttons): smooth scroll, close the mobile menu.
 // Header offset comes from `scroll-padding-top` in CSS. Links to other pages (e.g. the menu on
-// the cancel-booking page pointing at "/#uslugi") just navigate.
+// the cancel-booking page pointing at "/#cennik") just navigate.
 var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
 document.querySelectorAll("a[href]").forEach(function (a) {
@@ -15,69 +15,15 @@ document.querySelectorAll("a[href]").forEach(function (a) {
   });
 });
 
-var servicesData = {};
-var defaultTab = document.querySelector(".rb-tab-btn.active");
-var activeCategory = defaultTab ? defaultTab.dataset.category : "";
-
-function renderServices(category) {
-  var grid = document.getElementById("servicesGrid");
-  var items = servicesData[category];
-  if (!items || items.length === 0) {
-    grid.innerHTML = '<div class="col-12 text-center py-5"><p class="rb-body-text">Brak usług w tej kategorii.</p></div>';
-    return;
-  }
-  grid.innerHTML = items
-    .map(function (s) {
-      return (
-        '<div class="col-sm-6 col-lg-3"><div class="rb-service-card h-100 d-flex flex-column"><h3 class="rb-service-name">' +
-        s.name +
-        '</h3><p class="rb-service-desc mb-4">' +
-        s.desc +
-        '</p><div class="d-flex justify-content-between align-items-end mt-auto"><span class="rb-service-price">' +
-        s.price +
-        '</span><span class="rb-service-duration">' +
-        s.duration +
-        "</span></div></div></div>"
-      );
-    })
-    .join("");
-}
-
-document.getElementById("serviceTabs").addEventListener("click", function (e) {
-  var b = e.target.closest(".rb-tab-btn");
-  if (!b) return;
-  document.querySelectorAll(".rb-tab-btn").forEach(function (x) {
-    x.classList.remove("active");
-  });
-  b.classList.add("active");
-  activeCategory = b.dataset.category;
-  renderServices(activeCategory);
+// "Zarezerwuj ten zabieg" in the price list: preselect the service in the booking form.
+// The link itself is href="#rezerwacja", so scrolling is handled by the same-page link handler above.
+document.addEventListener("click", function (e) {
+  var link = e.target.closest("[data-book-service]");
+  if (!link) return;
+  var select = document.getElementById("bookingService");
+  select.value = link.dataset.bookService;
+  select.dispatchEvent(new Event("change"));
 });
-
-fetch("/api/services/")
-  .then(function (r) { return r.json(); })
-  .then(function (data) {
-    var serviceSelect = document.getElementById("bookingService");
-    serviceSelect.innerHTML = '<option value="" disabled selected>Wybierz usługę...</option>';
-    data.forEach(function (s) {
-      var cat = s.category.slug;
-      if (!servicesData[cat]) servicesData[cat] = [];
-      servicesData[cat].push({
-        name: s.name,
-        desc: s.description || "",
-        price: parseFloat(s.price).toFixed(0) + " zł",
-        duration: s.duration + " min",
-      });
-      var opt = document.createElement("option");
-      opt.value = s.id;
-      opt.textContent = s.name + " — " + parseFloat(s.price).toFixed(0) + " zł";
-      serviceSelect.appendChild(opt);
-    });
-    renderServices(activeCategory);
-  })
-  .catch(function () {
-    renderServices(activeCategory);
-  });
 
 function openLightbox(el) {
   var thumb = el.querySelector("img");
