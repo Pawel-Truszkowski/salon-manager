@@ -322,6 +322,7 @@ body {
 }
 .rb-about-img {
   display: block;
+  height: auto;
   aspect-ratio: 3/4;
   object-fit: cover;
 }
