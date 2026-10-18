@@ -8,6 +8,7 @@ from django.utils import timezone
 
 from apps.accounts.roles import OWNER_GROUP, get_employee, has_panel_access, is_owner
 from apps.bookings.models import Appointment
+from tests.conftest import TEST_PASSWORD
 
 User = get_user_model()
 
@@ -35,7 +36,7 @@ class TestRoles:
         assert has_panel_access(owner_user)
 
     def test_superuser_counts_as_owner(self, db):
-        admin = User.objects.create_superuser(username='dev', password='x', email='dev@x.pl')
+        admin = User.objects.create_superuser(username='dev', password=TEST_PASSWORD, email='dev@x.pl')
         assert is_owner(admin)
 
     def test_employee(self, employee_user, employee):
@@ -112,7 +113,7 @@ class TestAuthViews:
         assert client.get(reverse(url_name)).status_code == 200
 
     def test_login_redirects_to_dashboard(self, client, owner_user):
-        response = client.post(reverse('panel:login'), {'username': 'wlascicielka', 'password': 'haslo-123!'})
+        response = client.post(reverse('panel:login'), {'username': 'wlascicielka', 'password': TEST_PASSWORD})
         assert response.status_code == 302
         assert response.url == reverse('panel:dashboard')
 
