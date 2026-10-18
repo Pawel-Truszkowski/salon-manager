@@ -43,88 +43,6 @@ document.addEventListener("keydown", function (e) {
   if (e.key === "Escape") closeLightbox();
 });
 
-var testimonials = [
-  {
-    text: "Royal Beauty to miejsce, do którego wracam co miesiąc. Profesjonalizm, luksusowe produkty i atmosfera sprawiają, że czuję się wyjątkowo.",
-    name: "Aleksandra Wiśniewska",
-    role: "Stała klientka od 3 lat",
-    initials: "AW",
-  },
-  {
-    text: "Przedłużanie rzęs wykonane perfekcyjnie. Efekt naturalny i trwały. Polecam wszystkim szukającym jakości premium.",
-    name: "Katarzyna Nowak",
-    role: "Klientka",
-    initials: "KN",
-  },
-  {
-    text: "Zabieg liftingujący twarzy przyniósł spektakularne efekty. Skóra wygląda promiennie i młodziej.",
-    name: "Monika Kowalczyk",
-    role: "Klientka",
-    initials: "MK",
-  },
-  {
-    text: "Mezoterapia igłowa to mój ulubiony zabieg. Efekty są spektakularne, a rytuał przeprowadzony z niezwykłą delikatnością.",
-    name: "Joanna Malinowska",
-    role: "Klientka od roku",
-    initials: "JM",
-  },
-  {
-    text: "Manicure hybrydowy trwa u mnie ponad 4 tygodnie. Wyjątkowe miejsce z wyjątkowym podejściem.",
-    name: "Ewa Zielińska",
-    role: "Klientka",
-    initials: "EZ",
-  },
-],
-
-  tIdx = 0;
-
-function renderTestimonial(i) {
-  var t = testimonials[i];
-  document.getElementById("testimonialText").textContent = "„" + t.text + '"';
-  document.getElementById("testimonialName").textContent = t.name;
-  document.getElementById("testimonialRole").textContent = t.role;
-  document.getElementById("testimonialAvatar").textContent = t.initials;
-  document.querySelectorAll(".rb-dot").forEach(function (d, j) {
-    d.classList.toggle("active", j === i);
-    d.style.width = j === i ? "2rem" : "1rem";
-  });
-}
-
-function buildDots() {
-  document.getElementById("testimonialDots").innerHTML = testimonials
-    .map(function (_, i) {
-      return (
-        '<button class="rb-dot' +
-        (i === 0 ? " active" : "") +
-        '" style="width:' +
-        (i === 0 ? "2rem" : "1rem") +
-        '" onclick="goTestimonial(' +
-        i +
-        ')"></button>'
-      );
-    })
-    .join("");
-}
-
-function goTestimonial(i) {
-  tIdx = i;
-  renderTestimonial(i);
-}
-
-function prevTestimonial() {
-  tIdx = (tIdx - 1 + testimonials.length) % testimonials.length;
-  renderTestimonial(tIdx);
-}
-
-function nextTestimonial() {
-  tIdx = (tIdx + 1) % testimonials.length;
-  renderTestimonial(tIdx);
-}
-
-buildDots();
-renderTestimonial(0);
-setInterval(nextTestimonial, 6000);
-
 // ── Booking ───────────────────────────────────────────────────────────────────
 
 var bookingPicker = flatpickr("#bookingDate", {
@@ -140,12 +58,19 @@ var bookingPicker = flatpickr("#bookingDate", {
   },
   onChange: function (selectedDates, dateStr) {
     if (dateStr) fetchSlots();
-    else resetTimeSlots("Najpierw wybierz usługę i datę");
+    else resetTimeSlots("Najpierw wybierz zabieg i dzień");
   },
 });
 
+// The specialist picker is rendered only when 2+ employees are active; without it the server picks one
+var employeeSelect = document.getElementById("bookingEmployee");
+
+function selectedEmployee() {
+  return employeeSelect ? employeeSelect.value : "";
+}
+
 function loadAvailableDates(serviceId, year, month) {
-  var employeeId = document.getElementById("bookingEmployee").value;
+  var employeeId = selectedEmployee();
   var monthStr = year + "-" + String(month).padStart(2, "0");
   var url = "/api/available-dates/?service=" + serviceId + "&month=" + monthStr;
   if (employeeId) url += "&employee=" + employeeId;
@@ -162,13 +87,14 @@ function loadAvailableDates(serviceId, year, month) {
 
 function resetTimeSlots(msg) {
   document.getElementById("bookingTime").innerHTML =
-    '<option value="" disabled selected>' + (msg || "Wybierz datę i usługę") + "</option>";
+    '<option value="" disabled selected>' + (msg || "Najpierw wybierz zabieg i dzień") + "</option>";
 }
 
 function fetchEmployees(serviceId) {
-  var empSelect = document.getElementById("bookingEmployee");
-  empSelect.innerHTML = '<option value="">Dowolna specjalistka</option>';
+  var empSelect = employeeSelect;
   resetTimeSlots();
+  if (!empSelect) return;
+  empSelect.innerHTML = '<option value="">Dowolna specjalistka</option>';
   if (!serviceId) return;
   fetch("/api/employees/?service=" + serviceId)
     .then(function (r) { return r.json(); })
@@ -185,11 +111,11 @@ function fetchEmployees(serviceId) {
 function fetchSlots() {
   var serviceId = document.getElementById("bookingService").value;
   var date = document.getElementById("bookingDate").value;
-  var employeeId = document.getElementById("bookingEmployee").value;
+  var employeeId = selectedEmployee();
   var timeSelect = document.getElementById("bookingTime");
 
   if (!serviceId || !date) {
-    resetTimeSlots("Najpierw wybierz usługę i datę");
+    resetTimeSlots("Najpierw wybierz zabieg i dzień");
     return;
   }
 
@@ -223,16 +149,16 @@ document.getElementById("bookingService").addEventListener("change", function ()
   fetchEmployees(serviceId);
   bookingPicker.clear();
   bookingPicker.set("enable", []);
-  resetTimeSlots("Najpierw wybierz usługę i datę");
+  resetTimeSlots("Najpierw wybierz zabieg i dzień");
   if (serviceId) {
     loadAvailableDates(serviceId, bookingPicker.currentYear, bookingPicker.currentMonth + 1);
   }
 });
 
-document.getElementById("bookingEmployee").addEventListener("change", function () {
+if (employeeSelect) employeeSelect.addEventListener("change", function () {
   var serviceId = document.getElementById("bookingService").value;
   bookingPicker.clear();
-  resetTimeSlots("Najpierw wybierz usługę i datę");
+  resetTimeSlots("Najpierw wybierz zabieg i dzień");
   if (serviceId) {
     loadAvailableDates(serviceId, bookingPicker.currentYear, bookingPicker.currentMonth + 1);
   }
@@ -291,7 +217,7 @@ function validateBookingForm() {
 
   var service = document.getElementById("bookingService");
   if (!service.value) {
-    setFieldError(service, "Wybierz usługę.");
+    setFieldError(service, "Wybierz zabieg.");
     valid = false;
   }
 
@@ -332,7 +258,7 @@ function submitBooking(e) {
     client_phone: document.getElementById("clientPhone").value,
     client_email: document.getElementById("clientEmail").value,
     service: document.getElementById("bookingService").value,
-    employee: document.getElementById("bookingEmployee").value,
+    employee: selectedEmployee(),
     date: document.getElementById("bookingDate").value,
     time: document.getElementById("bookingTime").value,
     notes: document.getElementById("bookingNotes").value,
@@ -367,21 +293,8 @@ function resetBookingForm() {
   clearAllErrors(form);
   bookingPicker.clear();
   bookingPicker.set("enable", []);
-  document.getElementById("bookingEmployee").innerHTML = '<option value="">Dowolna specjalistka</option>';
-  resetTimeSlots("Najpierw wybierz usługę i datę");
+  if (employeeSelect) employeeSelect.innerHTML = '<option value="">Dowolna specjalistka</option>';
+  resetTimeSlots("Najpierw wybierz zabieg i dzień");
   form.classList.remove("d-none");
   document.getElementById("bookingSuccess").classList.add("d-none");
 }
-
-// ── Footer ────────────────────────────────────────────────────────────────────
-
-(function () {
-  var el = document.getElementById("footerYear");
-  if (el)
-    el.textContent =
-      "© " +
-      new Date().getFullYear() +
-      " Royal Beauty Studio Urody. Wszelkie prawa zastrzeżone.";
-})();
-
-

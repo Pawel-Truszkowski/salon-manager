@@ -57,15 +57,17 @@ Według `docs/redesign/README.md` (tokeny, typografia) i prototypu.
 > Uwaga: to zmienia kontrakt z `script.js`. Sprawdź, co jeszcze czyta `servicesData`, zanim go usuniesz.
 
 ### 3. Prawda o salonie: profil, godziny, opinie, obrazy
-- [ ] **Profil / zespół** zależny od `employees|length`: przy jednej osobie profil (zdjęcie, imię, „Właścicielka, magister kosmetologii”, specjalizacje), przy dwóch i więcej lista. Pole „Specjalistka” w formularzu tylko przy 2+ aktywnych.
-  *Akceptacja:* dwa testy, jeden aktywny `Employee` (brak pola `employee` w HTML) i dwa aktywne (pole jest).
-- [ ] **Najbliższy wolny termin** w hero i w kontakcie: funkcja pomocnicza w `apps/bookings/utils.py`, np. `next_available_date(days_ahead=30)`. Korzysta z tej samej logiki co `/api/available-dates/` (`get_available_slots`), nie z osobnej kopii. Gdy brak terminów w 30 dniach: „Zadzwoń, znajdziemy termin”.
-  *Akceptacja:* testy z `Schedule` jutro / bez grafiku; liczba zapytań rozsądna (to jest na stronie głównej).
-- [ ] Kontakt: „Przyjmujemy po wcześniejszym umówieniu, codziennie 9:00–21:00” zamiast tabeli godzin. Usunąć „w centrum” / „w sercu miasta”.
-- [ ] **Opinie:** sekcja bez karuzeli i bez treści na sztywno. Wariant minimum: przycisk „Opinie w Google”. Wariant z API: Google Places API (do 5 opinii) z wymaganym oznaczeniem źródła, cache krótkoterminowy zgodnie z warunkami Google i informacją „Opinie pochodzą z Google” (wymóg UOKiK o weryfikacji opinii). Bez schema `Review` / `AggregateRating` dla własnych opinii.
-- [ ] Pole „Uwagi” w formularzu z podpowiedzią „Nie wpisuj tu informacji o zdrowiu, omówimy je na miejscu” (RODO art. 9).
-- [ ] Obrazy: logo PNG 1,44 MB → WebP lub SVG (< 50 KB), `hero.jpg` i `contact.jpg` → WebP, `width`/`height`, `loading="lazy"` poniżej pierwszego ekranu, bez tła z Unsplash.
-  *Akceptacja:* PageSpeed Insights (mobile) przed i po, z wynikiem w opisie PR.
+- [x] **Profil / zespół** zależny od `employees|length`: przy jednej osobie „Kto Cię przyjmie” (inicjał w łuku, imię, `bio`, specjalizacje z kategorii jej usług), przy dwóch i więcej „Nasz zespół”. Pole „Specjalistka” w formularzu tylko przy 2+ aktywnych; JS działa bez niego (serwer wybiera osobę przez `find_available_specialist`).
+- [ ] **Portret Pauliny 3:4** (czeka na zdjęcie). Wtedy: pole `Employee.photo` albo plik w `static/img/`, decyzja przy wgrywaniu.
+- [x] **Najbliższy wolny termin** w hero i w kontakcie: `next_available_date(days_ahead=30)` w `apps/bookings/utils.py`, przez `get_available_slots` (najkrótsza aktywna usługa osoby). „dzisiaj” / „jutro” / „wtorek, 20 października” (`naturalday`), bez terminu: „zadzwoń, znajdziemy termin”.
+  - [ ] Etap 5: gdy dojdzie laser, najkrótsza usługa może wymagać urządzenia; sprawdzać usługi po kolei, nie tylko najkrótszą.
+- [x] Kontakt: „Przyjmujemy po wcześniejszym umówieniu, codziennie 9:00–21:00” zamiast tabeli godzin, NAP w `<address>`, „Wyznacz trasę”. Bez „w centrum” / „w sercu miasta” (także w stopce).
+- [x] „O salonie”: bez „2000+”, „3 ekspertów”, „20+ usług premium”. „Salon prowadzi od 2023 roku Paulina, magister kosmetologii z ponad 10-letnim doświadczeniem”. JSON-LD: `foundingDate`, `hasMap`, wizytówka w `sameAs`.
+- [x] **Opinie (wariant minimum):** bez karuzeli i bez treści na sztywno; „Zobacz opinie w Google” (`maps.google.com/?cid=…`) i „Wystaw opinię” (`g.page/r/…/review`). Linki w `config/context_processors.py`.
+  - [ ] Wariant z Places API (do 5 opinii, oznaczenie źródła): osobna decyzja, wymaga klucza API i konta rozliczeniowego Google Cloud.
+- [x] Pole „Uwagi” z podpowiedzią „Nie wpisuj tu informacji o zdrowiu, omówimy je na miejscu” (`aria-describedby`). Etykiety formularza powiązane z polami (`for`), `autocomplete`.
+- [x] Obrazy: WebP zamiast JPG/PNG (logo 1,44 MB → 12 KB, łącznie ~3,5 MB → ~0,7 MB), `width`/`height`, `loading="lazy"` poniżej pierwszego ekranu, bez tła z Unsplash. `logo.png` 512 px tylko dla schema.
+  - [ ] PageSpeed Insights (mobile) na stagingu po deployu; API bez klucza miało wyczerpany limit, więc pomiar „przed” się nie udał. Wynik „po” do opisu PR.
 
 ### 4. FAQ (AEO)
 - [ ] Sekcja `#faq` (wzór pytań w prototypie): ceny rzęs, konsultacja, kiedy można się umówić, kiedy laser, jak zarezerwować, jak odwołać, manicure hybrydowy. Pytanie jako `<h3>` w `<summary>`, odpowiedź 40–60 słów.

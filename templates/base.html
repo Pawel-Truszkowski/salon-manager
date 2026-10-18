@@ -38,11 +38,13 @@
     "name": "Royal Beauty Studio Urody",
     "alternateName": "Royal Beauty",
     "url": "{{ site_url }}/",
-    "logo": "{{ site_url }}{% static 'img/Logo_Royal_Beauty.PNG' %}",
+    "logo": "{{ site_url }}{% static 'img/logo.png' %}",
     "image": "{{ site_url }}{% static 'img/og-salon.jpg' %}",
     "description": "Studio urody we Wrocławiu: rzęsy i brwi, manicure i pedicure, depilacja, zabiegi na twarz. Wizyty wyłącznie po wcześniejszym umówieniu.",
     "telephone": ["+48793355756", "+48792646256"],
     "email": "royalbeauty.studiourody@gmail.com",
+    "foundingDate": "2023",
+    "hasMap": "{{ google_maps_url }}",
     "priceRange": "20–400 zł",
     "address": {
       "@type": "PostalAddress",
@@ -76,7 +78,8 @@
     },
     "sameAs": [
       "https://www.instagram.com/royalbeauty_studiourody_/",
-      "https://www.facebook.com/p/Royal-Beauty-100063223181002/"
+      "https://www.facebook.com/p/Royal-Beauty-100063223181002/",
+      "{{ google_maps_url }}"
     ]
   }
   </script>
@@ -86,7 +89,7 @@
   <nav id="navbar" class="navbar navbar-expand-lg sticky-top rb-nav">
     <div class="container-xl px-4 px-lg-5">
       <a class="navbar-brand rb-brand" href="{{ home_url }}">
-        <img src="{% static 'img/Logo_Royal_Beauty.PNG' %}" alt="" class="rb-nav-logo" />
+        <img src="{% static 'img/logo.webp' %}" alt="" class="rb-nav-logo" width="320" height="320" />
         <span class="rb-brand-name">Royal Beauty<span>Studio Urody</span></span>
       </a>
       <button class="navbar-toggler rb-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu" aria-controls="navMenu" aria-expanded="false" aria-label="Menu">
@@ -112,8 +115,8 @@
     <div class="container-xl px-4 px-lg-5">
       <div class="row g-5 mb-5">
         <div class="col-md-4">
-          <img src="{% static 'img/Logo_Royal_Beauty.PNG' %}" alt="Royal Beauty Studio Urody" class="rb-footer-logo mb-3" loading="lazy" />
-          <p class="rb-footer-text">Luksusowy salon urody w sercu Wrocławia. Łączymy elegancję z profesjonalizmem.</p>
+          <img src="{% static 'img/logo.webp' %}" alt="Royal Beauty Studio Urody" class="rb-footer-logo mb-3" width="320" height="320" loading="lazy" />
+          <p class="rb-footer-text">Kameralne studio urody we Wrocławiu. Wizyty po wcześniejszym umówieniu.</p>
         </div>
         <div class="col-md-4">
           <p class="rb-label mb-3" style="color:#b8935a;">Nawigacja</p>
@@ -125,12 +128,12 @@
         </div>
         <div class="col-md-4">
           <p class="rb-label mb-3" style="color:#b8935a;">Kontakt</p>
-          <p class="rb-footer-text">ul. Małopanewska 24B/5<br>54-212 Wrocław<br><a class="rb-tel" href="tel:+48793355756">+48 793 355 756</a><br><a class="rb-tel" href="tel:+48792646256">+48 792 646 256</a><br>royalbeauty.studiourody@gmail.com</p>
-          <p class="rb-footer-text mt-3">Pn–Pt: 9:00–21:00 / Sob: 9:00–17:00</p>
+          <p class="rb-footer-text">ul. Małopanewska 24B/5<br>54-212 Wrocław<br><a class="rb-tel" href="tel:+48793355756">+48 793 355 756</a><br><a class="rb-tel" href="tel:+48792646256">+48 792 646 256</a><br><a href="mailto:royalbeauty.studiourody@gmail.com">royalbeauty.studiourody@gmail.com</a></p>
+          <p class="rb-footer-text mt-3">Codziennie 9:00–21:00, po umówieniu</p>
         </div>
       </div>
       <div class="rb-footer-bottom pt-4 d-flex flex-column flex-sm-row align-items-center justify-content-between gap-3">
-        <p class="rb-footer-copy mb-0" id="footerYear"></p>
+        <p class="rb-footer-copy mb-0">© {% now "Y" %} Royal Beauty Studio Urody</p>
         <p class="rb-footer-credit d-flex align-items-center gap-2 mb-0">
           <span>Wykonanie:</span>
           <a href="https://github.com/Pawel-Truszkowski" target="_blank" rel="noopener noreferrer" class="d-flex align-items-center gap-1">
