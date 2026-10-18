@@ -11,6 +11,9 @@
      On the dark espresso background keep --rb-gold (5.4:1); --rb-gold-ink would fail there. */
   --rb-gold-ink: #7d5f2e;
   --rb-border: rgba(184, 147, 90, 0.25);
+  /* Light text on the espresso footer: ~5.7:1 and ~5:1 contrast */
+  --rb-footer-ink: rgba(245, 239, 230, 0.62);
+  --rb-footer-ink-soft: rgba(245, 239, 230, 0.55);
   --ff-display: "Playfair Display", Georgia, serif;
   --ff-body: "Jost", "Helvetica Neue", Arial, sans-serif;
 }
@@ -131,6 +134,14 @@ body {
 .rb-nav-tel:hover {
   color: var(--rb-gold-ink);
 }
+/* Inline SVG icons (templates/includes/icon.html), sized by font-size like the icon font was */
+.rb-icon {
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.125em;
+  flex-shrink: 0;
+}
+
 .rb-toggler {
   border: none;
   color: var(--rb-dark);
@@ -145,6 +156,8 @@ body {
 }
 
 .rb-tel {
+  display: inline-block;
+  padding-block: 0.2rem; /* 24px+ touch target for stacked phone numbers */
   color: inherit;
   text-decoration: none;
   white-space: nowrap;
@@ -425,6 +438,71 @@ body {
   margin: 1.25rem 0 2rem;
   font-weight: 300;
   line-height: 1.75;
+}
+
+/* ---------- FAQ: question in <summary>, answer 40–60 words ---------- */
+.rb-faq-grid {
+  display: grid;
+  grid-template-columns: 17rem 1fr;
+  gap: clamp(2rem, 5vw, 4.5rem);
+  align-items: start;
+}
+.rb-faq-hint {
+  margin: 0.75rem 0 0;
+  color: #6b5a45;
+}
+.rb-faq-item {
+  border-bottom: 1px solid var(--rb-border);
+}
+.rb-faq-item:first-child {
+  border-top: 1px solid var(--rb-border);
+}
+.rb-faq-item summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 1.1rem 0;
+  cursor: pointer;
+  list-style: none;
+}
+.rb-faq-item summary::-webkit-details-marker {
+  display: none;
+}
+.rb-faq-item summary::after {
+  content: "+";
+  font: 300 1.6rem/1 var(--ff-body);
+  color: var(--rb-gold-ink);
+  transition: transform 0.2s;
+}
+.rb-faq-item[open] summary::after {
+  transform: rotate(45deg);
+}
+.rb-faq-item summary:focus-visible {
+  outline: 2px solid var(--rb-gold-ink);
+  outline-offset: 2px;
+}
+.rb-faq-question {
+  font-family: var(--ff-display);
+  font-weight: 400;
+  font-size: 1.3rem;
+  line-height: 1.35;
+  color: var(--rb-dark);
+  margin: 0;
+}
+.rb-faq-item summary:hover .rb-faq-question {
+  color: var(--rb-gold-ink);
+}
+.rb-faq-item p {
+  max-width: 40rem;
+  margin: 0 0 1.5rem;
+  font-weight: 300;
+  line-height: 1.75;
+}
+@media (max-width: 991.98px) {
+  .rb-faq-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* ---------- booking: the one dark section ---------- */
@@ -894,8 +972,15 @@ body {
   font-family: var(--ff-body);
   font-size: 0.85rem;
   font-weight: 300;
-  color: rgba(245, 239, 230, 0.45);
+  color: var(--rb-footer-ink);
   line-height: 1.75;
+}
+.rb-footer-text a {
+  color: inherit;
+  text-decoration: none;
+}
+.rb-footer-text a:hover {
+  color: var(--rb-gold);
 }
 .rb-footer-links {
   display: flex;
@@ -906,7 +991,7 @@ body {
   font-family: var(--ff-body);
   font-size: 0.85rem;
   font-weight: 300;
-  color: rgba(245, 239, 230, 0.45);
+  color: var(--rb-footer-ink);
   text-decoration: none;
   transition: color 0.25s;
 }
@@ -919,12 +1004,12 @@ body {
 .rb-footer-copy {
   font-family: var(--ff-body);
   font-size: 0.75rem;
-  color: rgba(245, 239, 230, 0.25);
+  color: var(--rb-footer-ink-soft);
 }
 .rb-footer-policy {
   font-family: var(--ff-body);
   font-size: 0.75rem;
-  color: rgba(245, 239, 230, 0.25);
+  color: var(--rb-footer-ink-soft);
   text-decoration: none;
   transition: color 0.25s;
 }
@@ -934,11 +1019,11 @@ body {
 .rb-footer-credit {
   font-family: var(--ff-body);
   font-size: 0.75rem;
-  color: rgba(245, 239, 230, 0.25);
+  color: var(--rb-footer-ink-soft);
   margin-top: 0.75rem;
 }
 .rb-footer-credit a {
-  color: rgba(245, 239, 230, 0.45);
+  color: var(--rb-footer-ink);
   text-decoration: none;
   transition: color 0.25s;
 }
