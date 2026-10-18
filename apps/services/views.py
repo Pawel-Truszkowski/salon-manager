@@ -5,6 +5,7 @@ from django.shortcuts import render
 
 from apps.bookings.forms import BookingForm
 from apps.bookings.utils import next_available_date
+from apps.services.faq import build_faq, faq_jsonld
 from apps.services.models import Employee, Service
 
 
@@ -38,11 +39,14 @@ def with_specialties(employees):
 
 
 def home(request):
-    services = Service.objects.active().select_related('category').order_by('category__order', 'category__name', 'name')
+    services = list(
+        Service.objects.active().select_related('category').order_by('category__order', 'category__name', 'name')
+    )
     employees = Employee.objects.active().prefetch_related(
         Prefetch('services', queryset=Service.objects.active().select_related('category'))
     )
     form = BookingForm()
+    faq = build_faq(services)
     return render(
         request,
         'home.html',
@@ -53,5 +57,7 @@ def home(request):
             'services': services,
             'price_list': build_price_list(services),
             'next_date': next_available_date(),
+            'faq': faq,
+            'faq_jsonld': faq_jsonld(faq),
         },
     )

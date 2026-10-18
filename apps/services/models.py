@@ -3,6 +3,13 @@ from django.core.exceptions import ValidationError
 from django.db import models
 
 
+def format_price(value):
+    """Polish price without needless decimals: "30 zł", "30,50 zł"."""
+    if value == value.to_integral_value():
+        return f'{value:.0f} zł'
+    return f'{value:.2f} zł'.replace('.', ',')
+
+
 class ServiceCategory(models.Model):
     name = models.CharField(max_length=50, unique=True)
     slug = models.SlugField(max_length=50, unique=True)
@@ -45,9 +52,7 @@ class Service(models.Model):
         """Price as shown on the website: "bezpłatnie", "30 zł" or "30,50 zł"."""
         if self.price == 0:
             return 'bezpłatnie'
-        if self.price == self.price.to_integral_value():
-            return f'{self.price:.0f} zł'
-        return f'{self.price:.2f} zł'.replace('.', ',')
+        return format_price(self.price)
 
 
 class EmployeeQuerySet(models.QuerySet):

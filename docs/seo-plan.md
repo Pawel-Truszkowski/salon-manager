@@ -70,9 +70,13 @@ Według `docs/redesign/README.md` (tokeny, typografia) i prototypu.
   - [ ] PageSpeed Insights (mobile) na stagingu po deployu; API bez klucza miało wyczerpany limit, więc pomiar „przed” się nie udał. Wynik „po” do opisu PR.
 
 ### 4. FAQ (AEO)
-- [ ] Sekcja `#faq` (wzór pytań w prototypie): ceny rzęs, konsultacja, kiedy można się umówić, kiedy laser, jak zarezerwować, jak odwołać, manicure hybrydowy. Pytanie jako `<h3>` w `<summary>`, odpowiedź 40–60 słów.
-- [ ] Ceny i daty w odpowiedziach **z bazy**, nie wpisane na sztywno: np. zakres cen przedłużania rzęs z `Service`, najbliższy termin lasera z `EquipmentRental` (etap 5).
-- [ ] `FAQPage` JSON-LD generowany z tych samych danych co HTML.
+- [x] Sekcja `#faq` „Częste pytania” (przed rezerwacją, link „Pytania” w menu i w stopce): ceny rzęs, konsultacja, kiedy można się umówić, laser, jak zarezerwować, jak odwołać, manicure hybrydowy. Pytanie jako `<h3>` w `<summary>`, odpowiedzi ok. 25–50 słów.
+- [x] Ceny i czasy **z bazy** (`apps/services/faq.py`, `build_faq`): usługi szukane po początku nazwy („Przedłużanie rzęs”, „Uzupełnianie rzęs”, „Manicure hybrydowy”, „Usunięcie hybrydy”, bezpłatna „konsultacja”). Gdy usługi nie ma (zmiana nazwy, dezaktywacja), pytanie znika zamiast pokazać złą cenę.
+  - [ ] Etap 5: w odpowiedzi o laser najbliższy termin z `EquipmentRental` (dziś: „zapytaj telefonicznie”).
+- [x] `FAQPage` JSON-LD z tej samej listy co HTML (`faq_jsonld`, test porównuje pytania).
+- [ ] Dane dla Pauliny (panel): „Manicure hybrydowy french/ babyboomer” → np. „Manicure hybrydowy french / baby boomer” (nazwa trafia do odpowiedzi w FAQ).
+- [x] Przy okazji (PageSpeed mobile 87): Bootstrap i flatpickr z własnej domeny zamiast jsdelivr, 6 ikon jako inline SVG zamiast fontu 128 KB, `defer`, `<main>`, mniejsze logo w nagłówku, kontrast stopki, większe pola dotyku telefonów. Cloudflare: wyłączone Email Address Obfuscation (adres i tak jest w JSON-LD, a crawlery bez JS widziały zakodowany ciąg).
+  - [ ] Ponowny pomiar PSI mobile na stagingu po deployu.
 
 ### 5. Laser: urządzenie i terminy wynajmu (wariant B)
 Termin docelowy: przed 8 listopada. Jeśli nie zdążymy, laser na pierwszy termin rezerwujemy telefonicznie.

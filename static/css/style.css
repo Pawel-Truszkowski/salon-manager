@@ -440,6 +440,71 @@ body {
   line-height: 1.75;
 }
 
+/* ---------- FAQ: question in <summary>, answer 40–60 words ---------- */
+.rb-faq-grid {
+  display: grid;
+  grid-template-columns: 17rem 1fr;
+  gap: clamp(2rem, 5vw, 4.5rem);
+  align-items: start;
+}
+.rb-faq-hint {
+  margin: 0.75rem 0 0;
+  color: #6b5a45;
+}
+.rb-faq-item {
+  border-bottom: 1px solid var(--rb-border);
+}
+.rb-faq-item:first-child {
+  border-top: 1px solid var(--rb-border);
+}
+.rb-faq-item summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 1.1rem 0;
+  cursor: pointer;
+  list-style: none;
+}
+.rb-faq-item summary::-webkit-details-marker {
+  display: none;
+}
+.rb-faq-item summary::after {
+  content: "+";
+  font: 300 1.6rem/1 var(--ff-body);
+  color: var(--rb-gold-ink);
+  transition: transform 0.2s;
+}
+.rb-faq-item[open] summary::after {
+  transform: rotate(45deg);
+}
+.rb-faq-item summary:focus-visible {
+  outline: 2px solid var(--rb-gold-ink);
+  outline-offset: 2px;
+}
+.rb-faq-question {
+  font-family: var(--ff-display);
+  font-weight: 400;
+  font-size: 1.3rem;
+  line-height: 1.35;
+  color: var(--rb-dark);
+  margin: 0;
+}
+.rb-faq-item summary:hover .rb-faq-question {
+  color: var(--rb-gold-ink);
+}
+.rb-faq-item p {
+  max-width: 40rem;
+  margin: 0 0 1.5rem;
+  font-weight: 300;
+  line-height: 1.75;
+}
+@media (max-width: 991.98px) {
+  .rb-faq-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ---------- booking: the one dark section ---------- */
 .rb-booking {
   background: var(--rb-dark);

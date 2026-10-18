@@ -160,6 +160,28 @@
   </div>
 </section>
 
+{% if faq %}
+<section id="faq" class="rb-section rb-bg-sand rb-faq" aria-labelledby="faq-heading">
+  <div class="container-xl px-4 px-lg-5">
+    <div class="rb-faq-grid">
+      <div>
+        <h2 id="faq-heading" class="rb-heading">Częste pytania</h2>
+        <p class="rb-faq-hint">Nie ma Twojego pytania? Zadzwoń: <a class="rb-tel" href="tel:+48793355756">793 355 756</a>.</p>
+      </div>
+      <div>
+        {% for item in faq %}
+          <details class="rb-faq-item">
+            <summary><h3 class="rb-faq-question">{{ item.question }}</h3></summary>
+            <p>{{ item.answer }}</p>
+          </details>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+<script type="application/ld+json">{{ faq_jsonld }}</script>
+{% endif %}
+
 <section id="rezerwacja" class="rb-section rb-booking" aria-labelledby="rezerwacja-heading">
   <div class="container-xl px-4 px-lg-5">
     <div class="row g-5">
