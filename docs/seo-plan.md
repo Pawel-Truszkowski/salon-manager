@@ -80,15 +80,13 @@ Według `docs/redesign/README.md` (tokeny, typografia) i prototypu.
 
 ### 5. Laser: urządzenie i terminy wynajmu (wariant B)
 Termin docelowy: przed 8 listopada. Jeśli nie zdążymy, laser na pierwszy termin rezerwujemy telefonicznie.
-- [ ] Modele w `apps/services/models.py`:
-  - `Equipment(name, description, is_active)`;
-  - `EquipmentRental(equipment FK, date_from, date_to)` z walidacją `date_from <= date_to`;
-  - `Service.required_equipment` (FK do `Equipment`, `null=True`, `on_delete=PROTECT`).
-- [ ] Jedna funkcja pomocnicza, np. `is_service_available_on(service, date)`: `True`, gdy usługa nie wymaga urządzenia albo data mieści się w którymś wynajmie. Wywołana **zarówno** w `get_available_slots`, jak i w `find_available_specialist` (zasada z CLAUDE.md: obie ścieżki muszą być spójne).
-  *Akceptacja:* testy obu ścieżek (z wybraną specjalistką i bez) dla dnia z wynajmem i bez; `/api/available-dates/` dla usługi laserowej zwraca tylko dni z wynajmu.
-- [ ] Panel (właściciel): lista urządzeń i dodawanie terminów wynajmu; przy usłudze wybór wymaganego urządzenia.
-- [ ] Strona: kategoria „Depilacja laserowa” z blokiem „Laser w salonie: 8–9 listopada” i opisem urządzenia (`Equipment.description`). Przy braku przyszłych terminów: „Kolejny termin wkrótce, zadzwoń, zapiszemy Cię jako pierwszą”.
-- [ ] Schema: `Offer` z `availabilityStarts` / `availabilityEnds` z najbliższego wynajmu.
+- [x] Modele: `Equipment(name, description, is_active)`, `EquipmentRental(equipment, date_from, date_to)` (oba końce włącznie, walidacja kolejności dat), `Service.required_equipment` (`PROTECT`). Migracja `0011` dodaje urządzenie „LightSheer DUET” i pustą kategorię „Depilacja laserowa” (cennik ukrywa ją, dopóki nie ma usług).
+- [x] `is_service_available_on(service, date)` w `apps/bookings/utils.py`, wywoływana w `get_available_slots`. `find_available_specialist`, API slotów i dat, panel i `next_available_date` przechodzą przez `get_available_slots`, więc reguła obowiązuje wszędzie. Testy obu ścieżek rezerwacji (z wybraną osobą i bez) oraz `/api/available-dates/`.
+- [x] `next_available_date`: dla każdego dnia najkrótsza usługa **możliwa tego dnia** (laser poza dniami wynajmu nie zasłania wolnego dnia).
+- [x] Panel (właścicielka): „Urządzenia” — terminy wynajmu (dodawanie z walidacją: przeszłość, nakładanie się; usuwanie zablokowane, gdy są zapisane wizyty), edycja urządzenia; przy usłudze pole „Wymaga urządzenia”.
+- [x] Strona: w kategorii z urządzeniem „Zabiegi wykonujemy w wybrane dni. Najbliżej: 8–9 listopada” + opis urządzenia; bez terminu: „Kolejny termin wkrótce. Zadzwoń, zapiszemy Cię jako pierwszą”. FAQ o laserze z datą najbliższego wynajmu.
+- [ ] **Dane (Paulina / panel):** usługi laserowe w kategorii „Depilacja laserowa” z „Wymaga urządzenia: LightSheer DUET” (partie ciała, ceny, czas z wizytówki Google), termin wynajmu 8–9.11, grafik na te dni.
+- [ ] Schema `Offer` z `availabilityStarts` / `availabilityEnds`: przeniesione do etapu 7 (podstrona depilacji laserowej z `OfferCatalog`).
 - [ ] Na później (gdy będą pracownice): sprawdzanie, czy urządzenie nie jest zajęte przez inną wizytę w tym samym czasie.
 
 ### 6. Publikacja na produkcji

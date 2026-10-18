@@ -4,7 +4,7 @@ import logging
 from collections import defaultdict
 
 from django.contrib import messages
-from django.db.models import Q
+from django.db.models import Prefetch, Q
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
@@ -16,12 +16,14 @@ from django.views.generic import CreateView, DetailView, FormView, ListView, Tem
 from apps.bookings.emails import send_confirmation_email
 from apps.bookings.models import Appointment
 from apps.bookings.utils import get_available_slots
-from apps.services.models import Employee, Schedule, Service, TimeBlock, WeeklyScheduleEntry
+from apps.services.models import Employee, Equipment, EquipmentRental, Schedule, Service, TimeBlock, WeeklyScheduleEntry
 from apps.services.scheduling import generate_schedules
 
 from .forms import (
     AppointmentCreateForm,
     EmployeeForm,
+    EquipmentForm,
+    EquipmentRentalForm,
     GenerateScheduleForm,
     InviteEmployeeForm,
     RescheduleForm,
@@ -808,3 +810,85 @@ class ServiceToggleActiveView(OwnerRequiredMixin, View):
         service.save(update_fields=['is_active'])
         messages.success(request, f'Usługa „{service}” zniknęła ze strony i z rezerwacji. Historia wizyt zostaje.')
         return redirect(service_list_url(service))
+
+
+class EquipmentListView(OwnerRequiredMixin, ListView):
+    """Devices that come and go (the laser): upcoming rental days and the services that need them."""
+
+    template_name = 'panel/equipment/list.html'
+    context_object_name = 'equipment_list'
+
+    def get_queryset(self):
+        return Equipment.objects.prefetch_related(
+            Prefetch('rentals', queryset=EquipmentRental.objects.upcoming(), to_attr='upcoming_rentals'),
+            Prefetch('services', queryset=Service.objects.active().order_by('name'), to_attr='active_services'),
+        )
+
+
+class EquipmentFormViewMixin(OwnerRequiredMixin):
+    template_name = 'panel/equipment/form.html'
+    form_class = EquipmentForm
+    model = Equipment
+    success_url = reverse_lazy('panel:equipment_list')
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, f'Zapisano: {self.object}.')
+        return response
+
+
+class EquipmentCreateView(EquipmentFormViewMixin, CreateView):
+    pass
+
+
+class EquipmentUpdateView(EquipmentFormViewMixin, UpdateView):
+    pass
+
+
+class EquipmentRentalCreateView(OwnerRequiredMixin, CreateView):
+    template_name = 'panel/equipment/rental_form.html'
+    form_class = EquipmentRentalForm
+    success_url = reverse_lazy('panel:equipment_list')
+
+    def dispatch(self, request, *args, **kwargs):
+        self.equipment = get_object_or_404(Equipment, pk=kwargs['pk'])
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_form_kwargs(self):
+        return {**super().get_form_kwargs(), 'equipment': self.equipment}
+
+    def get_context_data(self, **kwargs):
+        return {**super().get_context_data(**kwargs), 'equipment': self.equipment}
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(
+            self.request,
+            f'Dodano termin: {self.object}. Usługi z tym urządzeniem można zarezerwować w te dni '
+            '(o ile w grafiku są godziny pracy).',
+        )
+        return response
+
+
+class EquipmentRentalDeleteView(OwnerRequiredMixin, View):
+    """POST-only; refused while clients are booked on those days for services that need the device."""
+
+    http_method_names = ['post']
+
+    def post(self, request, pk):
+        rental = get_object_or_404(EquipmentRental.objects.select_related('equipment'), pk=pk)
+        booked = upcoming_appointments(
+            service__required_equipment=rental.equipment,
+            date_time__date__gte=rental.date_from,
+            date_time__date__lte=rental.date_to,
+        )
+        if booked.exists():
+            messages.error(
+                request,
+                f'Na termin {rental.date_from:%d.%m}–{rental.date_to:%d.%m.%Y} są zapisane wizyty ({booked.count()}). '
+                'Najpierw je przenieś albo odwołaj.',
+            )
+            return redirect('panel:equipment_list')
+        rental.delete()
+        messages.success(request, 'Termin usunięty.')
+        return redirect('panel:equipment_list')

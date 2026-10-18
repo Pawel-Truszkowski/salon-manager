@@ -1,0 +1,27 @@
+{% extends 'panel/base.html' %}
+
+{% block title %}Nowy termin: {{ equipment }}{% endblock %}
+
+{% block content %}
+<a href="{% url 'panel:equipment_list' %}" class="small"><i class="bi bi-arrow-left"></i> Urządzenia</a>
+<h1 class="panel-title mt-2 mb-1">Nowy termin</h1>
+<p class="text-muted mb-4">{{ equipment }}: dni, w które urządzenie jest w salonie. Na jeden dzień wpisz tę samą datę w obu polach.</p>
+
+<form method="post" class="card panel-card" style="max-width: 720px" novalidate>
+  {% csrf_token %}
+  <div class="card-body">
+    {% if form.non_field_errors %}
+      <div class="alert alert-danger">{% for error in form.non_field_errors %}{{ error }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</div>
+    {% endif %}
+    <div class="row">
+      <div class="col-sm-6">{% include 'panel/_field.html' with field=form.date_from %}</div>
+      <div class="col-sm-6">{% include 'panel/_field.html' with field=form.date_to %}</div>
+    </div>
+    <p class="small text-muted mb-0">Pamiętaj o godzinach pracy w grafiku na te dni: bez nich nie będzie wolnych terminów.</p>
+  </div>
+  <div class="card-footer bg-transparent d-flex gap-2">
+    <button type="submit" class="btn panel-btn-primary">Zapisz termin</button>
+    <a href="{% url 'panel:equipment_list' %}" class="btn btn-outline-secondary">Anuluj</a>
+  </div>
+</form>
+{% endblock %}

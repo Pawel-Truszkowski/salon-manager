@@ -29,6 +29,13 @@ urlpatterns = [
     path('services/new/', views.ServiceCreateView.as_view(), name='service_create'),
     path('services/<int:pk>/edit/', views.ServiceUpdateView.as_view(), name='service_update'),
     path('services/<int:pk>/toggle-active/', views.ServiceToggleActiveView.as_view(), name='service_toggle_active'),
+    path('equipment/', views.EquipmentListView.as_view(), name='equipment_list'),
+    path('equipment/new/', views.EquipmentCreateView.as_view(), name='equipment_create'),
+    path('equipment/<int:pk>/edit/', views.EquipmentUpdateView.as_view(), name='equipment_update'),
+    path('equipment/<int:pk>/rentals/new/', views.EquipmentRentalCreateView.as_view(), name='equipment_rental_create'),
+    path(
+        'equipment/rentals/<int:pk>/delete/', views.EquipmentRentalDeleteView.as_view(), name='equipment_rental_delete'
+    ),
     path('schedule/', views.ScheduleView.as_view(), name='schedule'),
     path('schedule/<int:employee_pk>/weekly/', views.WeeklyScheduleEditView.as_view(), name='weekly_schedule'),
     path('schedule/<int:employee_pk>/generate/', views.ScheduleGenerateView.as_view(), name='schedule_generate'),

@@ -88,8 +88,35 @@ def _hybrid_manicure(services):
     return 'Ile trwa manicure hybrydowy i ile kosztuje?', answer
 
 
-def build_faq(services):
-    """[{'question', 'answer'}, ...] for the home page; `services` are the active services already loaded."""
+def _laser(services, rentals):
+    """Next laser days from the rentals of the equipment that laser services need; phone when none is planned."""
+    laser_equipment = {
+        s.required_equipment_id for s in services if s.required_equipment_id and 'laser' in s.category.name.lower()
+    }
+    upcoming = sorted((rentals[pk] for pk in laser_equipment if pk in rentals), key=lambda r: r.date_from)
+    answer = (
+        'Depilację wykonujemy laserem diodowym LightSheer DUET firmy Lumenis. '
+        'Laser jest w salonie przez dwa dni mniej więcej co 6 tygodni'
+    )
+    if upcoming:
+        answer += (
+            f', najbliżej {upcoming[0].label}. Zabiegi robi się w serii co kilka tygodni, więc kolejny termin '
+            'umówisz od razu po wizycie. W formularzu zabiegi laserowe zarezerwujesz tylko na dni z laserem.'
+        )
+    else:
+        answer += (
+            '. Zabiegi robi się w serii co kilka tygodni, więc kolejny termin umówisz od razu po wizycie. '
+            f'O najbliższy termin zapytaj telefonicznie: {PHONES}.'
+        )
+    return 'Kiedy mogę zrobić depilację laserową?', answer
+
+
+def build_faq(services, rentals=None):
+    """[{'question', 'answer'}, ...] for the home page.
+
+    `services` are the active services already loaded (with `category`), `rentals` the next rental per
+    equipment id (`apps.services.views.next_rentals`).
+    """
     services = list(services)
     items = [
         _lashes(services),
@@ -100,13 +127,7 @@ def build_faq(services):
             'Termin dopasowujemy do Ciebie, więc łatwo umówić się po pracy albo w weekend. '
             'Wolne godziny widzisz w formularzu rezerwacji. Jeśli żadna nie pasuje, zadzwoń.',
         ),
-        (
-            # TODO stage 5: the next rental dates from EquipmentRental
-            'Kiedy mogę zrobić depilację laserową?',
-            'Depilację wykonujemy laserem diodowym LightSheer DUET firmy Lumenis. Laser jest w salonie przez dwa dni '
-            'mniej więcej co 6 tygodni. Zabiegi robi się w serii co kilka tygodni, więc kolejny termin umówisz '
-            f'od razu po wizycie. O najbliższy termin zapytaj telefonicznie: {PHONES}.',
-        ),
+        _laser(services, rentals or {}),
         (
             'Jak zarezerwować wizytę?',
             'Wybierz zabieg, dzień i godzinę w formularzu rezerwacji. Pokazujemy tylko wolne terminy. '

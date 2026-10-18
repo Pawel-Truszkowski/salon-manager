@@ -667,6 +667,25 @@ body {
   padding-bottom: 1rem;
   border-bottom: 2px solid var(--rb-dark);
 }
+.rb-equipment-note {
+  margin: 1rem 0 0.5rem;
+  padding: 1rem 1.25rem;
+  background: var(--rb-bg-white);
+  border-left: 2px solid var(--rb-gold);
+  font-size: 0.98rem;
+  line-height: 1.6;
+}
+.rb-equipment-note p {
+  margin: 0;
+  font-weight: 300;
+}
+.rb-equipment-note .rb-equipment-when {
+  font-weight: 400;
+  color: var(--rb-dark);
+}
+.rb-equipment-note p + p {
+  margin-top: 0.35rem;
+}
 .rb-treat {
   border-bottom: 1px solid var(--rb-border);
 }
@@ -976,6 +995,8 @@ body {
   line-height: 1.75;
 }
 .rb-footer-text a {
+  display: inline-block;
+  padding-block: 0.2rem; /* touch target apart from the phone number above */
   color: inherit;
   text-decoration: none;
 }
