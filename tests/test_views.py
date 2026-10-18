@@ -1,14 +1,18 @@
 import datetime
 import json
 import re
+from decimal import Decimal
 
 import pytest
 from django.conf import settings
+from django.db import connection
 from django.test import Client
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from django.utils import timezone
 
 from apps.bookings.models import Appointment
+from apps.services.models import Service, ServiceCategory
 from tests.conftest import make_appointment, make_time_block
 
 
@@ -299,8 +303,8 @@ class TestHeaderAndHero:
     def test_menu_on_other_pages_links_back_to_home_sections(self, client, employee, service, tomorrow):
         appt = make_appointment(employee, service, tomorrow, hour=10)
         html = client.get(reverse('cancel_booking', args=[appt.cancellation_token])).content.decode()
-        assert f'href="{reverse("home")}#uslugi"' in html
-        assert 'href="#uslugi"' not in html
+        assert f'href="{reverse("home")}#cennik"' in html
+        assert 'href="#cennik"' not in html
 
 
 def json_ld_blocks(html):
@@ -327,6 +331,7 @@ class TestSeoMeta:
         html = client.get(reverse('home')).content.decode()
         (salon,) = [b for b in json_ld_blocks(html) if b['@type'] == 'BeautySalon']
         assert salon['@id'] == 'http://testserver/#salon'
+        assert (salon['name'], salon['alternateName']) == ('Royal Beauty Studio Urody', 'Royal Beauty')
         assert 'Sunday' in salon['openingHoursSpecification'][0]['dayOfWeek']
         assert 'po wcześniejszym umówieniu' in salon['description']
         assert salon['founder']['name'] == 'Paulina'
@@ -376,3 +381,60 @@ class TestImagesAndLinks:
         html = client.get(reverse('home')).content.decode()
         for tag in re.findall(r'<a [^>]*target="_blank"[^>]*>', html):
             assert 'noopener' in tag, tag
+
+
+class TestPriceList:
+    """The price list is rendered by Django, so it is in the HTML without JavaScript (search engines, AI crawlers)."""
+
+    def test_services_are_in_the_html(self, client, service):
+        service.description = 'Opracowanie skórek.\r\n- malowanie lakierem'
+        service.save()
+        html = client.get(reverse('home')).content.decode()
+        assert '<h4 class="rb-treat-name">Manicure</h4>' in html
+        assert '80 zł' in html
+        assert '60 min' in html
+        assert '<p>Opracowanie skórek.</p><ul><li>malowanie lakierem</li></ul>' in html
+        assert f'data-book-service="{service.pk}"' in html
+
+    def test_inactive_services_are_hidden(self, client, service):
+        Service.objects.create(name='Stary zabieg', category=service.category, price='50', duration=30, is_active=False)
+        html = client.get(reverse('home')).content.decode()
+        assert 'Stary zabieg' not in html
+
+    def test_categories_follow_their_order_field(self, client, db):
+        later = ServiceCategory.objects.create(name='Depilacja woskiem', slug='depilacja-woskiem', order=20)
+        first = ServiceCategory.objects.create(name='Rzęsy i brwi', slug='rzesy-i-brwi', order=10)
+        Service.objects.create(name='Pachy', category=later, price='40', duration=20)
+        Service.objects.create(name='Henna brwi', category=first, price='30', duration=20)
+        price_list = client.get(reverse('home')).context['price_list']
+        assert [group['category'] for group in price_list] == [first, later]
+
+    def test_price_range_ignores_free_services(self, client, service, service_short):
+        Service.objects.create(name='Bezpłatna konsultacja', category=service.category, price='0', duration=30)
+        (group,) = client.get(reverse('home')).context['price_list']
+        assert (group['min_price'], group['max_price']) == (Decimal('30'), Decimal('80'))
+        assert len(group['services']) == 3
+
+    def test_free_service_is_labelled_free(self, client, category):
+        Service.objects.create(name='Bezpłatna konsultacja', category=category, price='0', duration=30)
+        html = client.get(reverse('home')).content.decode()
+        assert '<span class="rb-treat-price">bezpłatnie</span>' in html
+        assert '<span class="rb-treat-price">0 zł</span>' not in html
+
+    def test_booking_select_lists_services_grouped_by_category(self, client, service):
+        html = client.get(reverse('home')).content.decode()
+        assert f'<optgroup label="{service.category.name}">' in html
+        assert f'<option value="{service.pk}">Manicure — 80 zł</option>' in html
+
+    def test_query_count_does_not_grow_with_services(self, client, category):
+        def count_queries():
+            with CaptureQueriesContext(connection) as ctx:
+                client.get(reverse('home'))
+            return len(ctx)
+
+        Service.objects.create(name='Jeden', category=category, price='10', duration=10)
+        few = count_queries()
+        other = ServiceCategory.objects.create(name='Inna', slug='inna', order=5)
+        for i in range(10):
+            Service.objects.create(name=f'Zabieg {i}', category=other, price='10', duration=10)
+        assert count_queries() == few

@@ -17,11 +17,13 @@ Na podstawie pełnego audytu produkcji (`royalbeauty-studiourody.pl`, 2026-10-16
 
 ## Do zebrania od Pauliny
 
-- [ ] Model lasera i opis technologii, partie ciała, ceny, czas trwania, przeciwwskazania, zalecany odstęp między zabiegami. Część jest już w wizytówce Google.
+- [x] **Laser:** LightSheer DUET (Lumenis), https://lumenis.com/aesthetics/products/lightsheer-duet/. Partie ciała, ceny i czas: z wizytówki Google (etap 5).
+  - [ ] Jeszcze brakuje: przeciwwskazań i zalecanego odstępu między zabiegami.
 - [ ] Zdjęcie portretowe 3:4 do profilu.
-- [ ] Czy „ponad 10 lat doświadczenia” i „ponad 2000 klientek” to dane o niej (dziś są na stronie)?
-- [ ] Nazwa marki: „Royal Beauty” czy „Royal Beauty Studio Urody”? Ma być identyczna w title, schema, stopce i wizytówce.
-- [ ] Link do wizytówki Google (do `sameAs`, `hasMap` i przycisku „Opinie w Google”) oraz `place_id`, jeśli idziemy w Places API.
+- [x] **Doświadczenie:** około 10 lat w zawodzie, salon prowadzi od 3 lat (od 2023). Wcześniej pracowała w innym salonie i przyjmowała klientki w domu. **„2000+ klientek” jest zmyślone i znika** (etap 3), razem z „3 ekspertów” i „20+ usług premium”. Na stronie: „ponad 10 lat doświadczenia, własny salon od 2023 roku”. Paulina potwierdza dokładny rok.
+- [x] **Nazwa:** pełna to „Royal Beauty Studio Urody” (schema `name`, nagłówek strony od etapu 2, stopka, wizytówka Google), skrócona to „Royal Beauty” (title, `alternateName`).
+- [x] **Link do wystawienia opinii:** https://g.page/r/CWOM8YrRCi7eEBM/review, do przycisku „Wystaw opinię” w etapie 3.
+  - [ ] Jeszcze brakuje: link do wizytówki w Mapach (`hasMap`, `sameAs`, „Zobacz opinie w Google”), a przy Places API też `place_id`. Link do opinii otwiera tylko formularz wystawiania.
 
 ## Etapy (każdy jako osobny PR na `dev`, gałąź od `dev`)
 
@@ -44,10 +46,13 @@ Według `docs/redesign/README.md` (tokeny, typografia) i prototypu.
 - [x] **www → 301** na domenę główną (`nginx/prod.conf`; zadziała po deployu, patrz etap 6).
 
 ### 2. Cennik renderowany po stronie serwera ⭐
-- [ ] Usługi pogrupowane w widoku `home` i wyrenderowane w Django jako wiersze `<details>`: nazwa (`<h3>`), czas, cena, opis (listy z „- ” jako `<ul>`). Spis kategorii z liczbą zabiegów i zakresem cen.
-- [ ] JS nie pobiera już `/api/services/` dla cennika. Dropdown usług w formularzu też z Django.
-- [ ] Cena 0 → „bezpłatnie”.
-  *Akceptacja:* `curl … | grep "Mezoterapia mikroigłowa"` znajduje usługę; test widoku sprawdza nazwę i cenę przykładowej usługi; liczba zapytań do bazy stała (`django_assert_num_queries`).
+- [x] Usługi pogrupowane w widoku `home` (`build_price_list`) i wyrenderowane w Django jako wiersze `<details>`: nazwa (`<h4>` pod `<h2>` „Cennik” i `<h3>` kategorii), czas, cena, opis (filtr `description_html`: linie z „- ” jako `<ul>`). Spis kategorii z liczbą zabiegów i zakresem cen.
+- [x] Kolejność kategorii z pola `ServiceCategory.order` (edytowalne w adminie). Migracja `0009` ustawia kolejność z prototypu: rzęsy, dłonie, zabiegi, depilacja.
+- [x] JS nie pobiera już `/api/services/` dla cennika. Dropdown usług w formularzu też z Django (`<optgroup>`).
+- [x] Cena 0 → „bezpłatnie” (`Service.price_label`).
+- [x] Przy okazji: kontener 72rem jak w prototypie, pełna nazwa „Royal Beauty Studio Urody” w nagłówku, poprawka rozciągniętego zdjęcia w „O nas”.
+- [ ] Dane dla Pauliny (panel): nazwa kategorii „Zabiegi kosmetyczne” → „Zabiegi na twarz i ciało”, spacje w nawiasach w nazwach („Mezoterapia mikroigłowa ( twarz)”).
+  *Akceptacja:* `curl … | grep "Mezoterapia mikroigłowa"` znajduje usługę; test widoku sprawdza nazwę i cenę przykładowej usługi; liczba zapytań do bazy stała (`CaptureQueriesContext`).
 
 > Uwaga: to zmienia kontrakt z `script.js`. Sprawdź, co jeszcze czyta `servicesData`, zanim go usuniesz.
 

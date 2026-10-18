@@ -5,7 +5,8 @@ from .models import Employee, Schedule, Service, ServiceCategory, TimeBlock
 
 @admin.register(ServiceCategory)
 class ServiceCategoryAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'slug')
+    list_display = ('id', 'name', 'slug', 'order')
+    list_editable = ('order',)
     prepopulated_fields = {'slug': ('name',)}
 
 
