@@ -1,0 +1,26 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title>Błąd serwera — Royal Beauty</title>
+  {# Standalone on purpose: a 500 is rendered without a request/context, so it must not depend on base.html. #}
+  <link rel="stylesheet" href="{% static 'css/fonts.css' %}" />
+  <style>
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #f5efe6; color: #3d2e1e; font: 300 1.0625rem/1.65 "Jost", Arial, sans-serif; }
+    main { max-width: 34rem; padding: 2rem 1rem; }
+    h1 { font: 400 clamp(2rem, 5vw, 3rem)/1.1 "Playfair Display", Georgia, serif; color: #2c2418; margin: 0 0 1rem; }
+    a { color: #7d5f2e; font-weight: 500; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Coś poszło nie tak</h1>
+    <p>Strona chwilowo nie działa. Spróbuj ponownie za kilka minut.</p>
+    <p>Jeśli chcesz umówić wizytę od razu, zadzwoń: <a href="tel:+48793355756">+48 793 355 756</a> lub <a href="tel:+48792646256">+48 792 646 256</a>.</p>
+    <p><a href="/">Wróć na stronę główną</a></p>
+  </main>
+</body>
+</html>

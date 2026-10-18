@@ -80,7 +80,10 @@ fetch("/api/services/")
   });
 
 function openLightbox(el) {
-  document.getElementById("lightboxImg").src = el.querySelector("img").src;
+  var thumb = el.querySelector("img");
+  var big = document.getElementById("lightboxImg");
+  big.src = thumb.src;
+  big.alt = thumb.alt;
   document.getElementById("lightbox").classList.add("open");
   document.body.style.overflow = "hidden";
 }
