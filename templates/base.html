@@ -84,8 +84,9 @@
   {% url 'home' as home_url %}
   <nav id="navbar" class="navbar navbar-expand-lg sticky-top rb-nav">
     <div class="container-xl px-4 px-lg-5">
-      <a class="navbar-brand" href="{{ home_url }}">
-        <img src="{% static 'img/Logo_Royal_Beauty.PNG' %}" alt="Royal Beauty — strona główna" class="rb-nav-logo" />
+      <a class="navbar-brand rb-brand" href="{{ home_url }}">
+        <img src="{% static 'img/Logo_Royal_Beauty.PNG' %}" alt="" class="rb-nav-logo" />
+        <span class="rb-brand-name">Royal Beauty<span>Studio Urody</span></span>
       </a>
       <button class="navbar-toggler rb-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu" aria-controls="navMenu" aria-expanded="false" aria-label="Menu">
         <i class="bi bi-list" aria-hidden="true"></i>

@@ -364,7 +364,13 @@ class TestImagesAndLinks:
         alts = re.findall(r'<img [^>]*alt="([^"]*)"', html)
         assert 'Sprzęt' not in alts
         assert 'Kosmetyki' not in alts
-        assert alts.count('') == 1  # only the lightbox placeholder; JS copies the alt in when it opens
+        # Only decorative images: the navbar logo (the link next to it has the name as text) and the lightbox
+        # placeholder (JS copies the alt in when it opens)
+        assert alts.count('') == 2
+
+    def test_navbar_shows_the_full_business_name(self, client, db):
+        html = client.get(reverse('home')).content.decode()
+        assert '<span class="rb-brand-name">Royal Beauty<span>Studio Urody</span></span>' in html
 
     def test_external_links_in_new_tab_use_noopener(self, client, db):
         html = client.get(reverse('home')).content.decode()

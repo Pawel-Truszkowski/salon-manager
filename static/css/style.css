@@ -92,6 +92,24 @@ body {
   object-fit: contain;
   filter: brightness(0) saturate(100%) invert(62%) sepia(35%) saturate(700%) hue-rotate(5deg) brightness(0.95);
 }
+.rb-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.rb-brand-name {
+  display: flex;
+  flex-direction: column;
+  font-family: var(--ff-display);
+  font-size: 1.15rem;
+  line-height: 1.15;
+  color: var(--rb-dark);
+}
+.rb-brand-name span {
+  font-family: var(--ff-body);
+  font-size: 0.8rem;
+  color: var(--rb-gold-ink);
+}
 .rb-nav-link {
   font-family: var(--ff-body);
   font-size: 0.95rem;
