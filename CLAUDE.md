@@ -76,6 +76,7 @@ uv run pytest -k cancel                                                        #
 - `TimeBlock` belongs to `Employee` (ad-hoc blocked periods: breaks, days off)
 - `Equipment` (e.g. the rented laser) + `EquipmentRental` (date_from–date_to, inclusive); `Service.required_equipment` (optional FK) makes a service bookable only on rental days — enforced by `is_service_available_on()` inside `get_available_slots` (so every booking path follows it)
 - `WeeklyScheduleEntry` belongs to `Employee` (weekly template: weekday + hours, several per day allowed). It is **not** read by availability logic — `generate_schedules()` materializes it into `Schedule` rows, skipping days that already have any (manual exceptions win)
+- `Client` (one per phone number, normalized by `normalize_phone()`; owner-only "Klientki" in the panel) ← `Appointment.client` (optional FK), set in `Appointment.save()` via `Client.for_booking()` on every booking path. Appointments keep their own `client_name/phone/email` copy (used by e-mails); a booking never overwrites the card, it only fills a missing e-mail
 - `Appointment` → `Service` + `Employee` (optional — auto-assigned if omitted) + datetime + client info + `status` (`pending`/`confirmed`/`completed`/`cancelled`) + `cancellation_token` (unique UUID used in the client's cancel link). State transitions live on the model: `confirm()`, `complete()`, `cancel()` (allowed only while `can_be_cancelled` — status `pending`/`confirmed` and `date_time` in the future)
 
 **Booking flow:**

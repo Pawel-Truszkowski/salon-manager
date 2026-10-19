@@ -7,7 +7,7 @@ from django.contrib.auth import get_user_model
 from django.db.models import Q
 from django.utils import timezone
 
-from apps.bookings.models import Appointment
+from apps.bookings.models import Appointment, Client, normalize_phone
 from apps.bookings.utils import find_available_specialist, get_available_slots
 from apps.services.models import Employee, Equipment, EquipmentRental, Service, TimeBlock, WeeklyScheduleEntry
 
@@ -460,3 +460,31 @@ class EquipmentRentalForm(forms.ModelForm):
                 f'Ten termin nachodzi na już zapisany: {overlapping.date_from:%d.%m}–{overlapping.date_to:%d.%m.%Y}.'
             )
         return cleaned
+
+
+class ClientForm(forms.ModelForm):
+    """Owner adds/edits a client card."""
+
+    class Meta:
+        model = Client
+        fields = ['name', 'phone', 'email', 'notes']
+        labels = {'name': 'Imię i nazwisko', 'phone': 'Telefon', 'email': 'E-mail', 'notes': 'Notatki'}
+        help_texts = {
+            'phone': 'Po numerze telefonu rezerwacje ze strony same trafiają do tej karty.',
+            'notes': 'Widzi je tylko salon, np. alergie, ulubiony skręt rzęs.',
+        }
+        widgets = {'notes': forms.Textarea(attrs={'rows': 4}), 'phone': forms.TextInput(attrs={'type': 'tel'})}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        add_bootstrap_classes(self)
+
+    def clean_phone(self):
+        phone = normalize_phone(self.cleaned_data['phone'])
+        if len(phone) < 9:
+            raise forms.ValidationError('Podaj pełny numer telefonu.')
+        # Compared after normalizing: "+48 793 355 756" and "793355756" are the same client
+        other = Client.objects.filter(phone=phone).exclude(pk=self.instance.pk).first()
+        if other:
+            raise forms.ValidationError(f'Ten numer ma już klientka {other}.')
+        return phone

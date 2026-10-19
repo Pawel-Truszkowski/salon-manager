@@ -1,0 +1,44 @@
+{% extends 'panel/base.html' %}
+
+{% block title %}{{ client }}{% endblock %}
+
+{% block content %}
+<a href="{% url 'panel:client_list' %}" class="small"><i class="bi bi-arrow-left"></i> Klientki</a>
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-2 mb-4">
+  <h1 class="panel-title mb-0">{{ client }}</h1>
+  <div class="d-flex gap-2">
+    <a href="{% url 'panel:client_update' client.pk %}" class="btn btn-outline-secondary"><i class="bi bi-pencil"></i> Edytuj</a>
+    <a href="{% url 'panel:appointment_create' %}?client={{ client.pk }}" class="btn panel-btn-primary"><i class="bi bi-plus-lg"></i> Nowa wizyta</a>
+  </div>
+</div>
+
+<div class="row g-4">
+  <section class="col-lg-5">
+    <div class="card panel-card">
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-sm-4">Telefon</dt>
+          <dd class="col-sm-8"><a href="tel:{{ client.phone }}">{{ client.phone_display }}</a></dd>
+          <dt class="col-sm-4">E-mail</dt>
+          <dd class="col-sm-8">{% if client.email %}<a href="mailto:{{ client.email }}">{{ client.email }}</a>{% else %}<span class="text-muted">brak</span>{% endif %}</dd>
+          <dt class="col-sm-4">W bazie od</dt>
+          <dd class="col-sm-8">{{ client.created_at|date:"d.m.Y" }}</dd>
+          <dt class="col-sm-4">Notatki</dt>
+          <dd class="col-sm-8 mb-0">{% if client.notes %}{{ client.notes|linebreaksbr }}{% else %}<span class="text-muted">brak</span>{% endif %}</dd>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <section class="col-lg-7">
+    <div class="card panel-card mb-4">
+      <div class="card-header"><h2 class="h6 mb-0"><i class="bi bi-calendar-event"></i> Nadchodzące wizyty</h2></div>
+      {% include 'panel/clients/_visits.html' with appointments=upcoming empty='Brak zaplanowanych wizyt.' %}
+    </div>
+    <div class="card panel-card">
+      <div class="card-header"><h2 class="h6 mb-0"><i class="bi bi-clock-history"></i> Historia wizyt</h2></div>
+      {% include 'panel/clients/_visits.html' with appointments=past empty='Jeszcze nie było wizyt.' %}
+    </div>
+  </section>
+</div>
+{% endblock %}
