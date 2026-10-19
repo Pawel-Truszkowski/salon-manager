@@ -26,6 +26,16 @@
     {% if form.force %}{% include 'panel/_field.html' with field=form.force %}{% endif %}
 
     <h2 class="h6 text-uppercase text-muted mt-4">Klient</h2>
+    {% if client_search_url %}
+      {# Fills the fields below from the client file; typing them by hand still works #}
+      <div class="mb-3 position-relative" data-client-search="{{ client_search_url }}">
+        <label class="form-label" for="clientSearch">Szukaj w bazie klientek</label>
+        <input id="clientSearch" type="search" class="form-control" placeholder="Imię lub telefon" autocomplete="off"
+               role="combobox" aria-expanded="false" aria-controls="clientSuggestions" aria-autocomplete="list">
+        <div id="clientSuggestions" class="list-group position-absolute w-100 shadow-sm panel-client-suggestions" role="listbox" hidden></div>
+        <div class="form-text">Nowa klientka? Wpisz dane poniżej, karta założy się sama.</div>
+      </div>
+    {% endif %}
     {% include 'panel/_field.html' with field=form.client_name %}
     <div class="row">
       <div class="col-sm-6">{% include 'panel/_field.html' with field=form.client_phone %}</div>
@@ -42,4 +52,5 @@
 
 {% block extra_js %}
 <script src="{% static 'js/panel-appointments.js' %}"></script>
+<script src="{% static 'js/panel-clients.js' %}"></script>
 {% endblock %}

@@ -8,6 +8,9 @@
 <div class="d-flex flex-wrap align-items-center gap-3 mt-2 mb-4">
   <h1 class="panel-title mb-0">{{ appointment.client_name }}</h1>
   {% include 'panel/_status_badge.html' %}
+  {% if is_owner and appointment.client_id %}
+    <a href="{% url 'panel:client_detail' appointment.client_id %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-person-vcard"></i> Karta klientki</a>
+  {% endif %}
 </div>
 
 <div class="row g-4">

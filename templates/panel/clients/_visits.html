@@ -1,0 +1,12 @@
+<ul class="list-group list-group-flush">
+  {% for appointment in appointments %}
+    <li class="list-group-item d-flex flex-wrap justify-content-between align-items-center gap-2">
+      <a href="{% url 'panel:appointment_detail' appointment.pk %}">
+        {{ appointment.date_time|date:"d.m.Y" }}, {{ appointment.date_time|time:"H:i" }}: {{ appointment.service }}
+      </a>
+      {% include 'panel/_status_badge.html' %}
+    </li>
+  {% empty %}
+    <li class="list-group-item text-muted small">{{ empty }}</li>
+  {% endfor %}
+</ul>

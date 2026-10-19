@@ -50,6 +50,11 @@
           </li>
           {% if is_owner %}
             <li class="nav-item">
+              <a class="nav-link {% if 'client' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'panel:client_list' %}">
+                <i class="bi bi-person-vcard"></i> Klientki
+              </a>
+            </li>
+            <li class="nav-item">
               <a class="nav-link {% if 'employee' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'panel:employee_list' %}">
                 <i class="bi bi-people"></i> Zespół
               </a>

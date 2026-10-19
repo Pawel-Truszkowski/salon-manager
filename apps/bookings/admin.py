@@ -1,11 +1,18 @@
 from django.contrib import admin, messages
 
 from .emails import send_confirmation_email
-from .models import Appointment
+from .models import Appointment, Client
+
+
+@admin.register(Client)
+class ClientAdmin(admin.ModelAdmin):
+    list_display = ('name', 'phone', 'email', 'created_at')
+    search_fields = ('name', 'phone', 'email')
 
 
 @admin.register(Appointment)
 class AppointmentAdmin(admin.ModelAdmin):
+    raw_id_fields = ('client',)
     list_display = ('service', 'employee', 'date_time', 'status', 'client_name', 'client_email', 'client_phone')
     list_filter = ('status', 'service', 'employee')
     search_fields = ('client_name', 'client_email', 'client_phone')

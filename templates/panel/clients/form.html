@@ -1,0 +1,24 @@
+{% extends 'panel/base.html' %}
+
+{% block title %}{% if object %}Edycja: {{ object }}{% else %}Nowa klientka{% endif %}{% endblock %}
+
+{% block content %}
+<a href="{% if object %}{% url 'panel:client_detail' object.pk %}{% else %}{% url 'panel:client_list' %}{% endif %}" class="small"><i class="bi bi-arrow-left"></i> {% if object %}{{ object }}{% else %}Klientki{% endif %}</a>
+<h1 class="panel-title mt-2 mb-4">{% if object %}{{ object }}{% else %}Nowa klientka{% endif %}</h1>
+
+<form method="post" class="card panel-card" style="max-width: 720px" novalidate>
+  {% csrf_token %}
+  <div class="card-body">
+    {% include 'panel/_field.html' with field=form.name %}
+    <div class="row">
+      <div class="col-sm-6">{% include 'panel/_field.html' with field=form.phone %}</div>
+      <div class="col-sm-6">{% include 'panel/_field.html' with field=form.email %}</div>
+    </div>
+    {% include 'panel/_field.html' with field=form.notes %}
+  </div>
+  <div class="card-footer bg-transparent d-flex gap-2">
+    <button type="submit" class="btn panel-btn-primary">Zapisz</button>
+    <a href="{% if object %}{% url 'panel:client_detail' object.pk %}{% else %}{% url 'panel:client_list' %}{% endif %}" class="btn btn-outline-secondary">Anuluj</a>
+  </div>
+</form>
+{% endblock %}

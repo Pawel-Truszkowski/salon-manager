@@ -19,6 +19,7 @@
       <div class="col-sm-6">{% include 'panel/_field.html' with field=form.price %}</div>
       <div class="col-sm-6">{% include 'panel/_field.html' with field=form.duration %}</div>
     </div>
+    {% include 'panel/_field.html' with field=form.price_is_from %}
     {% include 'panel/_field.html' with field=form.required_equipment %}
   </div>
   <div class="card-footer bg-transparent d-flex gap-2">

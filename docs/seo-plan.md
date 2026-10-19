@@ -89,11 +89,18 @@ Termin docelowy: przed 8 listopada. Jeśli nie zdążymy, laser na pierwszy term
 - [ ] Schema `Offer` z `availabilityStarts` / `availabilityEnds`: przeniesione do etapu 7 (podstrona depilacji laserowej z `OfferCatalog`).
 - [ ] Na później (gdy będą pracownice): sprawdzanie, czy urządzenie nie jest zajęte przez inną wizytę w tym samym czasie.
 
+### Przed etapem 6 (zrobione, gałąź `feature/catalog-pricelist`)
+- [x] Cennik migracją `services.0013_catalog`: opisy z produkcji, czasy z Booksy, bez laminacji, 12 zabiegów laserowych (bikini „od 170 zł”, `Service.price_is_from`). Bez podmiany bazy produkcji.
+- [x] Cennik w zakładkach (jedna kategoria naraz, cała treść w HTML).
+- [x] 1. piętro i winda: kontakt, FAQ, maile do klientki.
+- [x] Baza klientek w panelu (`Client`, „Klientki”, podpowiedzi w „Nowa wizyta”, import z dotychczasowych wizyt).
+
 ### 6. Publikacja na produkcji
 - [ ] Merge `dev` → `main`, ręczny deploy na Droplet (jak dotąd), sprawdzenie na stagingu przed deployem.
 - [ ] Po deployu przeładować nginx (`docker compose -f docker-compose.prod.yml exec nginx nginx -s reload`): `prod.conf` jest montowany jako plik, więc `up -d --build` go nie podchwyci. Sprawdzenie: `curl -sI https://www.royalbeauty-studiourody.pl/` → `301` na domenę bez www.
-- [ ] Zaraz po deployu na produkcji: etap 0 (Marika, Wiola → `is_active = False`, bio Pauliny).
-- [ ] Paulina ustawia w panelu szablon tygodnia i generuje grafik (dziś na produkcji nikt nie ma grafiku, więc formularz nie pokazuje żadnych terminów, a „najbliższy wolny termin” pokazałby „zadzwoń”). Do tego wynajem lasera 8–9.11, jeśli etap 5 jest gotowy.
+- [ ] Zaraz po deployu na produkcji: etap 0 (Marika, Wiola → `is_active = False`, bio Pauliny). Produkcja przeskoczy z migracji 0003 na 0013 naraz; `0013_catalog` przypisze zabiegi laserowe wszystkim aktywnym, czyli też Marice i Wioli, ale po wyłączeniu nie są one do zarezerwowania.
+- [ ] Konto właścicielki dla Pauliny (grupa „Właściciel”), jeśli jeszcze go nie ma.
+- [ ] Paulina ustawia w panelu szablon tygodnia i generuje grafik (dziś na produkcji nikt nie ma grafiku, więc formularz nie pokazuje żadnych terminów, a „najbliższy wolny termin” pokazałby „zadzwoń”). Do tego terminy lasera w „Urządzenia”: 8–9.11 i 14–15.12 (jak na Booksy).
 - [ ] `robots.txt` z `Disallow: /panel/` trafi na produkcję razem z panelem.
 - [ ] Wizytówka Google: godziny pn–nd 9–21 i opis „wyłącznie po wcześniejszym umówieniu”, link do strony, link do rezerwacji.
 - [ ] Google Search Console: zgłoszenie sitemapy, sprawdzenie, czy strona główna jest zaindeksowana na nowo.
@@ -104,7 +111,7 @@ Termin docelowy: przed 8 listopada. Jeśli nie zdążymy, laser na pierwszy term
 - [ ] `CategorySitemap` w `config/sitemaps.py` z `lastmod`.
 
 ### 8. Na koniec
-- [ ] Polityka prywatności i regulamin rezerwacji jako strony (`TemplateView`) + linki w stopce i przy formularzu.
+- [ ] Polityka prywatności (musi objąć bazę klientek: co zapisujemy, po co, jak długo, prawo do usunięcia; w panelu brak jeszcze „Usuń klientkę”) i regulamin rezerwacji jako strony (`TemplateView`) + linki w stopce i przy formularzu.
 - [ ] Cloudflare: wyłączone „Block AI bots”, jeśli zależy nam na GEO.
 - [ ] Opcjonalnie `llms.txt`.
 - [ ] Ponowny audyt SEO/GEO/AEO.

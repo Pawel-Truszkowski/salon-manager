@@ -109,6 +109,8 @@ class Service(models.Model):
     category = models.ForeignKey(ServiceCategory, on_delete=models.CASCADE, related_name='services')
     description = models.TextField(blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
+    # The price is a minimum ("od 170 zł"): the final one depends on the area, agreed at the visit
+    price_is_from = models.BooleanField(default=False)
     duration = models.IntegerField(help_text="Duration in minutes")
     # Inactive = no longer offered: hidden from the website, API and new bookings; past appointments keep it
     # (appointments PROTECT their service, so it can't be deleted once booked)
@@ -128,9 +130,11 @@ class Service(models.Model):
 
     @property
     def price_label(self):
-        """Price as shown on the website: "bezpłatnie", "30 zł" or "30,50 zł"."""
+        """Price as shown on the website: "bezpłatnie", "30 zł", "30,50 zł" or "od 170 zł"."""
         if self.price == 0:
             return 'bezpłatnie'
+        if self.price_is_from:
+            return f'od {format_price(self.price)}'
         return format_price(self.price)
 
 

@@ -4,7 +4,7 @@ import logging
 from collections import defaultdict
 
 from django.contrib import messages
-from django.db.models import Prefetch, Q
+from django.db.models import Count, Max, Prefetch, Q
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
@@ -14,13 +14,14 @@ from django.views import View
 from django.views.generic import CreateView, DetailView, FormView, ListView, TemplateView, UpdateView
 
 from apps.bookings.emails import send_confirmation_email
-from apps.bookings.models import Appointment
+from apps.bookings.models import Appointment, Client, normalize_phone
 from apps.bookings.utils import get_available_slots
 from apps.services.models import Employee, Equipment, EquipmentRental, Schedule, Service, TimeBlock, WeeklyScheduleEntry
 from apps.services.scheduling import generate_schedules
 
 from .forms import (
     AppointmentCreateForm,
+    ClientForm,
     EmployeeForm,
     EquipmentForm,
     EquipmentRentalForm,
@@ -136,7 +137,17 @@ class AppointmentCreateView(PanelAccessMixin, CreateView):
                 initial[name] = value
         if params.get('employee', '').isdigit():
             initial['employee'] = params['employee']  # ignored for employees: their form has no such field
+        # "Nowa wizyta" on a client card (the client file is the owner's)
+        if self.is_owner and params.get('client', '').isdigit():
+            client = Client.objects.filter(pk=params['client']).first()
+            if client:
+                initial.update(client_name=client.name, client_phone=client.phone, client_email=client.email)
         return initial
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['client_search_url'] = reverse('panel:client_search') if self.is_owner else ''
+        return context
 
     def form_valid(self, form):
         appointment = form.save(commit=False)
@@ -892,3 +903,77 @@ class EquipmentRentalDeleteView(OwnerRequiredMixin, View):
         rental.delete()
         messages.success(request, 'Termin usunięty.')
         return redirect('panel:equipment_list')
+
+
+def search_clients(queryset, q):
+    """Name or e-mail fragment, or a phone number however it's typed ("793 355", "+48793...")."""
+    condition = Q(name__icontains=q) | Q(email__icontains=q)
+    digits = normalize_phone(q) if any(c.isdigit() for c in q) else ''
+    if digits:
+        condition |= Q(phone__contains=digits)
+    return queryset.filter(condition)
+
+
+class ClientListView(OwnerRequiredMixin, ListView):
+    template_name = 'panel/clients/list.html'
+    context_object_name = 'clients'
+    paginate_by = 50
+
+    def get_queryset(self):
+        self.q = self.request.GET.get('q', '').strip()
+        queryset = Client.objects.annotate(visit_count=Count('appointments'), last_visit=Max('appointments__date_time'))
+        if self.q:
+            queryset = search_clients(queryset, self.q)
+        return queryset.order_by('name')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['q'] = self.q
+        return context
+
+
+class ClientDetailView(OwnerRequiredMixin, DetailView):
+    model = Client
+    template_name = 'panel/clients/detail.html'
+    context_object_name = 'client'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        appointments = self.object.appointments.select_related('service', 'employee').order_by('-date_time')
+        now = timezone.now()
+        context['upcoming'] = [a for a in appointments if a.date_time >= now][::-1]
+        context['past'] = [a for a in appointments if a.date_time < now]
+        return context
+
+
+class ClientFormViewMixin(OwnerRequiredMixin):
+    model = Client
+    form_class = ClientForm
+    template_name = 'panel/clients/form.html'
+
+    def form_valid(self, form):
+        client = form.save()
+        messages.success(self.request, f'Zapisano kartę: {client}.')
+        return redirect('panel:client_detail', pk=client.pk)
+
+
+class ClientCreateView(ClientFormViewMixin, CreateView):
+    pass
+
+
+class ClientUpdateView(ClientFormViewMixin, UpdateView):
+    pass
+
+
+class ClientSearchView(OwnerRequiredMixin, View):
+    """Suggestions for the "Nowa wizyta" form: typing a name or phone fills in the client's details."""
+
+    LIMIT = 8
+
+    def get(self, request):
+        q = request.GET.get('q', '').strip()
+        if len(q) < 2:
+            return JsonResponse({'clients': []})
+        clients = search_clients(Client.objects.all(), q).order_by('name')[: self.LIMIT]
+        data = [{'name': c.name, 'phone': c.phone, 'phone_display': c.phone_display, 'email': c.email} for c in clients]
+        return JsonResponse({'clients': data})

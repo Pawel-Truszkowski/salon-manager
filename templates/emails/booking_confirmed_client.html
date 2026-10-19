@@ -36,6 +36,7 @@
     <div class="detail">
       <span class="label">Godzina:</span> {{ appointment.date_time|time:"H:i" }}
     </div>
+    {% include "emails/_salon_address.html" %}
 
     {% if appointment.notes %}
     <div class="notes">
