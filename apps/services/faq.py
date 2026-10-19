@@ -142,7 +142,8 @@ def build_faq(services, rentals=None):
         (
             'Jak odwołać lub przełożyć wizytę?',
             'W e-mailu z potwierdzeniem rezerwacji jest link do odwołania wizyty. Wystarczy go kliknąć '
-            'i potwierdzić. Jeśli chcesz przełożyć termin, zadzwoń do salonu, a razem znajdziemy nowy.',
+            'i potwierdzić. Jeśli chcesz przełożyć termin, zadzwoń do salonu, a razem znajdziemy nowy. '
+            'Prosimy o odwołanie najpóźniej 24 godziny przed wizytą.',
         ),
         _hybrid_manicure(services),
     ]

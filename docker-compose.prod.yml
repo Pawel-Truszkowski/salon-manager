@@ -1,6 +1,14 @@
+# Logs (incl. nginx access logs with client IPs) are rotated by size, not kept forever: the privacy policy relies on it
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 services:
 
   db:
+    logging: *logging
     image: postgres:16-alpine
     restart: always
     env_file:
@@ -14,6 +22,7 @@ services:
       retries: 5
 
   web:
+    logging: *logging
     build:
       context: .
       dockerfile: Dockerfile.prod
@@ -29,6 +38,7 @@ services:
     command: sh -c "uv run python manage.py migrate && uv run python manage.py collectstatic --noinput && uv run gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 120"
 
   nginx:
+    logging: *logging
     image: nginx:alpine
     restart: always
     ports:

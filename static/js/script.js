@@ -215,7 +215,9 @@ function fetchSlots() {
     });
 }
 
-document.getElementById("bookingService").addEventListener("change", function () {
+// Only the home page has the booking form; on subpages (legal pages, cancel link, 404) there is nothing to bind
+var serviceSelect = document.getElementById("bookingService");
+if (serviceSelect) serviceSelect.addEventListener("change", function () {
   var serviceId = this.value;
   fetchEmployees(serviceId);
   bookingPicker.clear();
@@ -308,10 +310,12 @@ function validateBookingForm() {
 }
 
 ["clientName", "clientPhone", "clientEmail"].forEach(function (id) {
-  document.getElementById(id).addEventListener("input", function () { clearFieldError(this); });
+  var field = document.getElementById(id);
+  if (field) field.addEventListener("input", function () { clearFieldError(this); });
 });
 ["bookingService", "bookingDate", "bookingTime"].forEach(function (id) {
-  document.getElementById(id).addEventListener("change", function () { clearFieldError(this); });
+  var field = document.getElementById(id);
+  if (field) field.addEventListener("change", function () { clearFieldError(this); });
 });
 
 function submitBooking(e) {
