@@ -94,6 +94,9 @@ Termin docelowy: przed 8 listopada. Jeśli nie zdążymy, laser na pierwszy term
 - [x] Cennik w zakładkach (jedna kategoria naraz, cała treść w HTML).
 - [x] 1. piętro i winda: kontakt, FAQ, maile do klientki.
 - [x] Baza klientek w panelu (`Client`, „Klientki”, podpowiedzi w „Nowa wizyta”, import z dotychczasowych wizyt).
+- [x] Polityka prywatności (`/polityka-prywatnosci/`) i regulamin rezerwacji (`/regulamin/`): linki w stopce i nad przyciskiem rezerwacji, w sitemapie. Logi kontenerów produkcji rotowane (`x-logging` w `docker-compose.prod.yml`), bo polityka mówi, że nie są trzymane w nieskończoność.
+- [ ] Paulina (najlepiej z księgową) czyta obie strony; datę „Obowiązuje od” w `templates/legal/_page.html` ustawić na dzień deployu produkcji.
+- [ ] Umowa powierzenia przetwarzania danych między Pauliną a osobą utrzymującą stronę (dostęp do bazy przez `/admin/` i serwer).
 
 ### 6. Publikacja na produkcji
 - [ ] Merge `dev` → `main`, ręczny deploy na Droplet (jak dotąd), sprawdzenie na stagingu przed deployem.
@@ -111,7 +114,7 @@ Termin docelowy: przed 8 listopada. Jeśli nie zdążymy, laser na pierwszy term
 - [ ] `CategorySitemap` w `config/sitemaps.py` z `lastmod`.
 
 ### 8. Na koniec
-- [ ] Polityka prywatności (musi objąć bazę klientek: co zapisujemy, po co, jak długo, prawo do usunięcia; w panelu brak jeszcze „Usuń klientkę”) i regulamin rezerwacji jako strony (`TemplateView`) + linki w stopce i przy formularzu.
+- [ ] RODO w panelu: „Usuń klientkę” (z anonimizacją jej wizyt) oraz komenda czyszcząca karty i wizyty starsze niż 3 lata od ostatniej wizyty (tak obiecuje polityka prywatności; pierwsze dane się „przedawnią” jesienią 2029, ale lepiej zrobić to wcześniej).
 - [ ] Cloudflare: wyłączone „Block AI bots”, jeśli zależy nam na GEO.
 - [ ] Opcjonalnie `llms.txt`.
 - [ ] Ponowny audyt SEO/GEO/AEO.

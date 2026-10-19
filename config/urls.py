@@ -18,4 +18,6 @@ urlpatterns = [
     path('', home, name='home'),
     path('bookings/', submit_booking, name='submit_booking'),
     path('bookings/cancel/<uuid:token>/', cancel_booking, name='cancel_booking'),
+    path('polityka-prywatnosci/', TemplateView.as_view(template_name='legal/privacy.html'), name='privacy'),
+    path('regulamin/', TemplateView.as_view(template_name='legal/terms.html'), name='terms'),
 ]

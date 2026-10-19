@@ -1,0 +1,72 @@
+{% extends "legal/_page.html" %}
+{% block title %}Regulamin rezerwacji — Royal Beauty Studio Urody{% endblock %}
+{% block meta_description %}Zasady rezerwacji wizyt w Royal Beauty Studio Urody we Wrocławiu: potwierdzenie, odwołanie, spóźnienia, przeciwwskazania, reklamacje.{% endblock %}
+
+{% block legal_title %}Regulamin rezerwacji{% endblock %}
+
+{% block legal_body %}
+<h2 id="ogolne">§ 1. Postanowienia ogólne</h2>
+<ol>
+  <li>Regulamin określa zasady umawiania, odwoływania i realizacji wizyt w salonie Royal Beauty Studio Urody przy ul. Małopanewskiej 24B/5 we Wrocławiu (1. piętro, w budynku jest winda).</li>
+  <li>Usługi świadczy {% include "legal/_company.html" %}</li>
+  <li>Kontakt z salonem: telefon <a class="rb-tel" href="tel:+48793355756">+48 793 355 756</a> lub <a class="rb-tel" href="tel:+48792646256">+48 792 646 256</a>, e-mail <a href="mailto:royalbeauty.studiourody@gmail.com">royalbeauty.studiourody@gmail.com</a>.</li>
+  <li>Klientem jest każda osoba, która umawia wizytę. Wizyty odbywają się wyłącznie po wcześniejszym umówieniu, codziennie w godzinach 9:00–21:00.</li>
+</ol>
+
+<h2 id="rezerwacja">§ 2. Rezerwacja wizyty</h2>
+<ol>
+  <li>Wizytę można umówić przez formularz na stronie, telefonicznie, osobiście w salonie albo przez Booksy (wtedy obowiązuje też regulamin Booksy).</li>
+  <li>Wysłanie formularza na stronie to prośba o rezerwację. Od razu dostajesz e-mail, że ją otrzymaliśmy. Wizyta jest umówiona, gdy salon ją potwierdzi: wysyłamy wtedy drugi e-mail. Jeśli wybrany termin okaże się niedostępny, skontaktujemy się z Tobą i zaproponujemy inny.</li>
+  <li>Przy rezerwacji podaj prawdziwe imię i nazwisko oraz numer telefonu, pod którym można się z Tobą skontaktować. Przy rezerwacji przez stronę potrzebny jest też adres e-mail.</li>
+  <li>Rezerwacja jest bezpłatna. Salon nie pobiera zadatków.</li>
+  <li>Zabiegi depilacji laserowej można umówić tylko w dni, w których salon ma do dyspozycji laser. Te dni są widoczne w formularzu rezerwacji.</li>
+</ol>
+
+<h2 id="ceny">§ 3. Ceny i płatność</h2>
+<ol>
+  <li>Aktualne ceny są w <a href="{% url 'home' %}#cennik">cenniku na stronie</a> i podane w złotych. Cena zabiegu to cena, którą płacisz.</li>
+  <li>Przy zabiegach z ceną „od” ostateczną cenę ustalamy z Tobą przed rozpoczęciem zabiegu.</li>
+  <li>Za zabieg płacisz w salonie po jego wykonaniu, gotówką lub BLIK-iem.</li>
+</ol>
+
+<h2 id="odwolanie">§ 4. Odwołanie i zmiana terminu</h2>
+<ol>
+  <li>Wizytę możesz odwołać bezpłatnie. Prosimy o to najpóźniej 24 godziny przed wizytą, żeby termin mógł zająć ktoś inny.</li>
+  <li>Wizytę umówioną przez stronę odwołasz linkiem z e-maila z potwierdzeniem. Każdą wizytę możesz też odwołać telefonicznie.</li>
+  <li>Żeby przełożyć wizytę, zadzwoń do salonu: razem znajdziemy nowy termin.</li>
+  <li>Z ważnych przyczyn, np. choroby lub awarii sprzętu, salon może odwołać lub przełożyć wizytę. Poinformujemy Cię o tym jak najszybciej i zaproponujemy inny termin.</li>
+  <li>Jeśli ktoś kilka razy nie przyszedł na wizytę bez odwołania, salon może poprosić o telefoniczne potwierdzenie kolejnych rezerwacji.</li>
+</ol>
+
+<h2 id="spoznienia">§ 5. Spóźnienia</h2>
+<ol>
+  <li>Prosimy o przybycie punktualnie. Po wizycie przyjmujemy kolejne osoby, więc nie możemy jej przedłużyć.</li>
+  <li>Przy spóźnieniu do 15 minut zabieg może zostać skrócony o czas spóźnienia. Cena zabiegu się nie zmienia.</li>
+  <li>Przy spóźnieniu powyżej 15 minut salon może odwołać wizytę.</li>
+</ol>
+
+<h2 id="zabieg">§ 6. Przeciwwskazania i przebieg zabiegu</h2>
+<ol>
+  <li>Przed zabiegiem poinformuj nas o stanie zdrowia, który może mieć znaczenie dla zabiegu: alergiach, ciąży, przyjmowanych lekach, chorobach skóry i innych przeciwwskazaniach. Przy niektórych zabiegach, np. depilacji laserowej, prosimy o wypełnienie krótkiej ankiety w salonie.</li>
+  <li>Salon może odmówić wykonania zabiegu lub go przerwać, jeśli są przeciwwskazania albo wykonanie zabiegu mogłoby zaszkodzić Twojemu zdrowiu. W takim przypadku płacisz tylko za wykonaną część zabiegu.</li>
+  <li>Osoby niepełnoletnie korzystają z zabiegów wyłącznie za zgodą rodzica lub opiekuna prawnego.</li>
+  <li>Po zabiegu przekażemy Ci zalecenia pielęgnacyjne. Ich przestrzeganie ma wpływ na efekt i jego trwałość.</li>
+</ol>
+
+<h2 id="reklamacje">§ 7. Reklamacje</h2>
+<ol>
+  <li>Jeśli efekt zabiegu Cię nie satysfakcjonuje, zgłoś to telefonicznie, e-mailem lub w salonie. Najlepiej zrób to jak najszybciej, np. w ciągu 7 dni, bo wtedy łatwiej ocenić przyczynę i ją poprawić.</li>
+  <li>Odpowiemy na reklamację w ciągu 14 dni od jej otrzymania. Jeśli zostanie uznana, w miarę możliwości bezpłatnie poprawimy zabieg w uzgodnionym terminie albo zwrócimy część lub całość ceny.</li>
+  <li>Reklamacja nie obejmuje efektów wynikających z nieprzestrzegania zaleceń pielęgnacyjnych, naturalnego zużycia (np. wypadania rzęs w naturalnym cyklu) ani zatajenia przeciwwskazań.</li>
+  <li>Regulamin nie ogranicza praw, które przysługują Ci jako konsumentowi na podstawie przepisów prawa. W razie sporu możesz zwrócić się o pomoc do miejskiego rzecznika konsumentów albo do Wojewódzkiego Inspektoratu Inspekcji Handlowej we Wrocławiu.</li>
+</ol>
+
+<h2 id="dane">§ 8. Dane osobowe</h2>
+<p>Zasady przetwarzania danych osobowych opisuje <a href="{% url 'privacy' %}">polityka prywatności</a>.</p>
+
+<h2 id="zmiany">§ 9. Zmiany regulaminu</h2>
+<ol>
+  <li>Salon może zmienić regulamin, np. wprowadzając zadatki. Nową wersję opublikujemy na tej stronie z datą, od której obowiązuje.</li>
+  <li>Do wizyt umówionych przed zmianą stosujemy regulamin w wersji z dnia rezerwacji.</li>
+</ol>
+{% endblock %}

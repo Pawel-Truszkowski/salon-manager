@@ -471,7 +471,7 @@ class ClientForm(forms.ModelForm):
         labels = {'name': 'Imię i nazwisko', 'phone': 'Telefon', 'email': 'E-mail', 'notes': 'Notatki'}
         help_texts = {
             'phone': 'Po numerze telefonu rezerwacje ze strony same trafiają do tej karty.',
-            'notes': 'Widzi je tylko salon, np. alergie, ulubiony skręt rzęs.',
+            'notes': 'Widzi je tylko salon, np. ulubiony skręt rzęs. Bez informacji o zdrowiu (alergie, choroby, ciąża): te tylko w ankiecie podpisanej w salonie.',
         }
         widgets = {'notes': forms.Textarea(attrs={'rows': 4}), 'phone': forms.TextInput(attrs={'type': 'tel'})}
 

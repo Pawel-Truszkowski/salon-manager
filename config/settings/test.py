@@ -14,6 +14,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
+    'django.contrib.sitemaps',
     'rest_framework',
     'apps.api.apps.ApiConfig',
     'apps.bookings.apps.BookingsConfig',
