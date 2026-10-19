@@ -574,6 +574,10 @@ body {
   line-height: 1.6;
   margin: 1.5rem 0;
 }
+.rb-floor {
+  margin: -0.75rem 0 1.5rem;
+  color: #6b5a45;
+}
 .rb-nap a {
   color: inherit;
   text-decoration: none;
@@ -657,6 +661,29 @@ body {
 }
 .rb-menu-group + .rb-menu-group {
   margin-top: 4rem;
+}
+/* Tabs (script.js): one category at a time; the selected one is marked like a bookmark in the card */
+.rb-menu-tabbed .rb-menu-group + .rb-menu-group {
+  margin-top: 0;
+}
+.rb-menu-tabbed .rb-menu-index ol {
+  position: relative; /* offsetLeft of the tabs is measured from the strip (script.js) */
+}
+.rb-menu-tabbed .rb-menu-index a {
+  position: relative;
+  padding-left: 1rem;
+}
+.rb-menu-tabbed .rb-menu-index a[aria-selected="true"]::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.9rem;
+  bottom: 0.9rem;
+  width: 2px;
+  background: var(--rb-gold);
+}
+.rb-menu-tabbed .rb-menu-index a[aria-selected="true"] .rb-menu-index-name {
+  color: var(--rb-gold-ink);
 }
 .rb-menu-group-title {
   font-family: var(--ff-display);
@@ -803,6 +830,19 @@ body {
   }
   .rb-menu-index-meta {
     display: none;
+  }
+  .rb-menu-tabbed .rb-menu-index a {
+    padding-left: 0.9rem;
+  }
+  .rb-menu-tabbed .rb-menu-index a[aria-selected="true"] {
+    background: var(--rb-dark);
+    border-color: var(--rb-dark);
+  }
+  .rb-menu-tabbed .rb-menu-index a[aria-selected="true"]::before {
+    display: none;
+  }
+  .rb-menu-tabbed .rb-menu-index a[aria-selected="true"] .rb-menu-index-name {
+    color: var(--rb-bg-white);
   }
 }
 @media (max-width: 575.98px) {

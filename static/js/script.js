@@ -3,8 +3,79 @@
 // the cancel-booking page pointing at "/#cennik") just navigate.
 var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
+// Price list tabs: one category at a time instead of the whole list to scroll through.
+// Without JS all categories stay visible, one under another, with the index as anchor links;
+// the hidden ones stay in the HTML, so search engines still read the whole price list.
+(function () {
+  var menu = document.getElementById("cennik");
+  var tabs = menu ? Array.prototype.slice.call(menu.querySelectorAll(".rb-menu-index a")) : [];
+  if (!tabs.length) return;
+  var list = tabs[0].closest("ol");
+  var panels = tabs.map(function (tab) {
+    return document.getElementById(tab.hash.slice(1));
+  });
+
+  menu.classList.add("rb-menu-tabbed");
+  list.setAttribute("role", "tablist");
+  list.setAttribute("aria-label", "Kategorie cennika");
+  tabs.forEach(function (tab, i) {
+    tab.parentElement.setAttribute("role", "presentation");
+    tab.setAttribute("role", "tab");
+    tab.setAttribute("aria-controls", panels[i].id);
+    tab.id = panels[i].id + "-tab";
+    panels[i].setAttribute("role", "tabpanel");
+    panels[i].setAttribute("aria-labelledby", tab.id);
+  });
+
+  // `byUser`: a click or a key; on page load nothing may scroll
+  function select(index, byUser) {
+    tabs.forEach(function (tab, i) {
+      var active = i === index;
+      tab.setAttribute("aria-selected", active ? "true" : "false");
+      tab.tabIndex = active ? 0 : -1;
+      panels[i].hidden = !active;
+    });
+    // Phones: the categories are a sideways-scrolling strip; bring the chosen one into it (sideways only)
+    var tab = tabs[index];
+    if (tab.offsetLeft < list.scrollLeft || tab.offsetLeft + tab.offsetWidth > list.scrollLeft + list.clientWidth) {
+      list.scrollLeft = tab.offsetLeft - 16;
+    }
+    if (!byUser) return;
+    // Switching from deep inside a long category: back up to the strip so the new one starts in view
+    if (list.getBoundingClientRect().top < 0) list.scrollIntoView({ block: "start" });
+  }
+
+  tabs.forEach(function (tab, i) {
+    tab.addEventListener("click", function (e) {
+      e.preventDefault();
+      select(i, true);
+      history.replaceState(null, "", tab.hash);
+    });
+    tab.addEventListener("keydown", function (e) {
+      var keys = { ArrowRight: i + 1, ArrowDown: i + 1, ArrowLeft: i - 1, ArrowUp: i - 1, Home: 0, End: tabs.length - 1 };
+      if (!(e.key in keys)) return;
+      e.preventDefault();
+      var next = (keys[e.key] + tabs.length) % tabs.length;
+      select(next, true);
+      tabs[next].focus({ preventScroll: true }); // a click focuses the link by itself
+    });
+  });
+
+  // A link straight to a category ("/#depilacja-laserowa") opens its tab
+  function fromHash() {
+    return panels.findIndex(function (panel) {
+      return "#" + panel.id === location.hash;
+    });
+  }
+  select(Math.max(fromHash(), 0), false);
+  window.addEventListener("hashchange", function () {
+    if (fromHash() >= 0) select(fromHash(), false);
+  });
+})();
+
 document.querySelectorAll("a[href]").forEach(function (a) {
   if (a.origin !== location.origin || a.pathname !== location.pathname) return;
+  if (a.getAttribute("role") === "tab") return; // price list tabs switch, they don't scroll
   a.addEventListener("click", function (e) {
     var target = a.hash ? document.querySelector(a.hash) : document.body;
     if (!target) return;

@@ -50,7 +50,7 @@
                         <div class="small text-muted" title="{{ service.description }}">{{ service.description|truncatechars:90 }}</div>
                       {% endif %}
                     </td>
-                    <td class="text-nowrap">{{ service.price }} zł</td>
+                    <td class="text-nowrap">{{ service.price_label }}</td>
                     <td class="text-nowrap">{{ service.duration }} min</td>
                     <td class="text-end text-nowrap">
                       <a href="{% url 'panel:service_update' service.pk %}" class="btn btn-sm btn-outline-secondary" aria-label="Edytuj: {{ service }}"><i class="bi bi-pencil"></i></a>

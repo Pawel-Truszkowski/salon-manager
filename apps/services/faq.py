@@ -135,6 +135,11 @@ def build_faq(services, rentals=None):
             f'Możesz też zadzwonić: {PHONES}.',
         ),
         (
+            'Gdzie dokładnie jest salon?',
+            'Przy ul. Małopanewskiej 24B/5 we Wrocławiu (54-212, Fabryczna). '
+            'Salon jest na 1. piętrze, w budynku jest winda.',
+        ),
+        (
             'Jak odwołać lub przełożyć wizytę?',
             'W e-mailu z potwierdzeniem rezerwacji jest link do odwołania wizyty. Wystarczy go kliknąć '
             'i potwierdzić. Jeśli chcesz przełożyć termin, zadzwoń do salonu, a razem znajdziemy nowy.',

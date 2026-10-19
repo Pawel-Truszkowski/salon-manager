@@ -356,12 +356,13 @@ class ServiceForm(forms.ModelForm):
 
     class Meta:
         model = Service
-        fields = ['category', 'name', 'description', 'price', 'duration', 'required_equipment']
+        fields = ['category', 'name', 'description', 'price', 'price_is_from', 'duration', 'required_equipment']
         labels = {
             'category': 'Kategoria',
             'name': 'Nazwa',
             'description': 'Opis',
             'price': 'Cena (zł)',
+            'price_is_from': 'Cena „od”',
             'duration': 'Czas trwania (min)',
             'required_equipment': 'Wymaga urządzenia',
         }
@@ -369,6 +370,7 @@ class ServiceForm(forms.ModelForm):
             'required_equipment': 'Wtedy usługę można zarezerwować tylko w dni, w które urządzenie jest w salonie '
             '(Urządzenia → terminy).',
             'description': 'Widoczny na stronie w zakładce usług.',
+            'price_is_from': 'Na stronie pokaże się „od 170 zł”: ostateczna cena zależy np. od obszaru zabiegu.',
             'price': 'Zmiana dotyczy też już zapisanych wizyt (szczegóły wizyty pokazują aktualną cenę).',
             'duration': 'Zmiana dotyczy też już zapisanych wizyt: zmieni się ich długość w kalendarzu i dostępność.',
         }
