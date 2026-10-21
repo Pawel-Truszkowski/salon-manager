@@ -108,10 +108,11 @@ Produkcja (`main` = 50421fc) przeskakuje naraz o ~40 commitów i 15 migracji, w 
 - [ ] **Przypomnienie o wizycie** (mail ok. 24 h przed): komenda `send_reminders` (`apps/bookings/reminders.py`) co godzinę z crona. Reguły: tylko wizyty potwierdzone, z e-mailem, w ciągu najbliższych 24 h, zarezerwowane co najmniej 24 h przed terminem; raz na wizytę (`Appointment.reminder_sent_at`, zerowane przy zmianie terminu); nieudana wysyłka = ponowna próba za godzinę. Paulina musi potwierdzać wizyty ze strony na czas, bo oczekujące nie dostają przypomnienia.
 - [ ] Na stagingu pełna ścieżka: rezerwacja ze strony → mail → link „odwołaj” → mail; panel: potwierdzenie, przeniesienie w kalendarzu, laser tylko w dni wynajmu.
 
-**6b. Próba generalna migracji (lokalnie, na kopii produkcji)**
-- [ ] Na Droplecie `./scripts/backup_db.sh --env prod`, plik `scp` na swój komputer.
-- [ ] Wczytać dump do lokalnej bazy Dockera (osobnej, nie do stagingu), `migrate` na kodzie z `dev`.
-- [ ] Sprawdzić: 0 błędów migracji, w panelu cennik = 64 pozycje z opisami, kategorie w zakładkach, „Klientki” (pewnie puste — nikt nie rezerwował), zabiegi laserowe przypisane do Pauliny.
+**6b. Próba generalna migracji (lokalnie, na kopii produkcji)** ✅ 2026-10-21, kopia `salon_prod_20261021_082201`
+- [x] Wszystkie 16 migracji OK. Cennik: 64 → 73 usługi (12 laserowych, 3 usunięte), wszystkie z opisami, 5 kategorii w kolejności; grupa „Właściciel” jest; `send_reminders` → 0.
+- [x] Na produkcji są 3 wizyty testowe z 9.07.2026 (Paulina, manicure męski, 2 potwierdzone + 1 oczekująca, wszystkie w przeszłości) → 1 karta klientki. Nic nie blokują.
+- [x] **Wykryte:** 14 zabiegów na twarz (cała kategoria „Zabiegi kosmetyczne”, w tym bezpłatna konsultacja) ma przypisaną tylko Marikę → patrz 6d.
+- [x] **Wykryte:** konto `paula` (Paulina) już istnieje: `is_staff` + 44 uprawnienia do `/admin/`, bez grupy, niepowiązane z `Employee` → patrz 6d.
 
 **6c. Deploy**
 - [ ] Na Droplecie: czy `.env.prod` ma `SITE_URL=https://royalbeauty-studiourody.pl` (linki w mailach) i czy w katalogu projektu **nie ma** `.env` z `NGINX_CONF` (na produkcji ma być domyślny `prod.conf`).
@@ -122,9 +123,10 @@ Produkcja (`main` = 50421fc) przeskakuje naraz o ~40 commitów i 15 migracji, w 
 - [ ] **Rollback**, jeśli strona nie wstaje albo migracja się wywali: `git checkout 50421fc`, odtworzenie bazy z kopii z tego dnia, `up -d --build`.
 
 **6d. Dane zaraz po deployu (zanim ktoś zarezerwuje)**
+- [ ] **Najpierw** Panel → Zespół → Paulina → Usługi: dodać 14 zabiegów na twarz, które dziś ma tylko Marika (inaczej po jej wyłączeniu zniknie z formularza cała kategoria, łącznie z bezpłatną konsultacją). Sprawdzenie: w formularzu rezerwacji „Bezpłatna konsultacja” pokazuje terminy.
 - [ ] Panel → Zespół: Marika i Wiola → nieaktywne (`0013_catalog` przypisało im zabiegi laserowe, po wyłączeniu nie da się ich zarezerwować). Sprawdzenie: `/api/employees/` zwraca tylko Paulinę.
 - [ ] Bio Pauliny: „paznocki” → „paznokci”.
-- [ ] Konto Pauliny: zaproszenie z panelu (Zespół → zaproś), potem w `/admin/` dodać ją do grupy „Właściciel” (panel nie ma przycisku do nadania roli).
+- [ ] Konto Pauliny: istniejące `paula` zamiast zaproszenia. W `/admin/`: `Employee` Paulina → `user = paula`; `paula` → grupa „Właściciel”, odznaczyć `is_staff`, usunąć 44 uprawnienia (właścicielka pracuje w `/panel/`, nie w `/admin/`). Sprawdzenie: Paulina loguje się na `/panel/login/` i widzi „Zespół”, „Usługi”, kalendarz.
 - [ ] Paulina: szablon tygodnia + generowanie grafiku (bez tego formularz nie pokazuje terminów), terminy lasera w „Urządzenia”: 8–9.11 i 14–15.12.
 - [ ] Rezerwacja testowa na produkcji na własny e-mail → odwołanie linkiem z maila (sprawdza Resend, `SITE_URL`, `SALON_EMAIL`).
 - [ ] Cron z `backup_db.sh` na Droplecie dalej działa (`crontab -l`, data najnowszego pliku w `backups/`).
