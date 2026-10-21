@@ -401,6 +401,11 @@ body {
   border: 1px solid var(--rb-border);
   background: var(--rb-bg);
 }
+.rb-portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 .rb-portrait span {
   font-family: var(--ff-display);
   font-size: 2.5rem;

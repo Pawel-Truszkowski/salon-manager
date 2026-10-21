@@ -481,12 +481,14 @@ class TestSalonTruth:
         assert '<h4 class="rb-person-name">Anna</h4>' in html
         assert 'Doświadczona stylistka.' in html
         assert '<p class="rb-person-skills">Zabiegi kosmetyczne</p>' in html  # from the employee's services
+        assert 'img/paulina.webp' in html
         assert 'id="bookingEmployee"' not in html
 
     def test_two_employees_team_with_specialist_picker(self, client, employee, other_employee):
         html = home_html(client)
         assert 'Nasz zespół' in html
         assert html.count('class="rb-person"') == 2
+        assert 'img/paulina.webp' not in html  # initials until each person has a photo
         assert 'id="bookingEmployee"' in html
 
     def test_inactive_employee_is_not_shown(self, client, employee, other_employee):

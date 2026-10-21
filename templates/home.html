@@ -51,7 +51,12 @@
           <ul class="rb-team">
             {% for employee in employees %}
               <li class="rb-person">
-                <div class="rb-arch rb-portrait" aria-hidden="true"><span>{{ employee.first_name|first }}</span></div>
+                {% if employees|length == 1 %}
+                  {# The only stylist today is the owner; the photo is hers, not tied to whoever is listed #}
+                  <div class="rb-arch rb-portrait"><img src="{% static 'img/paulina.webp' %}" alt="Paulina, magister kosmetologii, właścicielka Royal Beauty" width="480" height="640" loading="lazy" /></div>
+                {% else %}
+                  <div class="rb-arch rb-portrait" aria-hidden="true"><span>{{ employee.first_name|first }}</span></div>
+                {% endif %}
                 <div>
                   <h4 class="rb-person-name">{{ employee.first_name }}</h4>
                   {% if employee.bio %}<p class="rb-person-bio">{{ employee.bio }}</p>{% endif %}

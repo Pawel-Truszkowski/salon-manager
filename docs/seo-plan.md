@@ -19,7 +19,7 @@ Na podstawie pełnego audytu produkcji (`royalbeauty-studiourody.pl`, 2026-10-16
 
 - [x] **Laser:** LightSheer DUET (Lumenis), https://lumenis.com/aesthetics/products/lightsheer-duet/. Partie ciała, ceny i czas: z wizytówki Google (etap 5).
   - [ ] Jeszcze brakuje: przeciwwskazań i zalecanego odstępu między zabiegami.
-- [ ] Zdjęcie portretowe 3:4 do profilu.
+- [x] Zdjęcie portretowe 3:4 do profilu (`static/img/profilowe.jpg`, 2026-10-20).
 - [x] **Doświadczenie:** około 10 lat w zawodzie, salon prowadzi od 3 lat (od 2023). Wcześniej pracowała w innym salonie i przyjmowała klientki w domu. **„2000+ klientek” jest zmyślone i znika** (etap 3), razem z „3 ekspertów” i „20+ usług premium”. Na stronie: „ponad 10 lat doświadczenia, własny salon od 2023 roku”. Paulina potwierdza dokładny rok.
 - [x] **Nazwa:** pełna to „Royal Beauty Studio Urody” (schema `name`, nagłówek strony od etapu 2, stopka, wizytówka Google), skrócona to „Royal Beauty” (title, `alternateName`).
 - [x] **Link do wystawienia opinii:** https://g.page/r/CWOM8YrRCi7eEBM/review, do przycisku „Wystaw opinię” w etapie 3.
@@ -99,14 +99,39 @@ Termin docelowy: przed 8 listopada. Jeśli nie zdążymy, laser na pierwszy term
 - [ ] Umowa powierzenia przetwarzania danych między Pauliną a osobą utrzymującą stronę (dostęp do bazy przez `/admin/` i serwer).
 
 ### 6. Publikacja na produkcji
-- [ ] Merge `dev` → `main`, ręczny deploy na Droplet (jak dotąd), sprawdzenie na stagingu przed deployem.
-- [ ] Po deployu przeładować nginx (`docker compose -f docker-compose.prod.yml exec nginx nginx -s reload`): `prod.conf` jest montowany jako plik, więc `up -d --build` go nie podchwyci. Sprawdzenie: `curl -sI https://www.royalbeauty-studiourody.pl/` → `301` na domenę bez www.
-- [ ] Zaraz po deployu na produkcji: etap 0 (Marika, Wiola → `is_active = False`, bio Pauliny). Produkcja przeskoczy z migracji 0003 na 0013 naraz; `0013_catalog` przypisze zabiegi laserowe wszystkim aktywnym, czyli też Marice i Wioli, ale po wyłączeniu nie są one do zarezerwowania.
-- [ ] Konto właścicielki dla Pauliny (grupa „Właściciel”), jeśli jeszcze go nie ma.
-- [ ] Paulina ustawia w panelu szablon tygodnia i generuje grafik (dziś na produkcji nikt nie ma grafiku, więc formularz nie pokazuje żadnych terminów, a „najbliższy wolny termin” pokazałby „zadzwoń”). Do tego terminy lasera w „Urządzenia”: 8–9.11 i 14–15.12 (jak na Booksy).
-- [ ] `robots.txt` z `Disallow: /panel/` trafi na produkcję razem z panelem.
+Produkcja (`main` = 50421fc) przeskakuje naraz o ~40 commitów i 15 migracji, w tym trzy migracje danych (`accounts.0002` grupa, `bookings.0005` import klientek, `services.0013` cennik). Migracje danych nie mają cofania, więc **jedynym rollbackiem jest kopia bazy**.
+
+**6a. Ostatni PR na `dev` (przed deployem)**
+- [x] Zdjęcie Pauliny (`static/img/paulina.webp`, 480×640) w profilu, gdy jest jedna aktywna osoba; przy kilku zostają inicjały. Docelowo `Employee.photo` wgrywane w panelu, gdy salon kogoś zatrudni.
+- [x] Data „Obowiązuje od” w `templates/legal/_page.html` = 21 października 2026 (dzień deployu).
+- [x] Paulina przeczytała politykę prywatności i regulamin (2026-10-21).
+- [ ] Na stagingu pełna ścieżka: rezerwacja ze strony → mail → link „odwołaj” → mail; panel: potwierdzenie, przeniesienie w kalendarzu, laser tylko w dni wynajmu.
+
+**6b. Próba generalna migracji (lokalnie, na kopii produkcji)**
+- [ ] Na Droplecie `./scripts/backup_db.sh --env prod`, plik `scp` na swój komputer.
+- [ ] Wczytać dump do lokalnej bazy Dockera (osobnej, nie do stagingu), `migrate` na kodzie z `dev`.
+- [ ] Sprawdzić: 0 błędów migracji, w panelu cennik = 64 pozycje z opisami, kategorie w zakładkach, „Klientki” (pewnie puste — nikt nie rezerwował), zabiegi laserowe przypisane do Pauliny.
+
+**6c. Deploy**
+- [ ] Na Droplecie: czy `.env.prod` ma `SITE_URL=https://royalbeauty-studiourody.pl` (linki w mailach) i czy w katalogu projektu **nie ma** `.env` z `NGINX_CONF` (na produkcji ma być domyślny `prod.conf`).
+- [ ] Świeża kopia bazy tuż przed deployem (`backup_db.sh --env prod`) + kopia poza serwerem.
+- [ ] PR `dev` → `main` (CI: ruff + testy), merge.
+- [ ] SSH: `git pull origin main`, `docker compose -f docker-compose.prod.yml up -d --build`, `docker compose … logs web | head -80` (migracje OK, gunicorn wstał). Wszystkie kontenery zostaną odtworzone (nowe `logging:`), więc nginx też wczyta nowy `prod.conf`; gdyby nie: `exec nginx nginx -s reload`.
+- [ ] Smoke test: `curl -sI https://www.royalbeauty-studiourody.pl/` i `http://…` → `301` na `https://royalbeauty-studiourody.pl/`; `/robots.txt` ma `Disallow: /panel/`; `/sitemap.xml` ma strony prawne; `/polityka-prywatnosci/`, `/regulamin/`, `/panel/login/` → 200.
+- [ ] **Rollback**, jeśli strona nie wstaje albo migracja się wywali: `git checkout 50421fc`, odtworzenie bazy z kopii z tego dnia, `up -d --build`.
+
+**6d. Dane zaraz po deployu (zanim ktoś zarezerwuje)**
+- [ ] Panel → Zespół: Marika i Wiola → nieaktywne (`0013_catalog` przypisało im zabiegi laserowe, po wyłączeniu nie da się ich zarezerwować). Sprawdzenie: `/api/employees/` zwraca tylko Paulinę.
+- [ ] Bio Pauliny: „paznocki” → „paznokci”.
+- [ ] Konto Pauliny: zaproszenie z panelu (Zespół → zaproś), potem w `/admin/` dodać ją do grupy „Właściciel” (panel nie ma przycisku do nadania roli).
+- [ ] Paulina: szablon tygodnia + generowanie grafiku (bez tego formularz nie pokazuje terminów), terminy lasera w „Urządzenia”: 8–9.11 i 14–15.12.
+- [ ] Rezerwacja testowa na produkcji na własny e-mail → odwołanie linkiem z maila (sprawdza Resend, `SITE_URL`, `SALON_EMAIL`).
+- [ ] Cron z `backup_db.sh` na Droplecie dalej działa (`crontab -l`, data najnowszego pliku w `backups/`).
+
+**6e. Po publikacji**
 - [ ] Wizytówka Google: godziny pn–nd 9–21 i opis „wyłącznie po wcześniejszym umówieniu”, link do strony, link do rezerwacji.
-- [ ] Google Search Console: zgłoszenie sitemapy, sprawdzenie, czy strona główna jest zaindeksowana na nowo.
+- [ ] Google Search Console: zgłoszenie sitemapy, „Sprawdź URL” strony głównej → prośba o zaindeksowanie.
+- [ ] Rich Results Test: `BeautySalon` + `FAQPage` bez błędów.
 
 ### 7. Podstrony kategorii (SEO long-tail)
 - [ ] `/uslugi/<slug>/` dla każdej kategorii, zaczynając od **depilacji laserowej** (najmocniejsza fraza): własny `title`, H1 „Depilacja laserowa we Wrocławiu”, opis urządzenia, terminy, tabela cen, FAQ kategorii, CTA.
