@@ -1,0 +1,597 @@
+{
+ "removed": [
+  "Laminacja brwi + farbka",
+  "Laminacja rzęs",
+  "Laminacja rzęs i brwi plus farbka"
+ ],
+ "categories": [
+  {
+   "slug": "rzesy-i-brwi",
+   "name": "Rzęsy i brwi"
+  },
+  {
+   "slug": "dlonie-i-stopy",
+   "name": "Dłonie i stopy"
+  },
+  {
+   "slug": "zabiegi-kosmetyczne",
+   "name": "Zabiegi kosmetyczne"
+  },
+  {
+   "slug": "depilacja-woskiem",
+   "name": "Depilacja woskiem"
+  },
+  {
+   "slug": "depilacja-laserowa",
+   "name": "Depilacja laserowa"
+  }
+ ],
+ "services": [
+  {
+   "name": "Henna brwi",
+   "category": "rzesy-i-brwi",
+   "description": "Henna brwi – koloryzacja, która podkreśla kształt brwi i optycznie je zagęszcza. Efekt pomalowanych brwi bez codziennego makijażu.",
+   "price": "30.00",
+   "duration": 20
+  },
+  {
+   "name": "Henna brwi i rzęs z regulacją",
+   "category": "rzesy-i-brwi",
+   "description": "Henna brwi i rzęs połączona z regulacją kształtu brwi. Podkreśla kolor i nadaje wyrazistą oprawę oka bez codziennego makijażu.\nZabieg obejmuje:\n- regulację brwi (wosk lub pęseta)\n- dobór koloru i hennę brwi\n- hennę rzęs",
+   "price": "60.00",
+   "duration": 30
+  },
+  {
+   "name": "Henna brwi z regulacją",
+   "category": "rzesy-i-brwi",
+   "description": "Henna brwi połączona z regulacją kształtu (wosk lub pęseta). Uporządkowane, wyraziste brwi dopasowane do rysów twarzy.",
+   "price": "50.00",
+   "duration": 30
+  },
+  {
+   "name": "Henna rzęs",
+   "category": "rzesy-i-brwi",
+   "description": "Henna rzęs – przyciemnienie naturalnych rzęs, które optycznie je wydłuża i zagęszcza. Efekt pomalowanych rzęs bez tuszu.",
+   "price": "30.00",
+   "duration": 30
+  },
+  {
+   "name": "Przedłużanie rzęs 1:1",
+   "category": "rzesy-i-brwi",
+   "description": "Klasyczne przedłużanie rzęs metodą 1:1 – jedna sztuczna rzęsa doklejana do każdej naturalnej rzęsy. Naturalny efekt wydłużenia i podkreślenia oka. Skręt i długość dobieramy do kształtu oka.",
+   "price": "150.00",
+   "duration": 105
+  },
+  {
+   "name": "Przedłużanie rzęs 2:1",
+   "category": "rzesy-i-brwi",
+   "description": "Przedłużanie rzęs metodą 2:1 – kępki z 2 cienkich rzęs na każdą naturalną rzęsę. Delikatnie zagęszczony, a wciąż naturalny efekt.",
+   "price": "170.00",
+   "duration": 120
+  },
+  {
+   "name": "Przedłużanie rzęs 3:1",
+   "category": "rzesy-i-brwi",
+   "description": "Przedłużanie rzęs metodą objętościową 3:1 – lekkie kępki z 3 cienkich rzęs na każdą naturalną rzęsę. Efekt gęstego, wyrazistego spojrzenia.",
+   "price": "180.00",
+   "duration": 120
+  },
+  {
+   "name": "Przedłużanie rzęs 4:1",
+   "category": "rzesy-i-brwi",
+   "description": "Przedłużanie rzęs metodą objętościową 4:1 – kępki z 4 ultracienkich rzęs. Mocniejsza objętość przy zachowaniu lekkości.",
+   "price": "190.00",
+   "duration": 120
+  },
+  {
+   "name": "Przedłużanie rzęs 5/6:1",
+   "category": "rzesy-i-brwi",
+   "description": "Przedłużanie rzęs metodą objętościową 5/6:1 – kępki z 5–6 ultracienkich rzęs. Maksymalna gęstość i efektowny, glamour look.",
+   "price": "210.00",
+   "duration": 135
+  },
+  {
+   "name": "Regulacja brwi (wosk lub pęseta)",
+   "category": "rzesy-i-brwi",
+   "description": "Regulacja brwi woskiem lub pęsetą – nadanie brwiom kształtu dopasowanego do rysów twarzy i usunięcie zbędnych włosków.",
+   "price": "20.00",
+   "duration": 15
+  },
+  {
+   "name": "Uzupełnianie rzęs 1:1",
+   "category": "rzesy-i-brwi",
+   "description": "Uzupełnienie stylizacji rzęs wykonanej metodą 1:1. Zalecane co 2–3 tygodnie, aby rzęsy zawsze wyglądały pełnie i świeżo.",
+   "price": "130.00",
+   "duration": 90
+  },
+  {
+   "name": "Uzupełnianie rzęs 2:1",
+   "category": "rzesy-i-brwi",
+   "description": "Uzupełnienie stylizacji rzęs wykonanej metodą 2:1. Zalecane co 2–3 tygodnie, aby rzęsy zawsze wyglądały pełnie i świeżo.",
+   "price": "150.00",
+   "duration": 105
+  },
+  {
+   "name": "Uzupełnianie rzęs 3:1",
+   "category": "rzesy-i-brwi",
+   "description": "Uzupełnienie stylizacji rzęs wykonanej metodą objętościową 3:1. Zalecane co 2–3 tygodnie, aby rzęsy zawsze wyglądały gęsto i świeżo.",
+   "price": "160.00",
+   "duration": 105
+  },
+  {
+   "name": "Uzupełnianie rzęs 4:1",
+   "category": "rzesy-i-brwi",
+   "description": "Uzupełnienie stylizacji rzęs wykonanej metodą objętościową 4:1. Zalecane co 2–3 tygodnie, aby rzęsy zawsze wyglądały gęsto i świeżo.",
+   "price": "170.00",
+   "duration": 105
+  },
+  {
+   "name": "Uzupełnianie rzęs 5/6:1",
+   "category": "rzesy-i-brwi",
+   "description": "Uzupełnienie stylizacji rzęs wykonanej metodą objętościową 5/6:1. Zalecane co 2–3 tygodnie, aby rzęsy zawsze wyglądały gęsto i świeżo.",
+   "price": "190.00",
+   "duration": 105
+  },
+  {
+   "name": "Manicure biologiczny z masłem Shea",
+   "category": "dlonie-i-stopy",
+   "description": "Manicure biologiczny przeznaczony jest dla osób ze zniszczoną płytką paznokcia. Rekomendowany po ściągnięciu stylizacji hybrydowej lub żelowej.\nZabieg obejmuje:\n- opracowanie, nadanie kształtu i długości płytce paznokcia\n- opracowanie skórek\n- opracowanie płytki za pomocą masła Shea",
+   "price": "100.00",
+   "duration": 80
+  },
+  {
+   "name": "Manicure hybrydowy",
+   "category": "dlonie-i-stopy",
+   "description": "Manicure hybrydowy obejmuje:\n- opracowanie, nadanie kształtu i długości paznokci\n- opracowanie i wycięcie skórek\n- stylizację hybrydową na płytce",
+   "price": "120.00",
+   "duration": 75
+  },
+  {
+   "name": "Manicure hybrydowy french / babyboomer",
+   "category": "dlonie-i-stopy",
+   "description": "Manicure hybrydowy french / babyboomer obejmuje:\n- opracowanie, nadanie kształtu i długości paznokci\n- opracowanie i wycięcie skórek\n- stylizację hybrydową na płytce z frenchem lub babyboomerem",
+   "price": "130.00",
+   "duration": 80,
+   "old_names": [
+    "Manicure hybrydowy french/ babyboomer"
+   ]
+  },
+  {
+   "name": "Manicure klasyczny",
+   "category": "dlonie-i-stopy",
+   "description": "Manicure klasyczny obejmuje:\n- opracowanie, nadanie kształtu i długości paznokci\n- opracowanie i wycięcie skórek\n- stylizację lakierem klasycznym",
+   "price": "100.00",
+   "duration": 70
+  },
+  {
+   "name": "Manicure męski",
+   "category": "dlonie-i-stopy",
+   "description": "Manicure męski obejmuje:\n- opracowanie, nadanie kształtu i długości paznokci\n- opracowanie i wycięcie skórek\n- odżywkę lub nawilżenie płytki masłem Shea",
+   "price": "70.00",
+   "duration": 45
+  },
+  {
+   "name": "Manicure naturalny",
+   "category": "dlonie-i-stopy",
+   "description": "Manicure naturalny obejmuje:\n- opracowanie, nadanie kształtu i długości paznokci\n- opracowanie i wycięcie skórek\n- odżywkę",
+   "price": "80.00",
+   "duration": 45
+  },
+  {
+   "name": "Naprawa paznokcia",
+   "category": "dlonie-i-stopy",
+   "description": "Naprawa złamanego lub pękniętego paznokcia, aby stylizacja znów wyglądała równo i estetycznie.",
+   "price": "10.00",
+   "duration": 30
+  },
+  {
+   "name": "Pedicure hybrydowy",
+   "category": "dlonie-i-stopy",
+   "description": "Pedicure hybrydowy obejmuje:\n- opracowanie, nadanie kształtu i długości paznokci\n- opracowanie skórek oraz podeszwy stopy\n- stylizację na płytce przy użyciu lakierów hybrydowych",
+   "price": "160.00",
+   "duration": 90
+  },
+  {
+   "name": "Pedicure hybrydowy + kwasy",
+   "category": "dlonie-i-stopy",
+   "description": "Pedicure hybrydowy + kwasy obejmuje:\n- opracowanie, nadanie kształtu i długości paznokci\n- opracowanie skórek oraz podeszwy stopy przy użyciu kwasów (callus)\n- stylizację na płytce przy użyciu lakierów hybrydowych",
+   "price": "190.00",
+   "duration": 90
+  },
+  {
+   "name": "Pedicure hybrydowy french",
+   "category": "dlonie-i-stopy",
+   "description": "Pedicure hybrydowy french obejmuje:\n- opracowanie, nadanie kształtu i długości paznokci\n- opracowanie skórek oraz podeszwy stopy\n- stylizację hybrydową na płytce ze zdobieniem french",
+   "price": "170.00",
+   "duration": 100
+  },
+  {
+   "name": "Pedicure klasyczny",
+   "category": "dlonie-i-stopy",
+   "description": "Pedicure klasyczny obejmuje:\n- opracowanie, nadanie kształtu i długości paznokci\n- opracowanie skórek oraz podeszwy stopy\n- stylizację na płytce przy użyciu lakierów klasycznych",
+   "price": "140.00",
+   "duration": 90
+  },
+  {
+   "name": "Pedicure klasyczny + kwasy",
+   "category": "dlonie-i-stopy",
+   "description": "Pedicure klasyczny + kwasy obejmuje:\n- opracowanie, nadanie kształtu i długości paznokci\n- opracowanie skórek oraz podeszwy stopy przy użyciu kwasów (callus)\n- stylizację na płytce przy użyciu lakierów klasycznych",
+   "price": "170.00",
+   "duration": 90
+  },
+  {
+   "name": "Pedicure naturalny",
+   "category": "dlonie-i-stopy",
+   "description": "Pedicure naturalny obejmuje:\n- opracowanie, nadanie kształtu i długości paznokci\n- opracowanie skórek oraz podeszwy stopy\n- bez stylizacji na paznokciach",
+   "price": "130.00",
+   "duration": 60
+  },
+  {
+   "name": "Pedicure naturalny + kwasy",
+   "category": "dlonie-i-stopy",
+   "description": "Pedicure naturalny + kwasy obejmuje:\n- opracowanie, nadanie kształtu i długości paznokci\n- opracowanie skórek oraz podeszwy stopy przy użyciu kwasów (callus)\n- bez stylizacji na paznokciach",
+   "price": "160.00",
+   "duration": 30
+  },
+  {
+   "name": "Pół-pedicure",
+   "category": "dlonie-i-stopy",
+   "description": "Pół-pedicure obejmuje:\n- opracowanie, nadanie kształtu i długości paznokci\n- opracowanie skórek\n- stylizację hybrydową lub lakierem klasycznym na płytce paznokcia\n(bez opracowania podeszwy stopy)",
+   "price": "110.00",
+   "duration": 60,
+   "old_names": [
+    "Pół- pedicure"
+   ]
+  },
+  {
+   "name": "Usunięcie hybrydy",
+   "category": "dlonie-i-stopy",
+   "description": "Usunięcie hybrydy obejmuje:\n- ściągnięcie masy żelowej lub hybrydowej z płytki paznokcia\n- wyrównanie kształtu paznokci pilnikiem",
+   "price": "40.00",
+   "duration": 30
+  },
+  {
+   "name": "Usunięcie hybrydy z zabezpieczeniem płytki",
+   "category": "dlonie-i-stopy",
+   "description": "Usunięcie hybrydy z zabezpieczeniem płytki obejmuje:\n- ściągnięcie masy hybrydowej lub żelowej z płytki paznokcia\n- opracowanie, nadanie kształtu i długości paznokci\n- opracowanie i wycięcie skórek\n- odżywkę",
+   "price": "90.00",
+   "duration": 45
+  },
+  {
+   "name": "Zdobienie",
+   "category": "dlonie-i-stopy",
+   "description": "Zdobienie paznokci jako dodatek do manicure lub pedicure – np. naklejki, cyrkonie, wzory lub efekty.",
+   "price": "10.00",
+   "duration": 15
+  },
+  {
+   "name": "Żel – uzupełnienie",
+   "category": "dlonie-i-stopy",
+   "description": "Żel – uzupełnienie obejmuje:\n- ściągnięcie starej masy żelowej\n- opracowanie, nadanie kształtu i długości paznokci\n- opracowanie i wycięcie skórek\n- nałożenie masy żelowej na płytkę paznokcia\n- opiłowanie i nadanie kształtu paznokciom żelowym\n- nałożenie lakieru hybrydowego",
+   "price": "150.00",
+   "duration": 105,
+   "old_names": [
+    "Żel - uzupełnienie"
+   ]
+  },
+  {
+   "name": "Żel – przedłużenie na formie",
+   "category": "dlonie-i-stopy",
+   "description": "Żel – przedłużenie na formie obejmuje:\n- opracowanie, nadanie kształtu i długości paznokci\n- opracowanie i wycięcie skórek\n- przedłużenie paznokci żelem na szablonie\n- opiłowanie i nadanie kształtu paznokciom żelowym\n- nałożenie lakieru hybrydowego",
+   "price": "190.00",
+   "duration": 120,
+   "old_names": [
+    "Żel przedłużenie na formie"
+   ]
+  },
+  {
+   "name": "Bezpłatna konsultacja z kosmetologiem",
+   "category": "zabiegi-kosmetyczne",
+   "description": "Bezpłatna konsultacja z kosmetologiem – ocena stanu skóry, omówienie potrzeb i dobór odpowiednich zabiegów oraz pielęgnacji domowej.",
+   "price": "0.00",
+   "duration": 30
+  },
+  {
+   "name": "Manualne oczyszczanie twarzy",
+   "category": "zabiegi-kosmetyczne",
+   "description": "Manualne oczyszczanie twarzy – usunięcie zaskórników i zanieczyszczeń z porów, z przygotowaniem i ukojeniem skóry. Polecane dla cery trądzikowej, tłustej i mieszanej.",
+   "price": "140.00",
+   "duration": 75
+  },
+  {
+   "name": "Mezoterapia mikroigłowa (twarz)",
+   "category": "zabiegi-kosmetyczne",
+   "description": "Mezoterapia mikroigłowa twarzy – mikronakłuwanie skóry z podaniem aktywnych koktajli. Pobudza produkcję kolagenu, poprawia jędrność, nawilżenie i koloryt skóry.",
+   "price": "300.00",
+   "duration": 60,
+   "old_names": [
+    "Mezoterapia mikroigłowa ( twarz)"
+   ]
+  },
+  {
+   "name": "Mezoterapia mikroigłowa (twarz, szyja)",
+   "category": "zabiegi-kosmetyczne",
+   "description": "Mezoterapia mikroigłowa twarzy i szyi – mikronakłuwanie skóry z podaniem aktywnych koktajli. Pobudza produkcję kolagenu, poprawia jędrność, nawilżenie i koloryt skóry.",
+   "price": "350.00",
+   "duration": 90,
+   "old_names": [
+    "Mezoterapia mikroigłowa ( twarz, szyja )"
+   ]
+  },
+  {
+   "name": "Mezoterapia mikroigłowa (twarz, szyja, dekolt)",
+   "category": "zabiegi-kosmetyczne",
+   "description": "Mezoterapia mikroigłowa twarzy, szyi i dekoltu – mikronakłuwanie skóry z podaniem aktywnych koktajli. Pobudza produkcję kolagenu, poprawia jędrność, nawilżenie i koloryt skóry.",
+   "price": "400.00",
+   "duration": 120,
+   "old_names": [
+    "Mezoterapia mikroigłowa (twarz, szyja , dekolt"
+   ]
+  },
+  {
+   "name": "Mikrodermabrazja diamentowa (twarz, szyja, dekolt)",
+   "category": "zabiegi-kosmetyczne",
+   "description": "Mikrodermabrazja diamentowa twarzy, szyi i dekoltu – mechaniczne złuszczanie martwego naskórka głowicą diamentową. Wygładza, wyrównuje koloryt i rozjaśnia skórę.",
+   "price": "230.00",
+   "duration": 90,
+   "old_names": [
+    "Mikrodermabrazja diamentowa ( twarz , szyja , dekolt )"
+   ]
+  },
+  {
+   "name": "Mikrodermabrazja diamentowa (twarz)",
+   "category": "zabiegi-kosmetyczne",
+   "description": "Mikrodermabrazja diamentowa twarzy – mechaniczne złuszczanie martwego naskórka głowicą diamentową. Wygładza, wyrównuje koloryt i rozjaśnia cerę.",
+   "price": "190.00",
+   "duration": 60,
+   "old_names": [
+    "Mikrodermabrazja diamentowa ( twarz)"
+   ]
+  },
+  {
+   "name": "Mikrodermabrazja diamentowa (twarz, szyja)",
+   "category": "zabiegi-kosmetyczne",
+   "description": "Mikrodermabrazja diamentowa twarzy i szyi – mechaniczne złuszczanie martwego naskórka głowicą diamentową. Wygładza, wyrównuje koloryt i rozjaśnia skórę.",
+   "price": "210.00",
+   "duration": 70,
+   "old_names": [
+    "Mikrodermabrazja diamentowa ( twarz, szyja)"
+   ]
+  },
+  {
+   "name": "Oczyszczanie pleców",
+   "category": "zabiegi-kosmetyczne",
+   "description": "Oczyszczanie skóry pleców – usunięcie zaskórników i niedoskonałości, wygładzenie i ukojenie skóry.",
+   "price": "150.00",
+   "duration": 75
+  },
+  {
+   "name": "Oczyszczanie wodorowe",
+   "category": "zabiegi-kosmetyczne",
+   "description": "Oczyszczanie wodorowe – głębokie, a zarazem delikatne oczyszczenie porów z jednoczesnym nawilżeniem skóry. Cera jest odświeżona, wygładzona i promienna.",
+   "price": "200.00",
+   "duration": 60
+  },
+  {
+   "name": "Oczyszczanie wodorowe + ultradźwięki",
+   "category": "zabiegi-kosmetyczne",
+   "description": "Oczyszczanie wodorowe połączone z dopasowanym do potrzeb skóry zabiegiem uzupełniającym z użyciem ultradźwięków, który wspomaga wnikanie składników aktywnych.",
+   "price": "300.00",
+   "duration": 90
+  },
+  {
+   "name": "Peeling kawitacyjny (twarz)",
+   "category": "zabiegi-kosmetyczne",
+   "description": "Peeling kawitacyjny twarzy – oczyszczenie skóry ultradźwiękami, usunięcie martwego naskórka i nadmiaru sebum. Skóra jest gładka i odświeżona.",
+   "price": "70.00",
+   "duration": 15,
+   "old_names": [
+    "Peeling kawitacyjny ( twarz )"
+   ]
+  },
+  {
+   "name": "Peeling kawitacyjny (twarz, szyja, dekolt)",
+   "category": "zabiegi-kosmetyczne",
+   "description": "Peeling kawitacyjny twarzy, szyi i dekoltu – oczyszczenie skóry ultradźwiękami, usunięcie martwego naskórka i nadmiaru sebum. Skóra jest gładka i odświeżona.",
+   "price": "110.00",
+   "duration": 45,
+   "old_names": [
+    "Peeling kawitacyjny ( twarz, szyja , dekolt )"
+   ]
+  },
+  {
+   "name": "Peeling kawitacyjny (twarz, szyja)",
+   "category": "zabiegi-kosmetyczne",
+   "description": "Peeling kawitacyjny twarzy i szyi – oczyszczenie skóry ultradźwiękami, usunięcie martwego naskórka i nadmiaru sebum. Skóra jest gładka i odświeżona.",
+   "price": "90.00",
+   "duration": 30
+  },
+  {
+   "name": "Całe nogi",
+   "category": "depilacja-woskiem",
+   "description": "Depilacja woskiem całych nóg (uda i łydki). Usunięcie włosków wraz z cebulkami – gładka skóra na kilka tygodni.",
+   "price": "110.00",
+   "duration": 75
+  },
+  {
+   "name": "Pachy",
+   "category": "depilacja-woskiem",
+   "description": "Depilacja woskiem pach. Usunięcie włosków wraz z cebulkami – gładka skóra na kilka tygodni.",
+   "price": "40.00",
+   "duration": 20
+  },
+  {
+   "name": "Plecy",
+   "category": "depilacja-woskiem",
+   "description": "Depilacja woskiem pleców. Usunięcie włosków wraz z cebulkami – gładka skóra na kilka tygodni.",
+   "price": "80.00",
+   "duration": 50
+  },
+  {
+   "name": "Przedramiona",
+   "category": "depilacja-woskiem",
+   "description": "Depilacja woskiem przedramion. Usunięcie włosków wraz z cebulkami – gładka skóra na kilka tygodni.",
+   "price": "50.00",
+   "duration": 30
+  },
+  {
+   "name": "Przedramiona + ramiona",
+   "category": "depilacja-woskiem",
+   "description": "Depilacja woskiem przedramion i ramion (całe ręce). Usunięcie włosków wraz z cebulkami – gładka skóra na kilka tygodni.",
+   "price": "60.00",
+   "duration": 45
+  },
+  {
+   "name": "Tors",
+   "category": "depilacja-woskiem",
+   "description": "Depilacja woskiem torsu. Usunięcie włosków wraz z cebulkami – gładka skóra na kilka tygodni.",
+   "price": "80.00",
+   "duration": 30,
+   "old_names": [
+    "Tora"
+   ]
+  },
+  {
+   "name": "Uda",
+   "category": "depilacja-woskiem",
+   "description": "Depilacja woskiem ud. Usunięcie włosków wraz z cebulkami – gładka skóra na kilka tygodni.",
+   "price": "70.00",
+   "duration": 40
+  },
+  {
+   "name": "Wąsik",
+   "category": "depilacja-woskiem",
+   "description": "Depilacja woskiem okolicy wąsika. Usunięcie włosków wraz z cebulkami – gładka skóra na dłużej niż po goleniu.",
+   "price": "20.00",
+   "duration": 10
+  },
+  {
+   "name": "Wąsik + broda",
+   "category": "depilacja-woskiem",
+   "description": "Depilacja woskiem okolicy wąsika i brody. Usunięcie włosków wraz z cebulkami – gładka skóra na dłużej niż po goleniu.",
+   "price": "30.00",
+   "duration": 15
+  },
+  {
+   "name": "Wąsik + broda + baczki",
+   "category": "depilacja-woskiem",
+   "description": "Depilacja woskiem okolicy wąsika, brody i baczków. Kompleksowe usunięcie owłosienia twarzy.",
+   "price": "40.00",
+   "duration": 20,
+   "old_names": [
+    "Wąsik+ broda+ baczki"
+   ]
+  },
+  {
+   "name": "Łydki",
+   "category": "depilacja-woskiem",
+   "description": "Depilacja woskiem łydek. Usunięcie włosków wraz z cebulkami – gładka skóra na kilka tygodni.",
+   "price": "60.00",
+   "duration": 40
+  },
+  {
+   "name": "Łydki + pachy",
+   "category": "depilacja-woskiem",
+   "description": "Pakiet: depilacja woskiem łydek i pach. Usunięcie włosków wraz z cebulkami – gładka skóra na kilka tygodni.",
+   "price": "90.00",
+   "duration": 45
+  },
+  {
+   "name": "Depilacja laserowa – wąsik",
+   "category": "depilacja-laserowa",
+   "description": "Depilacja laserowa okolicy wąsika laserem diodowym LightSheer DUET. Trwałą redukcję owłosienia daje seria zabiegów w odstępach kilku tygodni.",
+   "price": "100.00",
+   "duration": 15,
+   "equipment": "LightSheer DUET"
+  },
+  {
+   "name": "Depilacja laserowa – wąsik + broda",
+   "category": "depilacja-laserowa",
+   "description": "Depilacja laserowa okolicy wąsika i brody laserem diodowym LightSheer DUET. Trwałą redukcję owłosienia daje seria zabiegów w odstępach kilku tygodni.",
+   "price": "120.00",
+   "duration": 30,
+   "equipment": "LightSheer DUET"
+  },
+  {
+   "name": "Depilacja laserowa – pachy",
+   "category": "depilacja-laserowa",
+   "description": "Depilacja laserowa pach laserem diodowym LightSheer DUET. Trwałą redukcję owłosienia daje seria zabiegów w odstępach kilku tygodni.",
+   "price": "120.00",
+   "duration": 30,
+   "equipment": "LightSheer DUET"
+  },
+  {
+   "name": "Depilacja laserowa – bikini",
+   "category": "depilacja-laserowa",
+   "description": "Depilacja laserowa okolic bikini laserem diodowym LightSheer DUET. Trwałą redukcję owłosienia daje seria zabiegów w odstępach kilku tygodni. Cena zależy od zakresu depilacji, ustalamy ją przed zabiegiem.",
+   "price": "170.00",
+   "duration": 40,
+   "equipment": "LightSheer DUET",
+   "price_is_from": true
+  },
+  {
+   "name": "Depilacja laserowa – pośladki",
+   "category": "depilacja-laserowa",
+   "description": "Depilacja laserowa pośladków laserem diodowym LightSheer DUET. Trwałą redukcję owłosienia daje seria zabiegów w odstępach kilku tygodni.",
+   "price": "150.00",
+   "duration": 30,
+   "equipment": "LightSheer DUET"
+  },
+  {
+   "name": "Depilacja laserowa – uda",
+   "category": "depilacja-laserowa",
+   "description": "Depilacja laserowa ud laserem diodowym LightSheer DUET. Trwałą redukcję owłosienia daje seria zabiegów w odstępach kilku tygodni.",
+   "price": "180.00",
+   "duration": 30,
+   "equipment": "LightSheer DUET"
+  },
+  {
+   "name": "Depilacja laserowa – łydki",
+   "category": "depilacja-laserowa",
+   "description": "Depilacja laserowa łydek laserem diodowym LightSheer DUET. Trwałą redukcję owłosienia daje seria zabiegów w odstępach kilku tygodni.",
+   "price": "180.00",
+   "duration": 30,
+   "equipment": "LightSheer DUET"
+  },
+  {
+   "name": "Depilacja laserowa – całe nogi",
+   "category": "depilacja-laserowa",
+   "description": "Depilacja laserowa całych nóg (uda i łydki) laserem diodowym LightSheer DUET. Trwałą redukcję owłosienia daje seria zabiegów w odstępach kilku tygodni.",
+   "price": "320.00",
+   "duration": 45,
+   "equipment": "LightSheer DUET"
+  },
+  {
+   "name": "Depilacja laserowa – ręce",
+   "category": "depilacja-laserowa",
+   "description": "Depilacja laserowa rąk laserem diodowym LightSheer DUET. Trwałą redukcję owłosienia daje seria zabiegów w odstępach kilku tygodni.",
+   "price": "180.00",
+   "duration": 30,
+   "equipment": "LightSheer DUET"
+  },
+  {
+   "name": "Depilacja laserowa – całe plecy",
+   "category": "depilacja-laserowa",
+   "description": "Depilacja laserowa całych pleców laserem diodowym LightSheer DUET. Trwałą redukcję owłosienia daje seria zabiegów w odstępach kilku tygodni.",
+   "price": "200.00",
+   "duration": 45,
+   "equipment": "LightSheer DUET"
+  },
+  {
+   "name": "Depilacja laserowa – klatka piersiowa",
+   "category": "depilacja-laserowa",
+   "description": "Depilacja laserowa klatki piersiowej laserem diodowym LightSheer DUET. Trwałą redukcję owłosienia daje seria zabiegów w odstępach kilku tygodni.",
+   "price": "180.00",
+   "duration": 30,
+   "equipment": "LightSheer DUET"
+  },
+  {
+   "name": "Depilacja laserowa – brzuch",
+   "category": "depilacja-laserowa",
+   "description": "Depilacja laserowa brzucha laserem diodowym LightSheer DUET. Trwałą redukcję owłosienia daje seria zabiegów w odstępach kilku tygodni.",
+   "price": "180.00",
+   "duration": 30,
+   "equipment": "LightSheer DUET"
+  }
+ ]
+}

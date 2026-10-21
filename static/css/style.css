@@ -7,10 +7,15 @@
   --rb-gold: #b8935a;
   --rb-gold-dk: #8b6b35;
   --rb-gold-lt: #d4b896;
+  /* Gold for text on light backgrounds: #b8935a is only ~2.5:1 on cream, this passes WCAG AA (≥4.7:1).
+     On the dark espresso background keep --rb-gold (5.4:1); --rb-gold-ink would fail there. */
+  --rb-gold-ink: #7d5f2e;
   --rb-border: rgba(184, 147, 90, 0.25);
+  /* Light text on the espresso footer: ~5.7:1 and ~5:1 contrast */
+  --rb-footer-ink: rgba(245, 239, 230, 0.62);
+  --rb-footer-ink-soft: rgba(245, 239, 230, 0.55);
   --ff-display: "Playfair Display", Georgia, serif;
-  --ff-body: "Raleway", sans-serif;
-  --ff-italic: "Cormorant Garamond", Georgia, serif;
+  --ff-body: "Jost", "Helvetica Neue", Arial, sans-serif;
 }
 *,
 *::before,
@@ -18,7 +23,12 @@
   box-sizing: border-box;
 }
 html {
-  scroll-behavior: smooth;
+  scroll-padding-top: 5.5rem;
+}
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
 }
 body {
   font-family: var(--ff-body);
@@ -43,10 +53,10 @@ body {
 .rb-label {
   font-family: var(--ff-body);
   font-size: 0.7rem;
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: var(--rb-gold);
+  color: var(--rb-gold-ink);
   margin-bottom: 0.5rem;
 }
 .rb-heading {
@@ -58,12 +68,13 @@ body {
 }
 .rb-heading em,
 .rb-gold {
-  color: var(--rb-gold);
+  color: var(--rb-gold-ink);
   font-style: italic;
 }
 .rb-body-text {
-  font-family: var(--ff-italic);
-  font-size: 1.1rem;
+  font-family: var(--ff-body);
+  font-weight: 300;
+  font-size: 1.0625rem;
   line-height: 1.75;
   color: rgba(61, 46, 30, 0.82);
 }
@@ -72,302 +83,843 @@ body {
   height: 1px;
   background: var(--rb-gold);
 }
+/* ---------- header: always solid, sticky (the hero is no longer a full-bleed photo) ---------- */
 .rb-nav {
-  transition:
-    background 0.4s,
-    box-shadow 0.4s;
-  background: transparent;
-}
-.rb-nav.scrolled {
-  background: rgba(245, 239, 230, 0.96) !important;
+  background: rgba(245, 239, 230, 0.96);
   backdrop-filter: blur(8px);
-  box-shadow: 0 1px 0 var(--rb-border);
+  border-bottom: 1px solid var(--rb-border);
 }
 .rb-nav-logo {
-  height: 4.5rem;
+  height: 3.5rem;
   width: auto;
   object-fit: contain;
   filter: brightness(0) saturate(100%) invert(62%) sepia(35%) saturate(700%) hue-rotate(5deg) brightness(0.95);
 }
+.rb-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.rb-brand-name {
+  display: flex;
+  flex-direction: column;
+  font-family: var(--ff-display);
+  font-size: 1.15rem;
+  line-height: 1.15;
+  color: var(--rb-dark);
+}
+.rb-brand-name span {
+  font-family: var(--ff-body);
+  font-size: 0.8rem;
+  color: var(--rb-gold-ink);
+}
 .rb-nav-link {
   font-family: var(--ff-body);
-  font-size: 0.7rem;
-  font-weight: 500;
-  letter-spacing: 0.25em;
-  text-transform: uppercase;
-  color: rgba(44, 36, 24, 0.85) !important;
-  transition: color 0.25s;
+  font-size: 0.95rem;
+  font-weight: 400;
+  color: var(--rb-dark) !important;
+  transition: color 0.2s;
   padding: 0 !important;
 }
 .rb-nav-link:hover {
-  color: var(--rb-gold) !important;
+  color: var(--rb-gold-ink) !important;
 }
+.rb-nav-tel {
+  font-family: var(--ff-body);
+  font-weight: 400;
+  color: var(--rb-dark);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.rb-nav-tel:hover {
+  color: var(--rb-gold-ink);
+}
+/* Inline SVG icons (templates/includes/icon.html), sized by font-size like the icon font was */
+.rb-icon {
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.125em;
+  flex-shrink: 0;
+}
+
 .rb-toggler {
   border: none;
-  color: var(--rb-gold);
-  font-size: 1.5rem;
-  padding: 0;
+  color: var(--rb-dark);
+  font-size: 1.75rem;
+  padding: 0.25rem;
 }
 .rb-toggler:focus {
   box-shadow: none;
 }
-.rb-btn-gold {
-  background: var(--rb-gold);
-  color: var(--rb-bg-white);
-  border: none;
-  border-radius: 0;
-  font-family: var(--ff-body);
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.25em;
-  text-transform: uppercase;
-  padding: 0.75rem 2.5rem;
-  transition: background 0.3s;
-}
-.rb-btn-gold:hover {
-  background: var(--rb-gold-dk);
-  color: var(--rb-bg-white);
-}
-.rb-btn-outline {
-  border: 1px solid var(--rb-gold);
-  color: var(--rb-gold);
-  border-radius: 0;
-  background: transparent;
-  font-family: var(--ff-body);
-  font-size: 0.7rem;
-  font-weight: 500;
-  letter-spacing: 0.25em;
-  text-transform: uppercase;
-  padding: 0.5rem 1.5rem;
-  transition:
-    background 0.3s,
-    color 0.3s;
-}
-.rb-btn-outline:hover {
-  background: var(--rb-gold);
-  color: var(--rb-bg-white);
-}
-.rb-btn-outline-dark {
-  border: 1px solid var(--rb-gold);
-  color: var(--rb-gold);
-  border-radius: 0;
-  background: transparent;
-  font-family: var(--ff-body);
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.25em;
-  text-transform: uppercase;
-  padding: 0.75rem 2.5rem;
-  transition:
-    background 0.3s,
-    color 0.3s;
-}
-.rb-btn-outline-dark:hover {
-  background: var(--rb-gold);
-  color: var(--rb-bg-white);
-}
-.rb-hero {
-  position: relative;
-  min-height: 100vh;
-  background-size: cover;
-  background-position: center;
-  background-image: url("../img/hero.jpg");
-}
-.rb-hero-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(245, 239, 230, 0.72);
-}
-.rb-hero-overlay-bottom {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, var(--rb-bg) 0%, transparent 40%);
-}
-.rb-hero-frame {
-  position: absolute;
-  inset: 2rem;
-  border: 1px solid rgba(184, 147, 90, 0.3);
-  pointer-events: none;
-}
-.rb-hero-frame-inner {
-  position: absolute;
-  inset: 2.4rem;
-  border: 1px solid rgba(184, 147, 90, 0.12);
-  pointer-events: none;
-}
-.rb-hero-content {
-  position: relative;
-  z-index: 2;
-  max-width: 56rem;
-  padding: 0 1rem;
-}
-.rb-hero-logo {
-  width: clamp(18rem, 45vw, 34rem);
-  height: auto;
-  object-fit: contain;
-  /* filter: drop-shadow(0 4px 20px rgba(44, 36, 24, 0.2)); */
-  filter: brightness(0) saturate(100%) invert(62%) sepia(35%) saturate(700%) hue-rotate(5deg) brightness(0.90);
-}
-.rb-divider-line {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-}
-.rb-line {
-  flex: 0 0 4rem;
-  height: 1px;
-  background: var(--rb-gold);
-}
-.rb-divider-text {
-  font-family: var(--ff-body);
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.25em;
-  text-transform: uppercase;
-  color: var(--rb-gold-dk);
-  white-space: nowrap;
-}
-.rb-hero-subtitle {
-  font-family: var(--ff-italic);
-  font-size: 1.2rem;
-  font-style: italic;
-  line-height: 1.7;
-  color: rgba(30, 22, 14, 0.78);
-}
-.rb-hero-scroll-btn {
-  position: absolute;
-  bottom: 2.5rem;
-  left: 50%;
-  transform: translateX(-50%);
-  color: var(--rb-gold);
-  font-size: 1.6rem;
-  animation: bounce 2s infinite;
-  text-decoration: none;
-  z-index: 2;
+.rb-toggler:focus-visible {
+  outline: 2px solid var(--rb-gold-ink);
 }
 
-@keyframes bounce {
-  0%,
-  100% {
-    transform: translateX(-50%) translateY(0);
-  }
-  50% {
-    transform: translateX(-50%) translateY(8px);
-  }
+.rb-tel {
+  display: inline-block;
+  padding-block: 0.2rem; /* 24px+ touch target for stacked phone numbers */
+  color: inherit;
+  text-decoration: none;
+  white-space: nowrap;
 }
-.rb-about-img {
-  display: block;
-  aspect-ratio: 3/4;
-  object-fit: cover;
+.rb-tel:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
 }
-.rb-about-badge {
-  position: absolute;
-  bottom: -1.5rem;
-  right: -1.5rem;
-  width: 40%;
-  aspect-ratio: 1;
-  background: var(--rb-bg-white);
-  border: 1px solid var(--rb-border);
-  padding: 1.5rem;
-  text-align: center;
-}
-.rb-badge-num {
-  display: block;
+
+.rb-error h1 {
   font-family: var(--ff-display);
-  font-size: 2.8rem;
-  color: var(--rb-gold);
-  line-height: 1;
+  font-weight: 400;
+  font-size: clamp(2.2rem, 5vw, 3.5rem);
+  color: var(--rb-dark);
+  margin-bottom: 1rem;
 }
-.rb-badge-label {
-  display: block;
+.rb-error .rb-body-text {
+  max-width: 34rem;
+}
+
+/* ---------- buttons: one solid, one quiet; small radius (the arch is the only round shape) ---------- */
+.rb-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3rem;
+  padding: 0.75rem 1.6rem;
   font-family: var(--ff-body);
-  font-size: 0.65rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: rgba(61, 46, 30, 0.65);
-  margin-top: 0.4rem;
-}
-.rb-stat {
-  border-left: 2px solid var(--rb-gold);
-  padding-left: 1rem;
-}
-.rb-stat-num {
-  display: block;
-  font-family: var(--ff-display);
-  font-size: 1.5rem;
-  color: var(--rb-gold);
-}
-.rb-stat-label {
-  display: block;
-  font-family: var(--ff-body);
-  font-size: 0.7rem;
-  color: rgba(61, 46, 30, 0.65);
-  margin-top: 0.2rem;
-}
-.rb-tab-btn {
-  border: 1px solid var(--rb-border);
-  border-radius: 0;
-  background: transparent;
-  color: rgba(44, 36, 24, 0.7);
-  font-family: var(--ff-body);
-  font-size: 0.65rem;
+  font-size: 0.95rem;
   font-weight: 500;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  padding: 0.55rem 1.1rem;
-  transition: all 0.25s;
+  letter-spacing: 0.02em;
+  border: 1px solid var(--rb-dark);
+  border-radius: 2px;
+  transition:
+    background 0.2s,
+    color 0.2s;
 }
-.rb-tab-btn:hover {
-  border-color: var(--rb-gold);
-  color: var(--rb-gold);
-}
-.rb-tab-btn.active {
-  background: var(--rb-gold);
+.rb-btn-solid {
+  background: var(--rb-dark);
   color: var(--rb-bg-white);
-  border-color: var(--rb-gold);
 }
-.rb-services-grid {
-  border: 1px solid rgba(184, 147, 90, 0.2);
+.rb-btn-solid:hover,
+.rb-btn-solid:focus-visible {
+  background: var(--rb-body);
+  border-color: var(--rb-body);
+  color: var(--rb-bg-white);
 }
-.rb-service-card {
-  background: var(--rb-bg-white);
-  padding: 2rem;
-  border-right: 1px solid rgba(184, 147, 90, 0.15);
-  border-bottom: 1px solid rgba(184, 147, 90, 0.15);
-  transition: background 0.3s;
+.rb-btn-quiet {
+  background: transparent;
+  color: var(--rb-dark);
 }
-.rb-service-card:hover {
-  background: var(--rb-bg);
+.rb-btn-quiet:hover,
+.rb-btn-quiet:focus-visible {
+  background: var(--rb-dark);
+  color: var(--rb-bg-white);
 }
-.rb-service-card:hover .rb-service-name {
-  color: var(--rb-gold);
+.rb-btn-sm {
+  min-height: 2.6rem;
+  padding: 0.55rem 1.1rem;
 }
-.rb-service-name {
+.rb-btn:focus-visible {
+  outline: 2px solid var(--rb-gold-ink);
+  outline-offset: 3px;
+  box-shadow: none;
+}
+
+/* ---------- hero ---------- */
+.rb-hero {
+  padding: clamp(2.5rem, 6vw, 5rem) 0 clamp(4rem, 8vw, 6rem);
+}
+.rb-hero-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: clamp(2rem, 6vw, 5rem);
+  align-items: end;
+}
+.rb-hero-grid > * {
+  min-width: 0;
+}
+.rb-hero h1 {
   font-family: var(--ff-display);
-  font-size: 1.05rem;
+  font-weight: 400;
+  font-size: clamp(2.6rem, 6.4vw, 5.25rem);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  color: var(--rb-dark);
+  margin: 0;
+}
+.rb-hero h1 span {
+  display: block;
+  margin-top: 0.9rem;
+  font-size: 0.42em;
+  font-style: italic;
+  line-height: 1.3;
+  letter-spacing: 0;
+  color: var(--rb-gold-ink);
+}
+.rb-hero-lead {
+  font-family: var(--ff-body);
+  font-weight: 300;
+  font-size: 1.15rem;
+  line-height: 1.65;
+  max-width: 34rem;
+  margin: 1.75rem 0 2.25rem;
+  color: var(--rb-body);
+}
+.rb-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+.rb-hero-facts {
+  display: grid;
+  grid-template-columns: repeat(3, auto);
+  justify-content: start;
+  gap: 2.5rem;
+  margin: 3rem 0 0;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--rb-border);
+}
+.rb-hero-facts dt {
+  font-weight: 400;
+  font-size: 0.85rem;
+  color: #6b5a45;
+}
+.rb-hero-facts dd {
+  margin: 0;
   font-weight: 400;
   color: var(--rb-dark);
-  transition: color 0.3s;
+}
+.rb-hero-facts a {
+  color: inherit;
+  text-decoration: none;
+}
+.rb-hero-facts a:hover {
+  color: var(--rb-gold-ink);
+}
+
+/* The arch: a salon mirror. Used for photos and portraits only. */
+.rb-arch {
+  border-radius: 999px 999px 0 0;
+  overflow: hidden;
+  background: var(--rb-bg-sand);
+}
+.rb-hero-photo {
+  position: relative;
+  isolation: isolate;
+}
+.rb-hero-photo .rb-arch {
+  aspect-ratio: 4 / 5.4;
+}
+.rb-hero-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.rb-hero-photo::before {
+  content: "";
+  position: absolute;
+  inset: -14px -14px 14px 14px;
+  border: 1px solid var(--rb-gold);
+  border-bottom: 0;
+  border-radius: 999px 999px 0 0;
+  z-index: -1;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .rb-hero-photo .rb-arch {
+    animation: rb-rise 1.1s cubic-bezier(0.2, 0.7, 0.1, 1) both;
+  }
+}
+@keyframes rb-rise {
+  from {
+    clip-path: inset(100% 0 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+@media (max-width: 767.98px) {
+  .rb-hero-grid {
+    grid-template-columns: 1fr;
+  }
+  .rb-hero-photo {
+    max-width: 26rem;
+    margin-right: 14px;
+  }
+}
+@media (max-width: 575.98px) {
+  .rb-hero-facts {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+/* Narrower than Bootstrap's 1320px, as in the prototype: shorter lines, calmer page */
+.container-xl {
+  max-width: 72rem;
+}
+/* ---------- about: salon in two sentences + who will see you ---------- */
+.rb-about-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(2rem, 6vw, 5rem);
+}
+.rb-about-text p {
+  max-width: 34rem;
+  font-weight: 300;
+  line-height: 1.75;
+}
+.rb-about-text .rb-about-lead {
+  margin-top: 1.5rem;
+  font-family: var(--ff-display);
+  font-size: clamp(1.35rem, 2.4vw, 1.75rem);
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--rb-dark);
+}
+.rb-about-team-heading {
+  font-family: var(--ff-display);
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-weight: 400;
+  color: var(--rb-dark);
+  margin-bottom: 2rem;
+}
+.rb-team {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 1.5rem;
+}
+.rb-person {
+  display: grid;
+  grid-template-columns: 10rem 1fr;
+  gap: 1.5rem;
+  align-items: end;
+}
+.rb-portrait {
+  aspect-ratio: 3 / 4;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--rb-border);
+  background: var(--rb-bg);
+}
+.rb-portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.rb-portrait span {
+  font-family: var(--ff-display);
+  font-size: 2.5rem;
+  color: var(--rb-gold-ink);
+}
+.rb-person-name {
+  font-family: var(--ff-display);
+  font-size: 1.6rem;
+  font-weight: 400;
+  color: var(--rb-dark);
+  margin: 0;
+}
+.rb-person p {
+  margin: 0.25rem 0 0;
+  font-size: 0.95rem;
+  font-weight: 300;
+}
+.rb-person-skills {
+  color: #6b5a45;
+}
+@media (max-width: 767.98px) {
+  .rb-about-grid {
+    grid-template-columns: 1fr;
+  }
+  .rb-person {
+    grid-template-columns: 7rem 1fr;
+  }
+}
+
+/* ---------- reviews: no quotes of our own, the Google profile is the source ---------- */
+.rb-reviews-box {
+  max-width: 40rem;
+}
+.rb-reviews-box p {
+  margin: 1.25rem 0 2rem;
+  font-weight: 300;
+  line-height: 1.75;
+}
+
+/* ---------- FAQ: question in <summary>, answer 40–60 words ---------- */
+.rb-faq-grid {
+  display: grid;
+  grid-template-columns: 17rem 1fr;
+  gap: clamp(2rem, 5vw, 4.5rem);
+  align-items: start;
+}
+.rb-faq-hint {
+  margin: 0.75rem 0 0;
+  color: #6b5a45;
+}
+.rb-faq-item {
+  border-bottom: 1px solid var(--rb-border);
+}
+.rb-faq-item:first-child {
+  border-top: 1px solid var(--rb-border);
+}
+.rb-faq-item summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 1.1rem 0;
+  cursor: pointer;
+  list-style: none;
+}
+.rb-faq-item summary::-webkit-details-marker {
+  display: none;
+}
+.rb-faq-item summary::after {
+  content: "+";
+  font: 300 1.6rem/1 var(--ff-body);
+  color: var(--rb-gold-ink);
+  transition: transform 0.2s;
+}
+.rb-faq-item[open] summary::after {
+  transform: rotate(45deg);
+}
+.rb-faq-item summary:focus-visible {
+  outline: 2px solid var(--rb-gold-ink);
+  outline-offset: 2px;
+}
+.rb-faq-question {
+  font-family: var(--ff-display);
+  font-weight: 400;
+  font-size: 1.3rem;
+  line-height: 1.35;
+  color: var(--rb-dark);
+  margin: 0;
+}
+.rb-faq-item summary:hover .rb-faq-question {
+  color: var(--rb-gold-ink);
+}
+.rb-faq-item p {
+  max-width: 40rem;
+  margin: 0 0 1.5rem;
+  font-weight: 300;
+  line-height: 1.75;
+}
+@media (max-width: 991.98px) {
+  .rb-faq-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- booking: the one dark section ---------- */
+.rb-booking {
+  background: var(--rb-dark);
+  color: #e9dfd0;
+}
+.rb-booking .rb-heading {
+  color: var(--rb-bg-white);
+}
+.rb-steps {
+  margin: 2rem 0 0;
+  padding-left: 1.2rem;
+  font-weight: 300;
+}
+.rb-steps li {
   margin-bottom: 0.6rem;
 }
-.rb-service-desc {
-  font-family: var(--ff-body);
-  font-size: 0.82rem;
-  font-weight: 300;
-  color: rgba(61, 46, 30, 0.65);
-  line-height: 1.6;
-  flex: 1;
+.rb-booking-phone {
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(212, 184, 150, 0.3);
 }
-.rb-service-price {
-  font-family: var(--ff-display);
+.rb-booking-phone p {
+  margin: 0 0 0.4rem;
+}
+.rb-booking-phone a {
+  color: var(--rb-bg-white);
   font-size: 1.15rem;
-  color: var(--rb-gold);
+  text-decoration: none;
 }
-.rb-service-duration {
+.rb-booking-phone a:hover {
+  color: var(--rb-gold-lt);
+}
+.rb-booking .rb-form {
+  background: var(--rb-bg-white);
+  color: var(--rb-body);
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+}
+.rb-field-hint,
+.rb-consent {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.85rem;
+  color: #6b5a45;
+}
+.rb-consent {
+  margin: 0 0 1.25rem;
+}
+.rb-consent a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+/* ---------- privacy policy, booking terms: a single reading column ---------- */
+.rb-legal-body {
+  max-width: 44rem;
+  font-weight: 300;
+  font-size: 1rem;
+  line-height: 1.75;
+  color: var(--rb-body);
+}
+.rb-legal-body h1 {
+  font-family: var(--ff-display);
+  font-weight: 400;
+  font-size: clamp(2rem, 5vw, 3rem);
+  color: var(--rb-dark);
+  margin-bottom: 0.5rem;
+}
+.rb-legal-date {
+  color: #6b5a45;
+  font-size: 0.9rem;
+  margin-bottom: 2.5rem;
+}
+.rb-legal-body h2 {
+  font-family: var(--ff-display);
+  font-weight: 400;
+  font-size: 1.5rem;
+  color: var(--rb-dark);
+  margin: 2.5rem 0 1rem;
+}
+.rb-legal-body ul,
+.rb-legal-body ol {
+  padding-left: 1.25rem;
+}
+.rb-legal-body li {
+  margin-bottom: 0.5rem;
+}
+.rb-legal-body code {
+  color: var(--rb-dark);
+  font-size: 0.9em;
+}
+.rb-legal-body strong {
+  font-weight: 500;
+}
+.rb-legal-body a {
+  color: var(--rb-gold-ink);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  overflow-wrap: anywhere;
+}
+
+/* ---------- contact: NAP + by appointment ---------- */
+.rb-contact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(2rem, 6vw, 5rem);
+  align-items: center;
+}
+.rb-contact-photo {
+  aspect-ratio: 1 / 1.1;
+}
+.rb-contact-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.rb-nap {
+  font-style: normal;
+  font-size: 1.2rem;
+  line-height: 1.6;
+  margin: 1.5rem 0;
+}
+.rb-floor {
+  margin: -0.75rem 0 1.5rem;
+  color: #6b5a45;
+}
+.rb-nap a {
+  color: inherit;
+  text-decoration: none;
+}
+.rb-nap a:hover {
+  color: var(--rb-gold-ink);
+}
+.rb-by-appt {
+  margin: 1.5rem 0 2rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--rb-border);
+}
+.rb-by-appt p {
+  margin: 0 0 0.5rem;
+}
+.rb-by-appt strong {
+  font-weight: 500;
+  color: var(--rb-dark);
+}
+.rb-muted {
+  color: #6b5a45;
+}
+.rb-muted a {
+  color: var(--rb-gold-ink);
+}
+.rb-contact-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+@media (max-width: 767.98px) {
+  .rb-contact-grid {
+    grid-template-columns: 1fr;
+  }
+  .rb-contact-photo {
+    max-width: 22rem;
+  }
+}
+
+/* ---------- price list: the one bold element (a printed salon price card) ---------- */
+.rb-menu-grid {
+  display: grid;
+  grid-template-columns: 17rem 1fr;
+  gap: clamp(2rem, 5vw, 4.5rem);
+  align-items: start;
+}
+.rb-menu-grid > * {
+  min-width: 0; /* grid items default to min-width:auto; the scrolling category strip would widen the column */
+}
+.rb-menu-index {
+  position: sticky;
+  top: 6.5rem;
+}
+.rb-menu-hint {
+  margin: 0.75rem 0 0;
+  color: #6b5a45;
+}
+.rb-menu-index ol {
+  list-style: none;
+  margin: 2rem 0 0;
+  padding: 0;
+  border-top: 1px solid var(--rb-border);
+}
+.rb-menu-index a {
+  display: grid;
+  padding: 0.9rem 0;
+  border-bottom: 1px solid var(--rb-border);
+  text-decoration: none;
+}
+.rb-menu-index-name {
+  font-family: var(--ff-display);
+  font-size: 1.3rem;
+  color: var(--rb-dark);
+}
+.rb-menu-index a:hover .rb-menu-index-name {
+  color: var(--rb-gold-ink);
+}
+.rb-menu-index-meta {
+  font-size: 0.85rem;
+  color: #6b5a45;
+}
+.rb-menu-group + .rb-menu-group {
+  margin-top: 4rem;
+}
+/* Tabs (script.js): one category at a time; the selected one is marked like a bookmark in the card */
+.rb-menu-tabbed .rb-menu-group + .rb-menu-group {
+  margin-top: 0;
+}
+.rb-menu-tabbed .rb-menu-index ol {
+  position: relative; /* offsetLeft of the tabs is measured from the strip (script.js) */
+}
+.rb-menu-tabbed .rb-menu-index a {
+  position: relative;
+  padding-left: 1rem;
+}
+.rb-menu-tabbed .rb-menu-index a[aria-selected="true"]::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.9rem;
+  bottom: 0.9rem;
+  width: 2px;
+  background: var(--rb-gold);
+}
+.rb-menu-tabbed .rb-menu-index a[aria-selected="true"] .rb-menu-index-name {
+  color: var(--rb-gold-ink);
+}
+.rb-menu-group-title {
+  font-family: var(--ff-display);
+  font-weight: 400;
+  font-size: clamp(1.75rem, 3vw, 2.25rem);
+  color: var(--rb-dark);
+  margin: 0;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--rb-dark);
+}
+.rb-equipment-note {
+  margin: 1rem 0 0.5rem;
+  padding: 1rem 1.25rem;
+  background: var(--rb-bg-white);
+  border-left: 2px solid var(--rb-gold);
+  font-size: 0.98rem;
+  line-height: 1.6;
+}
+.rb-equipment-note p {
+  margin: 0;
+  font-weight: 300;
+}
+.rb-equipment-note .rb-equipment-when {
+  font-weight: 400;
+  color: var(--rb-dark);
+}
+.rb-equipment-note p + p {
+  margin-top: 0.35rem;
+}
+.rb-treat {
+  border-bottom: 1px solid var(--rb-border);
+}
+.rb-treat summary {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  padding: 0.75rem 0;
+  cursor: pointer;
+  list-style: none;
+}
+.rb-treat summary::-webkit-details-marker {
+  display: none;
+}
+.rb-treat summary:focus-visible {
+  outline: 2px solid var(--rb-gold-ink);
+  outline-offset: 2px;
+}
+.rb-treat-name {
   font-family: var(--ff-body);
-  font-size: 0.72rem;
-  color: rgba(61, 46, 30, 0.5);
+  font-weight: 400;
+  font-size: 1.05rem;
+  line-height: 1.35;
+  color: var(--rb-dark);
+  margin: 0;
+}
+.rb-treat summary:hover .rb-treat-name {
+  color: var(--rb-gold-ink);
+}
+.rb-treat[open] .rb-treat-name {
+  font-weight: 500;
+}
+.rb-treat-leader {
+  flex: 1;
+  min-width: 1.5rem;
+  border-bottom: 1px dotted var(--rb-gold);
+  transform: translateY(-0.3em);
+}
+.rb-treat-time {
+  font-size: 0.9rem;
+  color: #6b5a45;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.rb-treat-price {
+  font-family: var(--ff-display);
+  font-size: 1.2rem;
+  color: var(--rb-dark);
+  min-width: 5.5rem;
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+.rb-treat-body {
+  max-width: 46rem;
+  padding: 0 6.5rem 1.4rem 0;
+  font-weight: 300;
+  font-size: 0.98rem;
+  line-height: 1.65;
+}
+.rb-treat-body p {
+  margin: 0 0 0.6rem;
+}
+.rb-treat-body ul {
+  margin: 0 0 0.8rem;
+  padding-left: 1.1rem;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .rb-treat[open] .rb-treat-body {
+    animation: rb-open 0.25s ease-out;
+  }
+}
+@keyframes rb-open {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+.rb-text-link {
+  color: var(--rb-gold-ink);
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.25em;
+}
+.rb-text-link:hover {
+  color: var(--rb-dark);
+}
+@media (max-width: 991.98px) {
+  .rb-menu-grid {
+    grid-template-columns: 1fr;
+  }
+  .rb-menu-index {
+    position: static;
+  }
+  .rb-menu-index ol {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    border: 0;
+    margin-top: 1.5rem;
+    padding-bottom: 0.25rem;
+    scrollbar-width: none; /* the cut-off last chip already shows it scrolls */
+  }
+  .rb-menu-index ol::-webkit-scrollbar {
+    display: none;
+  }
+  .rb-menu-index a {
+    border: 1px solid var(--rb-border);
+    padding: 0.6rem 0.9rem;
+    white-space: nowrap;
+  }
+  .rb-menu-index-name {
+    font-size: 1.05rem;
+  }
+  .rb-menu-index-meta {
+    display: none;
+  }
+  .rb-menu-tabbed .rb-menu-index a {
+    padding-left: 0.9rem;
+  }
+  .rb-menu-tabbed .rb-menu-index a[aria-selected="true"] {
+    background: var(--rb-dark);
+    border-color: var(--rb-dark);
+  }
+  .rb-menu-tabbed .rb-menu-index a[aria-selected="true"]::before {
+    display: none;
+  }
+  .rb-menu-tabbed .rb-menu-index a[aria-selected="true"] .rb-menu-index-name {
+    color: var(--rb-bg-white);
+  }
+}
+@media (max-width: 575.98px) {
+  .rb-treat summary {
+    flex-wrap: wrap;
+    row-gap: 0.2rem;
+  }
+  .rb-treat-name {
+    flex: 1 0 100%;
+  }
+  .rb-treat-leader {
+    display: none;
+  }
+  .rb-treat-time {
+    flex: 1;
+  }
+  .rb-treat-body {
+    padding-right: 0;
+  }
 }
 .rb-gallery-grid {
   display: grid;
@@ -463,111 +1015,6 @@ body {
 .rb-lightbox-close:hover {
   color: #fff;
 }
-.rb-testimonials {
-  position: relative;
-  background-size: cover;
-  background-position: center 30%;
-}
-.rb-testimonials-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(245, 239, 230, 0.88);
-  z-index: 1;
-}
-.rb-stars {
-  color: var(--rb-gold);
-  font-size: 1.1rem;
-  letter-spacing: 0.15em;
-}
-.rb-quote {
-  font-family: var(--ff-italic);
-  font-size: clamp(1.1rem, 2vw, 1.35rem);
-  font-style: italic;
-  line-height: 1.8;
-  color: rgba(61, 46, 30, 0.85);
-}
-.rb-avatar {
-  width: 3rem;
-  height: 3rem;
-  border-radius: 50%;
-  background: var(--rb-gold);
-  color: var(--rb-bg-white);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--ff-display);
-  font-size: 0.95rem;
-  flex-shrink: 0;
-}
-.rb-author-name {
-  font-family: var(--ff-display);
-  font-size: 1rem;
-  color: var(--rb-dark);
-}
-.rb-author-role {
-  font-family: var(--ff-body);
-  font-size: 0.7rem;
-  color: var(--rb-gold);
-  letter-spacing: 0.1em;
-}
-.rb-carousel-btn {
-  width: 2.5rem;
-  height: 2.5rem;
-  border: 1px solid rgba(184, 147, 90, 0.4);
-  border-radius: 0;
-  background: transparent;
-  color: var(--rb-gold);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  transition: all 0.3s;
-}
-.rb-carousel-btn:hover {
-  background: var(--rb-gold);
-  color: var(--rb-bg-white);
-  border-color: var(--rb-gold);
-}
-.rb-dot {
-  height: 1px;
-  background: rgba(184, 147, 90, 0.35);
-  border: none;
-  cursor: pointer;
-  transition: all 0.3s;
-  padding: 0;
-}
-.rb-dot.active {
-  background: var(--rb-gold);
-}
-.rb-contact-line {
-  width: 2px;
-  align-self: stretch;
-  background: var(--rb-gold);
-  flex-shrink: 0;
-}
-.rb-team-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  border: 1px solid var(--rb-border);
-  background: var(--rb-bg);
-  padding: 0.3rem 0.75rem;
-  font-family: var(--ff-body);
-  font-size: 0.75rem;
-  color: rgba(61, 46, 30, 0.75);
-}
-.rb-chip-dot {
-  width: 1.4rem;
-  height: 1.4rem;
-  border-radius: 50%;
-  background: var(--rb-gold);
-  color: var(--rb-bg-white);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--ff-display);
-  font-size: 0.7rem;
-}
 .rb-form-label {
   font-family: var(--ff-body);
   font-size: 0.65rem;
@@ -610,41 +1057,7 @@ body {
 }
 .rb-success-icon {
   font-size: 3.5rem;
-  color: var(--rb-gold);
-}
-.rb-contact-box {
-  border: 1px solid var(--rb-border);
-}
-.rb-contact-img {
-  min-height: 350px;
-  background-size: cover;
-  background-position: center;
-}
-.rb-contact-img-overlay {
-  background: rgba(245, 239, 230, 0.52);
-}
-.rb-map-pin {
-  font-size: 2.2rem;
-  color: var(--rb-gold);
-}
-.rb-map-street {
-  font-family: var(--ff-display);
-  font-size: 1.15rem;
-  color: var(--rb-dark);
-  margin: 0;
-}
-.rb-map-city {
-  font-family: var(--ff-body);
-  font-size: 0.85rem;
-  color: rgba(44, 36, 24, 0.6);
-  margin: 0;
-}
-.rb-contact-info {
-  background: var(--rb-bg-white);
-}
-.rb-contact-icon {
-  font-size: 1.1rem;
-  color: var(--rb-gold);
+  color: var(--rb-gold-ink);
 }
 .rb-social-btn {
   width: 2.5rem;
@@ -653,7 +1066,7 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: var(--rb-gold);
+  color: var(--rb-gold-ink);
   font-size: 1.1rem;
   text-decoration: none;
   transition: all 0.3s;
@@ -676,8 +1089,17 @@ body {
   font-family: var(--ff-body);
   font-size: 0.85rem;
   font-weight: 300;
-  color: rgba(245, 239, 230, 0.45);
+  color: var(--rb-footer-ink);
   line-height: 1.75;
+}
+.rb-footer-text a {
+  display: inline-block;
+  padding-block: 0.2rem; /* touch target apart from the phone number above */
+  color: inherit;
+  text-decoration: none;
+}
+.rb-footer-text a:hover {
+  color: var(--rb-gold);
 }
 .rb-footer-links {
   display: flex;
@@ -688,7 +1110,7 @@ body {
   font-family: var(--ff-body);
   font-size: 0.85rem;
   font-weight: 300;
-  color: rgba(245, 239, 230, 0.45);
+  color: var(--rb-footer-ink);
   text-decoration: none;
   transition: color 0.25s;
 }
@@ -701,12 +1123,12 @@ body {
 .rb-footer-copy {
   font-family: var(--ff-body);
   font-size: 0.75rem;
-  color: rgba(245, 239, 230, 0.25);
+  color: var(--rb-footer-ink-soft);
 }
 .rb-footer-policy {
   font-family: var(--ff-body);
   font-size: 0.75rem;
-  color: rgba(245, 239, 230, 0.25);
+  color: var(--rb-footer-ink-soft);
   text-decoration: none;
   transition: color 0.25s;
 }
@@ -716,11 +1138,11 @@ body {
 .rb-footer-credit {
   font-family: var(--ff-body);
   font-size: 0.75rem;
-  color: rgba(245, 239, 230, 0.25);
+  color: var(--rb-footer-ink-soft);
   margin-top: 0.75rem;
 }
 .rb-footer-credit a {
-  color: rgba(245, 239, 230, 0.45);
+  color: var(--rb-footer-ink);
   text-decoration: none;
   transition: color 0.25s;
 }
@@ -827,7 +1249,7 @@ body {
   color: var(--rb-gold-dk);
   font-family: var(--ff-body);
   font-size: 0.6rem;
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
@@ -867,7 +1289,7 @@ body {
 .flatpickr-day.today {
   border-color: var(--rb-gold-lt);
   color: var(--rb-gold-dk);
-  font-weight: 600;
+  font-weight: 500;
 }
 .flatpickr-day.today:hover {
   background: var(--rb-bg-sand);

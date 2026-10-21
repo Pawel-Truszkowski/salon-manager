@@ -1,0 +1,15 @@
+{% extends 'panel/auth/base_auth.html' %}
+
+{% block title %}Logowanie{% endblock %}
+
+{% block auth_content %}
+<form method="post">
+  {% csrf_token %}
+  <input type="hidden" name="next" value="{{ next }}">
+  {% include 'panel/auth/_form_fields.html' %}
+  <button type="submit" class="btn panel-btn-primary w-100">Zaloguj się</button>
+</form>
+<p class="text-center mt-3 mb-0 small">
+  <a href="{% url 'panel:password_reset' %}">Nie pamiętasz hasła?</a>
+</p>
+{% endblock %}

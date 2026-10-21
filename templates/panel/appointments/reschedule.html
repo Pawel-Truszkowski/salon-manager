@@ -1,0 +1,44 @@
+{% extends 'panel/base.html' %}
+{% load static %}
+
+{% block title %}Przenieś wizytę{% endblock %}
+
+{% block content %}
+<a href="{% url 'panel:appointment_detail' appointment.pk %}" class="small"><i class="bi bi-arrow-left"></i> Wróć do wizyty</a>
+<h1 class="panel-title mt-2 mb-1">Przenieś wizytę</h1>
+<p class="text-muted mb-4">
+  {{ appointment.client_name }} — {{ appointment.service }} ({{ appointment.service.duration }} min).
+  Obecnie: {{ appointment.date_time|date:"d.m.Y H:i" }}{% if appointment.employee %}, {{ appointment.employee }}{% endif %}.
+</p>
+
+<form method="post" class="card panel-card" style="max-width: 720px" novalidate
+      data-slots-url="{% url 'panel:slots' %}" data-service="{{ appointment.service.pk }}"
+      data-employee="{{ appointment.employee.pk|default:'' }}" data-exclude="{{ appointment.pk }}">
+  {% csrf_token %}
+  <div class="card-body">
+    {% if form.non_field_errors %}
+      <div class="alert alert-danger">{% for error in form.non_field_errors %}{{ error }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</div>
+    {% endif %}
+    {% if form.employee %}{% include 'panel/_field.html' with field=form.employee %}{% endif %}
+    <div class="row">
+      <div class="col-sm-6">{% include 'panel/_field.html' with field=form.date %}</div>
+      <div class="col-sm-6">{% include 'panel/_field.html' with field=form.time %}</div>
+    </div>
+    {% include 'panel/appointments/_slot_picker.html' %}
+    {% if form.force %}{% include 'panel/_field.html' with field=form.force %}{% endif %}
+    {% if appointment.client_email %}
+      <p class="small text-muted mb-0"><i class="bi bi-envelope"></i> Klient dostanie e-mail z nowym terminem.</p>
+    {% else %}
+      <p class="small text-muted mb-0"><i class="bi bi-telephone"></i> Klient nie ma e-maila — poinformuj go telefonicznie ({{ appointment.client_phone }}).</p>
+    {% endif %}
+  </div>
+  <div class="card-footer bg-transparent d-flex gap-2">
+    <button type="submit" class="btn panel-btn-primary">Przenieś</button>
+    <a href="{% url 'panel:appointment_detail' appointment.pk %}" class="btn btn-outline-secondary">Anuluj</a>
+  </div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/panel-appointments.js' %}"></script>
+{% endblock %}

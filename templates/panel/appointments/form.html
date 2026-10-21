@@ -1,0 +1,56 @@
+{% extends 'panel/base.html' %}
+{% load static %}
+
+{% block title %}Nowa wizyta{% endblock %}
+
+{% block content %}
+<a href="{% url 'panel:appointment_list' %}" class="small"><i class="bi bi-arrow-left"></i> Wszystkie wizyty</a>
+<h1 class="panel-title mt-2 mb-4">Nowa wizyta</h1>
+
+<form method="post" class="card panel-card" style="max-width: 720px" novalidate
+      data-slots-url="{% url 'panel:slots' %}">
+  {% csrf_token %}
+  <div class="card-body">
+    {% if form.non_field_errors %}
+      <div class="alert alert-danger">{% for error in form.non_field_errors %}{{ error }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</div>
+    {% endif %}
+
+    <h2 class="h6 text-uppercase text-muted">Termin</h2>
+    {% include 'panel/_field.html' with field=form.service %}
+    {% if form.employee %}{% include 'panel/_field.html' with field=form.employee %}{% endif %}
+    <div class="row">
+      <div class="col-sm-6">{% include 'panel/_field.html' with field=form.date %}</div>
+      <div class="col-sm-6">{% include 'panel/_field.html' with field=form.time %}</div>
+    </div>
+    {% include 'panel/appointments/_slot_picker.html' %}
+    {% if form.force %}{% include 'panel/_field.html' with field=form.force %}{% endif %}
+
+    <h2 class="h6 text-uppercase text-muted mt-4">Klient</h2>
+    {% if client_search_url %}
+      {# Fills the fields below from the client file; typing them by hand still works #}
+      <div class="mb-3 position-relative" data-client-search="{{ client_search_url }}">
+        <label class="form-label" for="clientSearch">Szukaj w bazie klientek</label>
+        <input id="clientSearch" type="search" class="form-control" placeholder="Imię lub telefon" autocomplete="off"
+               role="combobox" aria-expanded="false" aria-controls="clientSuggestions" aria-autocomplete="list">
+        <div id="clientSuggestions" class="list-group position-absolute w-100 shadow-sm panel-client-suggestions" role="listbox" hidden></div>
+        <div class="form-text">Nowa klientka? Wpisz dane poniżej, karta założy się sama.</div>
+      </div>
+    {% endif %}
+    {% include 'panel/_field.html' with field=form.client_name %}
+    <div class="row">
+      <div class="col-sm-6">{% include 'panel/_field.html' with field=form.client_phone %}</div>
+      <div class="col-sm-6">{% include 'panel/_field.html' with field=form.client_email %}</div>
+    </div>
+    {% include 'panel/_field.html' with field=form.notes %}
+  </div>
+  <div class="card-footer bg-transparent d-flex gap-2">
+    <button type="submit" class="btn panel-btn-primary">Zapisz wizytę</button>
+    <a href="{% url 'panel:appointment_list' %}" class="btn btn-outline-secondary">Anuluj</a>
+  </div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/panel-appointments.js' %}"></script>
+<script src="{% static 'js/panel-clients.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends 'panel/base.html' %}
+
+{% block title %}{% if object %}Edycja: {{ object }}{% else %}Nowe urządzenie{% endif %}{% endblock %}
+
+{% block content %}
+<a href="{% url 'panel:equipment_list' %}" class="small"><i class="bi bi-arrow-left"></i> Urządzenia</a>
+<h1 class="panel-title mt-2 mb-4">{% if object %}{{ object }}{% else %}Nowe urządzenie{% endif %}</h1>
+
+<form method="post" class="card panel-card" style="max-width: 720px" novalidate>
+  {% csrf_token %}
+  <div class="card-body">
+    {% if form.non_field_errors %}
+      <div class="alert alert-danger">{% for error in form.non_field_errors %}{{ error }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</div>
+    {% endif %}
+    {% include 'panel/_field.html' with field=form.name %}
+    {% include 'panel/_field.html' with field=form.description %}
+    {% include 'panel/_field.html' with field=form.is_active %}
+  </div>
+  <div class="card-footer bg-transparent d-flex gap-2">
+    <button type="submit" class="btn panel-btn-primary">Zapisz</button>
+    <a href="{% url 'panel:equipment_list' %}" class="btn btn-outline-secondary">Anuluj</a>
+  </div>
+</form>
+{% endblock %}

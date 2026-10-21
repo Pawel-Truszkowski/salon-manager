@@ -1,99 +1,106 @@
-window.addEventListener(
-  "scroll",
-  function () {
-    document
-      .getElementById("navbar")
-      .classList.toggle("scrolled", window.scrollY > 60);
-  },
-  { passive: true },
-);
+// Same-page links (logo, menu, "#rezerwacja" buttons): smooth scroll, close the mobile menu.
+// Header offset comes from `scroll-padding-top` in CSS. Links to other pages (e.g. the menu on
+// the cancel-booking page pointing at "/#cennik") just navigate.
+var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
-function scrollToTop(e) {
-  e.preventDefault();
-  window.scrollTo({ top: 0, behavior: "smooth" });
-}
-
-document.querySelectorAll('a[href^="#"]').forEach(function (a) {
-  a.addEventListener("click", function (e) {
-    var t = document.querySelector(this.getAttribute("href"));
-    if (!t) return;
-    e.preventDefault();
-    window.scrollTo({
-      top: t.getBoundingClientRect().top + window.scrollY - 80,
-      behavior: "smooth",
-    });
-    var m = document.getElementById("navMenu");
-    if (m && m.classList.contains("show"))
-      bootstrap.Collapse.getInstance(m).hide();
+// Price list tabs: one category at a time instead of the whole list to scroll through.
+// Without JS all categories stay visible, one under another, with the index as anchor links;
+// the hidden ones stay in the HTML, so search engines still read the whole price list.
+(function () {
+  var menu = document.getElementById("cennik");
+  var tabs = menu ? Array.prototype.slice.call(menu.querySelectorAll(".rb-menu-index a")) : [];
+  if (!tabs.length) return;
+  var list = tabs[0].closest("ol");
+  var panels = tabs.map(function (tab) {
+    return document.getElementById(tab.hash.slice(1));
   });
-});
 
-var servicesData = {};
-var defaultTab = document.querySelector(".rb-tab-btn.active");
-var activeCategory = defaultTab ? defaultTab.dataset.category : "";
+  menu.classList.add("rb-menu-tabbed");
+  list.setAttribute("role", "tablist");
+  list.setAttribute("aria-label", "Kategorie cennika");
+  tabs.forEach(function (tab, i) {
+    tab.parentElement.setAttribute("role", "presentation");
+    tab.setAttribute("role", "tab");
+    tab.setAttribute("aria-controls", panels[i].id);
+    tab.id = panels[i].id + "-tab";
+    panels[i].setAttribute("role", "tabpanel");
+    panels[i].setAttribute("aria-labelledby", tab.id);
+  });
 
-function renderServices(category) {
-  var grid = document.getElementById("servicesGrid");
-  var items = servicesData[category];
-  if (!items || items.length === 0) {
-    grid.innerHTML = '<div class="col-12 text-center py-5"><p class="rb-body-text">Brak usług w tej kategorii.</p></div>';
-    return;
+  // `byUser`: a click or a key; on page load nothing may scroll
+  function select(index, byUser) {
+    tabs.forEach(function (tab, i) {
+      var active = i === index;
+      tab.setAttribute("aria-selected", active ? "true" : "false");
+      tab.tabIndex = active ? 0 : -1;
+      panels[i].hidden = !active;
+    });
+    // Phones: the categories are a sideways-scrolling strip; bring the chosen one into it (sideways only)
+    var tab = tabs[index];
+    if (tab.offsetLeft < list.scrollLeft || tab.offsetLeft + tab.offsetWidth > list.scrollLeft + list.clientWidth) {
+      list.scrollLeft = tab.offsetLeft - 16;
+    }
+    if (!byUser) return;
+    // Switching from deep inside a long category: back up to the strip so the new one starts in view
+    if (list.getBoundingClientRect().top < 0) list.scrollIntoView({ block: "start" });
   }
-  grid.innerHTML = items
-    .map(function (s) {
-      return (
-        '<div class="col-sm-6 col-lg-3"><div class="rb-service-card h-100 d-flex flex-column"><h3 class="rb-service-name">' +
-        s.name +
-        '</h3><p class="rb-service-desc mb-4">' +
-        s.desc +
-        '</p><div class="d-flex justify-content-between align-items-end mt-auto"><span class="rb-service-price">' +
-        s.price +
-        '</span><span class="rb-service-duration">' +
-        s.duration +
-        "</span></div></div></div>"
-      );
-    })
-    .join("");
-}
 
-document.getElementById("serviceTabs").addEventListener("click", function (e) {
-  var b = e.target.closest(".rb-tab-btn");
-  if (!b) return;
-  document.querySelectorAll(".rb-tab-btn").forEach(function (x) {
-    x.classList.remove("active");
+  tabs.forEach(function (tab, i) {
+    tab.addEventListener("click", function (e) {
+      e.preventDefault();
+      select(i, true);
+      history.replaceState(null, "", tab.hash);
+    });
+    tab.addEventListener("keydown", function (e) {
+      var keys = { ArrowRight: i + 1, ArrowDown: i + 1, ArrowLeft: i - 1, ArrowUp: i - 1, Home: 0, End: tabs.length - 1 };
+      if (!(e.key in keys)) return;
+      e.preventDefault();
+      var next = (keys[e.key] + tabs.length) % tabs.length;
+      select(next, true);
+      tabs[next].focus({ preventScroll: true }); // a click focuses the link by itself
+    });
   });
-  b.classList.add("active");
-  activeCategory = b.dataset.category;
-  renderServices(activeCategory);
+
+  // A link straight to a category ("/#depilacja-laserowa") opens its tab
+  function fromHash() {
+    return panels.findIndex(function (panel) {
+      return "#" + panel.id === location.hash;
+    });
+  }
+  select(Math.max(fromHash(), 0), false);
+  window.addEventListener("hashchange", function () {
+    if (fromHash() >= 0) select(fromHash(), false);
+  });
+})();
+
+document.querySelectorAll("a[href]").forEach(function (a) {
+  if (a.origin !== location.origin || a.pathname !== location.pathname) return;
+  if (a.getAttribute("role") === "tab") return; // price list tabs switch, they don't scroll
+  a.addEventListener("click", function (e) {
+    var target = a.hash ? document.querySelector(a.hash) : document.body;
+    if (!target) return;
+    e.preventDefault();
+    target.scrollIntoView({ behavior: reduceMotion.matches ? "auto" : "smooth" });
+    var m = document.getElementById("navMenu");
+    if (m && m.classList.contains("show")) bootstrap.Collapse.getInstance(m).hide();
+  });
 });
 
-fetch("/api/services/")
-  .then(function (r) { return r.json(); })
-  .then(function (data) {
-    var serviceSelect = document.getElementById("bookingService");
-    serviceSelect.innerHTML = '<option value="" disabled selected>Wybierz usługę...</option>';
-    data.forEach(function (s) {
-      var cat = s.category.slug;
-      if (!servicesData[cat]) servicesData[cat] = [];
-      servicesData[cat].push({
-        name: s.name,
-        desc: s.description || "",
-        price: parseFloat(s.price).toFixed(0) + " zł",
-        duration: s.duration + " min",
-      });
-      var opt = document.createElement("option");
-      opt.value = s.id;
-      opt.textContent = s.name + " — " + parseFloat(s.price).toFixed(0) + " zł";
-      serviceSelect.appendChild(opt);
-    });
-    renderServices(activeCategory);
-  })
-  .catch(function () {
-    renderServices(activeCategory);
-  });
+// "Zarezerwuj ten zabieg" in the price list: preselect the service in the booking form.
+// The link itself is href="#rezerwacja", so scrolling is handled by the same-page link handler above.
+document.addEventListener("click", function (e) {
+  var link = e.target.closest("[data-book-service]");
+  if (!link) return;
+  var select = document.getElementById("bookingService");
+  select.value = link.dataset.bookService;
+  select.dispatchEvent(new Event("change"));
+});
 
 function openLightbox(el) {
-  document.getElementById("lightboxImg").src = el.querySelector("img").src;
+  var thumb = el.querySelector("img");
+  var big = document.getElementById("lightboxImg");
+  big.src = thumb.src;
+  big.alt = thumb.alt;
   document.getElementById("lightbox").classList.add("open");
   document.body.style.overflow = "hidden";
 }
@@ -106,88 +113,6 @@ function closeLightbox() {
 document.addEventListener("keydown", function (e) {
   if (e.key === "Escape") closeLightbox();
 });
-
-var testimonials = [
-  {
-    text: "Royal Beauty to miejsce, do którego wracam co miesiąc. Profesjonalizm, luksusowe produkty i atmosfera sprawiają, że czuję się wyjątkowo.",
-    name: "Aleksandra Wiśniewska",
-    role: "Stała klientka od 3 lat",
-    initials: "AW",
-  },
-  {
-    text: "Przedłużanie rzęs wykonane perfekcyjnie. Efekt naturalny i trwały. Polecam wszystkim szukającym jakości premium.",
-    name: "Katarzyna Nowak",
-    role: "Klientka",
-    initials: "KN",
-  },
-  {
-    text: "Zabieg liftingujący twarzy przyniósł spektakularne efekty. Skóra wygląda promiennie i młodziej.",
-    name: "Monika Kowalczyk",
-    role: "Klientka",
-    initials: "MK",
-  },
-  {
-    text: "Mezoterapia igłowa to mój ulubiony zabieg. Efekty są spektakularne, a rytuał przeprowadzony z niezwykłą delikatnością.",
-    name: "Joanna Malinowska",
-    role: "Klientka od roku",
-    initials: "JM",
-  },
-  {
-    text: "Manicure hybrydowy trwa u mnie ponad 4 tygodnie. Wyjątkowe miejsce z wyjątkowym podejściem.",
-    name: "Ewa Zielińska",
-    role: "Klientka",
-    initials: "EZ",
-  },
-],
-
-  tIdx = 0;
-
-function renderTestimonial(i) {
-  var t = testimonials[i];
-  document.getElementById("testimonialText").textContent = "„" + t.text + '"';
-  document.getElementById("testimonialName").textContent = t.name;
-  document.getElementById("testimonialRole").textContent = t.role;
-  document.getElementById("testimonialAvatar").textContent = t.initials;
-  document.querySelectorAll(".rb-dot").forEach(function (d, j) {
-    d.classList.toggle("active", j === i);
-    d.style.width = j === i ? "2rem" : "1rem";
-  });
-}
-
-function buildDots() {
-  document.getElementById("testimonialDots").innerHTML = testimonials
-    .map(function (_, i) {
-      return (
-        '<button class="rb-dot' +
-        (i === 0 ? " active" : "") +
-        '" style="width:' +
-        (i === 0 ? "2rem" : "1rem") +
-        '" onclick="goTestimonial(' +
-        i +
-        ')"></button>'
-      );
-    })
-    .join("");
-}
-
-function goTestimonial(i) {
-  tIdx = i;
-  renderTestimonial(i);
-}
-
-function prevTestimonial() {
-  tIdx = (tIdx - 1 + testimonials.length) % testimonials.length;
-  renderTestimonial(tIdx);
-}
-
-function nextTestimonial() {
-  tIdx = (tIdx + 1) % testimonials.length;
-  renderTestimonial(tIdx);
-}
-
-buildDots();
-renderTestimonial(0);
-setInterval(nextTestimonial, 6000);
 
 // ── Booking ───────────────────────────────────────────────────────────────────
 
@@ -204,12 +129,19 @@ var bookingPicker = flatpickr("#bookingDate", {
   },
   onChange: function (selectedDates, dateStr) {
     if (dateStr) fetchSlots();
-    else resetTimeSlots("Najpierw wybierz usługę i datę");
+    else resetTimeSlots("Najpierw wybierz zabieg i dzień");
   },
 });
 
+// The specialist picker is rendered only when 2+ employees are active; without it the server picks one
+var employeeSelect = document.getElementById("bookingEmployee");
+
+function selectedEmployee() {
+  return employeeSelect ? employeeSelect.value : "";
+}
+
 function loadAvailableDates(serviceId, year, month) {
-  var employeeId = document.getElementById("bookingEmployee").value;
+  var employeeId = selectedEmployee();
   var monthStr = year + "-" + String(month).padStart(2, "0");
   var url = "/api/available-dates/?service=" + serviceId + "&month=" + monthStr;
   if (employeeId) url += "&employee=" + employeeId;
@@ -226,13 +158,14 @@ function loadAvailableDates(serviceId, year, month) {
 
 function resetTimeSlots(msg) {
   document.getElementById("bookingTime").innerHTML =
-    '<option value="" disabled selected>' + (msg || "Wybierz datę i usługę") + "</option>";
+    '<option value="" disabled selected>' + (msg || "Najpierw wybierz zabieg i dzień") + "</option>";
 }
 
 function fetchEmployees(serviceId) {
-  var empSelect = document.getElementById("bookingEmployee");
-  empSelect.innerHTML = '<option value="">Dowolna specjalistka</option>';
+  var empSelect = employeeSelect;
   resetTimeSlots();
+  if (!empSelect) return;
+  empSelect.innerHTML = '<option value="">Dowolna specjalistka</option>';
   if (!serviceId) return;
   fetch("/api/employees/?service=" + serviceId)
     .then(function (r) { return r.json(); })
@@ -249,11 +182,11 @@ function fetchEmployees(serviceId) {
 function fetchSlots() {
   var serviceId = document.getElementById("bookingService").value;
   var date = document.getElementById("bookingDate").value;
-  var employeeId = document.getElementById("bookingEmployee").value;
+  var employeeId = selectedEmployee();
   var timeSelect = document.getElementById("bookingTime");
 
   if (!serviceId || !date) {
-    resetTimeSlots("Najpierw wybierz usługę i datę");
+    resetTimeSlots("Najpierw wybierz zabieg i dzień");
     return;
   }
 
@@ -282,21 +215,23 @@ function fetchSlots() {
     });
 }
 
-document.getElementById("bookingService").addEventListener("change", function () {
+// Only the home page has the booking form; on subpages (legal pages, cancel link, 404) there is nothing to bind
+var serviceSelect = document.getElementById("bookingService");
+if (serviceSelect) serviceSelect.addEventListener("change", function () {
   var serviceId = this.value;
   fetchEmployees(serviceId);
   bookingPicker.clear();
   bookingPicker.set("enable", []);
-  resetTimeSlots("Najpierw wybierz usługę i datę");
+  resetTimeSlots("Najpierw wybierz zabieg i dzień");
   if (serviceId) {
     loadAvailableDates(serviceId, bookingPicker.currentYear, bookingPicker.currentMonth + 1);
   }
 });
 
-document.getElementById("bookingEmployee").addEventListener("change", function () {
+if (employeeSelect) employeeSelect.addEventListener("change", function () {
   var serviceId = document.getElementById("bookingService").value;
   bookingPicker.clear();
-  resetTimeSlots("Najpierw wybierz usługę i datę");
+  resetTimeSlots("Najpierw wybierz zabieg i dzień");
   if (serviceId) {
     loadAvailableDates(serviceId, bookingPicker.currentYear, bookingPicker.currentMonth + 1);
   }
@@ -355,7 +290,7 @@ function validateBookingForm() {
 
   var service = document.getElementById("bookingService");
   if (!service.value) {
-    setFieldError(service, "Wybierz usługę.");
+    setFieldError(service, "Wybierz zabieg.");
     valid = false;
   }
 
@@ -375,10 +310,12 @@ function validateBookingForm() {
 }
 
 ["clientName", "clientPhone", "clientEmail"].forEach(function (id) {
-  document.getElementById(id).addEventListener("input", function () { clearFieldError(this); });
+  var field = document.getElementById(id);
+  if (field) field.addEventListener("input", function () { clearFieldError(this); });
 });
 ["bookingService", "bookingDate", "bookingTime"].forEach(function (id) {
-  document.getElementById(id).addEventListener("change", function () { clearFieldError(this); });
+  var field = document.getElementById(id);
+  if (field) field.addEventListener("change", function () { clearFieldError(this); });
 });
 
 function submitBooking(e) {
@@ -396,7 +333,7 @@ function submitBooking(e) {
     client_phone: document.getElementById("clientPhone").value,
     client_email: document.getElementById("clientEmail").value,
     service: document.getElementById("bookingService").value,
-    employee: document.getElementById("bookingEmployee").value,
+    employee: selectedEmployee(),
     date: document.getElementById("bookingDate").value,
     time: document.getElementById("bookingTime").value,
     notes: document.getElementById("bookingNotes").value,
@@ -431,21 +368,8 @@ function resetBookingForm() {
   clearAllErrors(form);
   bookingPicker.clear();
   bookingPicker.set("enable", []);
-  document.getElementById("bookingEmployee").innerHTML = '<option value="">Dowolna specjalistka</option>';
-  resetTimeSlots("Najpierw wybierz usługę i datę");
+  if (employeeSelect) employeeSelect.innerHTML = '<option value="">Dowolna specjalistka</option>';
+  resetTimeSlots("Najpierw wybierz zabieg i dzień");
   form.classList.remove("d-none");
   document.getElementById("bookingSuccess").classList.add("d-none");
 }
-
-// ── Footer ────────────────────────────────────────────────────────────────────
-
-(function () {
-  var el = document.getElementById("footerYear");
-  if (el)
-    el.textContent =
-      "© " +
-      new Date().getFullYear() +
-      " Royal Beauty Studio Urody. Wszelkie prawa zastrzeżone.";
-})();
-
-

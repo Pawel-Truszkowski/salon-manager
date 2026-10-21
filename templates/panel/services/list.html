@@ -1,0 +1,103 @@
+{% extends 'panel/base.html' %}
+{% load static %}
+
+{% block title %}Usługi{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+  <h1 class="panel-title mb-0">Usługi</h1>
+  <a href="{% url 'panel:service_create' %}" class="btn panel-btn-primary"><i class="bi bi-plus-lg"></i> Dodaj usługę</a>
+</div>
+<p class="text-muted small">Kategorie odpowiadają zakładkom na stronie. Nowa usługa pojawi się w rezerwacji, gdy zaznaczysz ją u co najmniej jednej specjalistki w zakładce „Zespół”.</p>
+
+{% regroup services by category as categories %}
+{% if categories %}
+  {# One tab per category; the selected one lives in the URL hash (#<slug>) so edits come back to it #}
+  <ul class="nav nav-pills panel-tabs mb-3" role="tablist" data-hash-tabs>
+    {% for group in categories %}
+      <li class="nav-item" role="presentation">
+        <button class="nav-link{% if forloop.first %} active{% endif %}" id="tab-{{ group.grouper.slug }}"
+                data-bs-toggle="pill" data-bs-target="#pane-{{ group.grouper.slug }}" data-hash="{{ group.grouper.slug }}"
+                type="button" role="tab" aria-controls="pane-{{ group.grouper.slug }}" aria-selected="{{ forloop.first|yesno:'true,false' }}">
+          {{ group.grouper }} <span class="badge rounded-pill text-bg-light border ms-1">{{ group.list|length }}</span>
+        </button>
+      </li>
+    {% endfor %}
+  </ul>
+
+  <div class="tab-content">
+    {% for group in categories %}
+      <div class="tab-pane fade{% if forloop.first %} show active{% endif %}" id="pane-{{ group.grouper.slug }}" role="tabpanel" aria-labelledby="tab-{{ group.grouper.slug }}" tabindex="0">
+        <div class="card panel-card">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0 panel-services-table">
+              <thead>
+                <tr>
+                  <th>Usługa</th>
+                  <th class="text-nowrap">Cena</th>
+                  <th class="text-nowrap">Czas</th>
+                  <th class="text-end"><span class="visually-hidden">Akcje</span></th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for service in group.list %}
+                  <tr{% if not service.is_active %} class="text-muted"{% endif %}>
+                    <td>
+                      {{ service.name }}
+                      {% if not service.is_active %}<span class="badge text-bg-light border ms-1">wyłączona</span>{% endif %}
+                      {% if service.description %}
+                        {# Characters, not words: keeps the row one line high whatever the word lengths; full text on hover #}
+                        <div class="small text-muted" title="{{ service.description }}">{{ service.description|truncatechars:90 }}</div>
+                      {% endif %}
+                    </td>
+                    <td class="text-nowrap">{{ service.price_label }}</td>
+                    <td class="text-nowrap">{{ service.duration }} min</td>
+                    <td class="text-end text-nowrap">
+                      <a href="{% url 'panel:service_update' service.pk %}" class="btn btn-sm btn-outline-secondary" aria-label="Edytuj: {{ service }}"><i class="bi bi-pencil"></i></a>
+                      {% if service.is_active %}
+                        {# Turning off hides it from the website at once, so ask first (like deactivating a specialist) #}
+                        <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#serviceOffModal{{ service.pk }}" aria-label="Wyłącz: {{ service }}" title="Wyłącz (zniknie ze strony)"><i class="bi bi-eye-slash"></i></button>
+                        <div class="modal fade text-start" id="serviceOffModal{{ service.pk }}" tabindex="-1" aria-labelledby="serviceOffModalLabel{{ service.pk }}" aria-hidden="true">
+                          <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h2 class="modal-title h5" id="serviceOffModalLabel{{ service.pk }}">Wyłączyć „{{ service }}”?</h2>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Zamknij"></button>
+                              </div>
+                              <div class="modal-body text-wrap">
+                                <p class="mb-0">Usługa zniknie ze strony i z rezerwacji (także w panelu). Historia wizyt zostaje — można ją później włączyć ponownie.</p>
+                              </div>
+                              <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Nie</button>
+                                <form method="post" action="{% url 'panel:service_toggle_active' service.pk %}">
+                                  {% csrf_token %}
+                                  <button type="submit" class="btn btn-danger">Tak, wyłącz</button>
+                                </form>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      {% else %}
+                        <form method="post" action="{% url 'panel:service_toggle_active' service.pk %}" class="d-inline">
+                          {% csrf_token %}
+                          <button type="submit" class="btn btn-sm btn-outline-success" aria-label="Włącz: {{ service }}" title="Włącz ponownie"><i class="bi bi-eye"></i></button>
+                        </form>
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="card panel-card"><div class="card-body text-muted">Brak usług.</div></div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/panel-tabs.js' %}"></script>
+{% endblock %}

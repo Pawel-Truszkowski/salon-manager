@@ -1,7 +1,7 @@
 import datetime
-import pytest
 from unittest.mock import Mock
 
+import pytest
 from django.contrib import admin
 from django.urls import reverse
 from django.utils import timezone
@@ -13,7 +13,6 @@ from tests.conftest import make_appointment
 
 @pytest.mark.django_db
 class TestConfirmAppointmentsAction:
-
     def test_confirms_pending_appointments_and_sends_emails(
         self, admin_client, employee, service, tomorrow, mailoutbox
     ):
@@ -34,9 +33,7 @@ class TestConfirmAppointmentsAction:
         assert pending_2.status == Appointment.Status.CONFIRMED
         assert len(mailoutbox) == 2
 
-    def test_skips_already_confirmed_appointments(
-        self, admin_client, employee, service, tomorrow, mailoutbox
-    ):
+    def test_skips_already_confirmed_appointments(self, admin_client, employee, service, tomorrow, mailoutbox):
         already_confirmed = make_appointment(employee, service, tomorrow, hour=10, status=Appointment.Status.CONFIRMED)
         mailoutbox.clear()
 
@@ -52,10 +49,7 @@ class TestConfirmAppointmentsAction:
 
 @pytest.mark.django_db
 class TestAppointmentAdminSaveModel:
-
-    def test_manually_confirming_via_change_form_sends_email(
-        self, employee, service, tomorrow, mailoutbox, rf
-    ):
+    def test_manually_confirming_via_change_form_sends_email(self, employee, service, tomorrow, mailoutbox, rf):
         appt = make_appointment(employee, service, tomorrow, hour=10, status=Appointment.Status.PENDING)
         appt.status = Appointment.Status.CONFIRMED
         mailoutbox.clear()
@@ -84,7 +78,9 @@ class TestAppointmentAdminSaveModel:
 
         model_admin = AppointmentAdmin(Appointment, admin.site)
         request = rf.post('/admin/bookings/appointment/add/')
-        form = Mock(changed_data=['service', 'employee', 'date_time', 'status', 'client_name', 'client_email', 'client_phone'])
+        form = Mock(
+            changed_data=['service', 'employee', 'date_time', 'status', 'client_name', 'client_email', 'client_phone']
+        )
 
         model_admin.save_model(request, appt, form, change=False)
 
@@ -94,9 +90,7 @@ class TestAppointmentAdminSaveModel:
         subjects = [m.subject.lower() for m in mailoutbox]
         assert not any('potwierdzona' in subject for subject in subjects)
 
-    def test_editing_without_changing_status_does_not_send_email(
-        self, employee, service, tomorrow, mailoutbox, rf
-    ):
+    def test_editing_without_changing_status_does_not_send_email(self, employee, service, tomorrow, mailoutbox, rf):
         appt = make_appointment(employee, service, tomorrow, hour=10, status=Appointment.Status.CONFIRMED)
         appt.notes = 'Zaktualizowana notatka'
         mailoutbox.clear()

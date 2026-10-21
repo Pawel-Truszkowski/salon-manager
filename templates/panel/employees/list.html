@@ -1,0 +1,96 @@
+{% extends 'panel/base.html' %}
+
+{% block title %}Zespół{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+  <h1 class="panel-title mb-0">Zespół</h1>
+  <a href="{% url 'panel:employee_create' %}" class="btn panel-btn-primary"><i class="bi bi-plus-lg"></i> Dodaj specjalistkę</a>
+</div>
+
+<div class="card panel-card">
+  {% if employees %}
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Specjalistka</th>
+            <th class="d-none d-lg-table-cell">Usługi</th>
+            <th>Konto w panelu</th>
+            <th class="text-end"><span class="visually-hidden">Akcje</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for employee in employees %}
+            <tr{% if not employee.is_active %} class="text-muted"{% endif %}>
+              <td>
+                {{ employee.first_name }} {{ employee.last_name }}
+                {% if not employee.is_active %}<span class="badge text-bg-light border ms-1">nieaktywna</span>{% endif %}
+              </td>
+              <td class="d-none d-lg-table-cell small">
+                {% for service in employee.services.all %}{{ service }}{% if not forloop.last %}, {% endif %}{% empty %}<span class="text-muted">brak</span>{% endfor %}
+              </td>
+              <td>
+                {% if employee.user and not employee.user.has_usable_password %}
+                  <span class="badge text-bg-warning">zaproszona</span>
+                  {% if employee.is_active %}
+                    <form method="post" action="{% url 'panel:employee_invite_resend' employee.pk %}" class="d-inline">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-link btn-sm p-0 ms-1 align-baseline">wyślij ponownie</button>
+                    </form>
+                  {% endif %}
+                {% elif employee.user and employee.is_active %}
+                  <span class="badge text-bg-success">aktywne</span>
+                {% elif employee.user %}
+                  <span class="badge text-bg-secondary">zablokowane</span>
+                {% elif employee.is_active %}
+                  <a href="{% url 'panel:employee_invite' employee.pk %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-envelope"></i> Zaproś</a>
+                {% else %}
+                  <span class="badge text-bg-secondary">brak</span>
+                {% endif %}
+              </td>
+              <td class="text-end text-nowrap">
+                <a href="{% url 'panel:employee_update' employee.pk %}" class="btn btn-sm btn-outline-secondary" aria-label="Edytuj: {{ employee }}">
+                  <i class="bi bi-pencil"></i>
+                </a>
+                {% if employee.is_active %}
+                  <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#toggleModal{{ employee.pk }}" aria-label="Dezaktywuj: {{ employee }}">
+                    <i class="bi bi-person-dash"></i>
+                  </button>
+                  <div class="modal fade text-start" id="toggleModal{{ employee.pk }}" tabindex="-1" aria-labelledby="toggleModalLabel{{ employee.pk }}" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h2 class="modal-title h5" id="toggleModalLabel{{ employee.pk }}">Dezaktywować: {{ employee }}?</h2>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Zamknij"></button>
+                        </div>
+                        <div class="modal-body text-wrap">
+                          <p class="mb-0">Zniknie z rezerwacji na stronie i z wyboru w panelu, a jej konto nie będzie mogło się zalogować. Historia wizyt, grafik i dane zostają — można ją później przywrócić.</p>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Nie</button>
+                          <form method="post" action="{% url 'panel:employee_toggle_active' employee.pk %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger">Tak, dezaktywuj</button>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                {% else %}
+                  <form method="post" action="{% url 'panel:employee_toggle_active' employee.pk %}" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-outline-success" aria-label="Przywróć: {{ employee }}"><i class="bi bi-person-check"></i></button>
+                  </form>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="card-body text-muted">Brak specjalistek. Dodaj pierwszą, żeby klienci mogli rezerwować wizyty.</div>
+  {% endif %}
+</div>
+{% endblock %}

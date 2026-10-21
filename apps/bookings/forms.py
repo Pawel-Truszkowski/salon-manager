@@ -1,6 +1,10 @@
 import datetime
-from django.utils import timezone
+
 from django import forms
+from django.utils import timezone
+
+from apps.services.models import Employee, Service
+
 from .models import Appointment
 
 
@@ -9,22 +13,26 @@ class BookingForm(forms.ModelForm):
     time = forms.ChoiceField(choices=[], label='Godzina')
 
     class Meta:
-        model  = Appointment
+        model = Appointment
         fields = ['service', 'employee', 'client_name', 'client_phone', 'client_email', 'date', 'time', 'notes']
         widgets = {
             'employee': forms.Select(attrs={'class': 'form-control'}),
         }
-        
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['employee'].required   = False
+        self.fields['service'].queryset = Service.objects.active()
+        self.fields['employee'].queryset = Employee.objects.active()
+        self.fields['employee'].required = False
         self.fields['employee'].empty_label = 'Dowolna specjalistka'
+        # Optional on the model (phone bookings in the panel), but always required on the website
+        self.fields['client_email'].required = True
 
         # Jeśli formularz ma już dane (np. błąd walidacji) — zachowaj wybraną godzinę
         if self.data.get('time'):
             t = self.data['time']
             self.fields['time'].choices = [(t, t)]
-        
+
     def clean(self):
         cleaned = super().clean()
         date = cleaned.get('date')
@@ -36,13 +44,13 @@ class BookingForm(forms.ModelForm):
                 time_obj = datetime.datetime.strptime(time, '%H:%M').time()
                 cleaned['date_time'] = timezone.make_aware(datetime.datetime.combine(date, time_obj))
             except ValueError:
-                raise forms.ValidationError('Nieprawidłowy format godziny.')
+                raise forms.ValidationError('Nieprawidłowy format godziny.') from None
 
         if cleaned.get('date_time') and cleaned['date_time'] < timezone.now():
             raise forms.ValidationError('Nie można rezerwować w przeszłości.')
 
         return cleaned
-    
+
     def save(self, commit=True):
         instance = super().save(commit=False)
         # Przepisz złożone datetime do pola modelu

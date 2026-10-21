@@ -1,0 +1,83 @@
+{% extends 'panel/base.html' %}
+
+{% block title %}Urządzenia{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+  <h1 class="panel-title mb-0">Urządzenia</h1>
+  <a href="{% url 'panel:equipment_create' %}" class="btn btn-outline-secondary"><i class="bi bi-plus-lg"></i> Dodaj urządzenie</a>
+</div>
+<p class="text-muted small">Sprzęt, który bywa w salonie tylko w wybrane dni, np. wynajmowany laser. Usługi, które go wymagają, klientki mogą zarezerwować wyłącznie w te dni.</p>
+
+{% for equipment in equipment_list %}
+  <div class="card panel-card mb-4">
+    <div class="card-header bg-transparent d-flex flex-wrap align-items-center justify-content-between gap-2">
+      <h2 class="h5 mb-0">
+        {{ equipment }}
+        {% if not equipment.is_active %}<span class="badge text-bg-secondary ms-1">nieużywane</span>{% endif %}
+      </h2>
+      <div class="d-flex gap-2">
+        <a href="{% url 'panel:equipment_update' equipment.pk %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i> Edytuj</a>
+        <a href="{% url 'panel:equipment_rental_create' equipment.pk %}" class="btn btn-sm panel-btn-primary"><i class="bi bi-plus-lg"></i> Dodaj termin</a>
+      </div>
+    </div>
+    <div class="card-body">
+      <p class="small mb-3">
+        <strong>Usługi:</strong>
+        {% for service in equipment.active_services %}{{ service }}{% if not forloop.last %}, {% endif %}{% empty %}<span class="text-muted">żadna usługa nie wymaga tego urządzenia. Ustaw to w Usługi → edycja → „Wymaga urządzenia”.</span>{% endfor %}
+      </p>
+      {% if equipment.upcoming_rentals %}
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead>
+              <tr>
+                <th>Termin</th>
+                <th class="text-end"><span class="visually-hidden">Akcje</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for rental in equipment.upcoming_rentals %}
+                <tr>
+                  <td class="text-nowrap">
+                    {{ rental.date_from|date:"D d.m.Y" }}{% if rental.date_to != rental.date_from %} – {{ rental.date_to|date:"D d.m.Y" }}{% endif %}
+                  </td>
+                  <td class="text-end">
+                    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteRental{{ rental.pk }}" aria-label="Usuń termin">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                    <div class="modal fade text-start" id="deleteRental{{ rental.pk }}" tabindex="-1" aria-labelledby="deleteRentalLabel{{ rental.pk }}" aria-hidden="true">
+                      <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h2 class="modal-title h5" id="deleteRentalLabel{{ rental.pk }}">Usunąć termin?</h2>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Zamknij"></button>
+                          </div>
+                          <div class="modal-body">
+                            <p class="mb-0"><strong>{{ equipment }}</strong>: {{ rental.date_from|date:"d.m.Y" }}–{{ rental.date_to|date:"d.m.Y" }}</p>
+                            <p class="small text-muted mb-0 mt-1">Usług z tym urządzeniem nie będzie można zarezerwować w te dni. Gdy są już zapisane wizyty, termin nie zostanie usunięty.</p>
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Nie</button>
+                            <form method="post" action="{% url 'panel:equipment_rental_delete' rental.pk %}">
+                              {% csrf_token %}
+                              <button type="submit" class="btn btn-danger">Tak, usuń</button>
+                            </form>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p class="text-muted mb-0">Brak zaplanowanych terminów: usług z tym urządzeniem nie można teraz zarezerwować.</p>
+      {% endif %}
+    </div>
+  </div>
+{% empty %}
+  <div class="card panel-card"><div class="card-body text-muted">Brak urządzeń.</div></div>
+{% endfor %}
+{% endblock %}

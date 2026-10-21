@@ -1,17 +1,18 @@
 import calendar
 import datetime
-from rest_framework.views import APIView
-from rest_framework.generics import ListAPIView
-from apps.api.serializers import ServiceSerializer, EmployeeSerializer
-from rest_framework.response import Response
-from rest_framework import status
 
-from apps.services.models import Service, Employee
+from rest_framework import status
+from rest_framework.generics import ListAPIView
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from apps.api.serializers import EmployeeSerializer, ServiceSerializer
 from apps.bookings.utils import get_available_slots
+from apps.services.models import Employee, Service
 
 
 class ServiceListView(ListAPIView):
-    queryset = Service.objects.all().order_by('category', 'name')
+    queryset = Service.objects.active().select_related('category').order_by('category', 'name')
     serializer_class = ServiceSerializer
 
 
@@ -21,9 +22,9 @@ class EmployeeListView(ListAPIView):
     def get_queryset(self):
         service_id = self.request.query_params.get('service')
         if service_id:
-            return Employee.objects.filter(services__id=service_id).order_by('first_name')
-        return Employee.objects.all().order_by('first_name')
-    
+            return Employee.objects.active().filter(services__id=service_id).order_by('first_name')
+        return Employee.objects.active().order_by('first_name')
+
 
 class AvailableSlots(APIView):
     def get(self, request, format=None):
@@ -31,31 +32,36 @@ class AvailableSlots(APIView):
         employee_id = request.query_params.get('employee')
         service_id = request.query_params.get('service')
         if not date_str or not service_id:
-            return Response({'slots': [], 'error': 'Missing date or service_id parameter'}, status=status.HTTP_400_BAD_REQUEST)
-        
+            return Response(
+                {'slots': [], 'error': 'Missing date or service_id parameter'}, status=status.HTTP_400_BAD_REQUEST
+            )
+
         try:
-            service = Service.objects.get(id=service_id)
+            service = Service.objects.active().get(id=service_id)
             date = datetime.date.fromisoformat(date_str)
-        except (Service.DoesNotExist, ValueError):
+        except Service.DoesNotExist, ValueError:
             return Response({'slots': [], 'error': 'Nieprawidłowe dane.'}, status=status.HTTP_400_BAD_REQUEST)
 
         if date < datetime.date.today():
-            return Response({'slots': [], 'error': 'Cannot book appointments in the past.'}, status=status.HTTP_400_BAD_REQUEST)
-        
+            return Response(
+                {'slots': [], 'error': 'Cannot book appointments in the past.'}, status=status.HTTP_400_BAD_REQUEST
+            )
+
         if employee_id:
             try:
-                employee = service.employees.get(id=employee_id)
+                employee = service.employees.active().get(id=employee_id)
                 slots = get_available_slots(employee, date, service)
             except Employee.DoesNotExist:
-                return Response({'slots': [], 'error': 'Employee not found for this service.'}, status=status.HTTP_404_NOT_FOUND)
+                return Response(
+                    {'slots': [], 'error': 'Employee not found for this service.'}, status=status.HTTP_404_NOT_FOUND
+                )
         else:
-            candidates = service.employees.all()
+            candidates = service.employees.active()
             slots_set = set()
             for employee in candidates:
                 slots_set.update(get_available_slots(employee, date, service))
             slots = sorted(slots_set)
-        
-        
+
         return Response({'slots': [s.strftime('%H:%M') for s in slots]})
 
 
@@ -69,18 +75,18 @@ class AvailableDates(APIView):
             return Response({'dates': []}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            service = Service.objects.get(id=service_id)
+            service = Service.objects.active().get(id=service_id)
             year, month = map(int, month_str.split('-'))
-        except (Service.DoesNotExist, ValueError):
+        except Service.DoesNotExist, ValueError:
             return Response({'dates': []}, status=status.HTTP_400_BAD_REQUEST)
 
         if employee_id:
             try:
-                candidates = [service.employees.get(id=employee_id)]
+                candidates = [service.employees.active().get(id=employee_id)]
             except Employee.DoesNotExist:
                 return Response({'dates': []})
         else:
-            candidates = list(service.employees.all())
+            candidates = list(service.employees.active())
 
         today = datetime.date.today()
         days_in_month = calendar.monthrange(year, month)[1]

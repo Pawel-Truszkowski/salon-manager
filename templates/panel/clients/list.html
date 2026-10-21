@@ -1,0 +1,62 @@
+{% extends 'panel/base.html' %}
+
+{% block title %}Klientki{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+  <h1 class="panel-title mb-0">Klientki</h1>
+  <a href="{% url 'panel:client_create' %}" class="btn panel-btn-primary"><i class="bi bi-plus-lg"></i> Dodaj klientkę</a>
+</div>
+<p class="text-muted small">Każda rezerwacja, ze strony i z panelu, trafia tu sama: klientkę rozpoznajemy po numerze telefonu.</p>
+
+<form method="get" class="mb-3" role="search" style="max-width: 420px">
+  <label class="visually-hidden" for="client-q">Szukaj</label>
+  <div class="input-group">
+    <input id="client-q" type="search" name="q" value="{{ q }}" placeholder="Imię, telefon lub e-mail" class="form-control">
+    <button class="btn btn-outline-secondary" type="submit"><i class="bi bi-search"></i><span class="visually-hidden">Szukaj</span></button>
+  </div>
+</form>
+
+<div class="card panel-card">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead>
+        <tr>
+          <th>Klientka</th>
+          <th>Telefon</th>
+          <th class="d-none d-md-table-cell">E-mail</th>
+          <th class="text-nowrap">Wizyty</th>
+          <th class="text-nowrap d-none d-sm-table-cell">Ostatnia</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for client in clients %}
+          <tr>
+            <td><a href="{% url 'panel:client_detail' client.pk %}">{{ client.name }}</a></td>
+            <td class="text-nowrap"><a href="tel:{{ client.phone }}">{{ client.phone_display }}</a></td>
+            <td class="d-none d-md-table-cell">{{ client.email|default:"—" }}</td>
+            <td>{{ client.visit_count }}</td>
+            <td class="text-nowrap d-none d-sm-table-cell">{{ client.last_visit|date:"d.m.Y"|default:"—" }}</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="5" class="text-muted">{% if q %}Nikt nie pasuje do „{{ q }}”.{% else %}Jeszcze nie ma klientek. Pojawią się z pierwszą rezerwacją.{% endif %}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% if is_paginated %}
+  <nav class="mt-3" aria-label="Strony">
+    <ul class="pagination pagination-sm justify-content-center">
+      {% if page_obj.has_previous %}
+        <li class="page-item"><a class="page-link" href="?q={{ q|urlencode }}&page={{ page_obj.previous_page_number }}">‹</a></li>
+      {% endif %}
+      <li class="page-item disabled"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+      {% if page_obj.has_next %}
+        <li class="page-item"><a class="page-link" href="?q={{ q|urlencode }}&page={{ page_obj.next_page_number }}">›</a></li>
+      {% endif %}
+    </ul>
+  </nav>
+{% endif %}
+{% endblock %}

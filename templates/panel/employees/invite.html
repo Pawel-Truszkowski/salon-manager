@@ -1,0 +1,23 @@
+{% extends 'panel/base.html' %}
+
+{% block title %}Zaproszenie: {{ employee }}{% endblock %}
+
+{% block content %}
+<a href="{% url 'panel:employee_list' %}" class="small"><i class="bi bi-arrow-left"></i> Zespół</a>
+<h1 class="panel-title mt-2 mb-2">Zaproś do panelu: {{ employee.first_name }} {{ employee.last_name }}</h1>
+<p class="text-muted small mb-4" style="max-width: 720px">
+  Utworzymy konto i wyślemy na ten adres link do ustawienia hasła. Adres będzie też loginem.
+  Po zalogowaniu specjalistka zobaczy tylko swoje wizyty, grafik i blokady.
+</p>
+
+<form method="post" class="card panel-card" style="max-width: 720px" novalidate>
+  {% csrf_token %}
+  <div class="card-body">
+    {% include 'panel/_field.html' with field=form.email %}
+  </div>
+  <div class="card-footer bg-transparent d-flex gap-2">
+    <button type="submit" class="btn panel-btn-primary"><i class="bi bi-envelope"></i> Wyślij zaproszenie</button>
+    <a href="{% url 'panel:employee_list' %}" class="btn btn-outline-secondary">Anuluj</a>
+  </div>
+</form>
+{% endblock %}

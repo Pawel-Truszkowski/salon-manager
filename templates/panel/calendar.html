@@ -1,0 +1,49 @@
+{% extends 'panel/base.html' %}
+{% load static %}
+
+{% block title %}Kalendarz{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+  <h1 class="panel-title mb-0">Kalendarz</h1>
+  {% if is_owner %}
+    <form method="get" class="d-flex gap-2 align-items-center">
+      <label class="visually-hidden" for="calendar-employee">Specjalistka</label>
+      <select id="calendar-employee" name="employee" class="form-select form-select-sm" onchange="this.form.submit()">
+        <option value="">Wszystkie specjalistki</option>
+        {% for employee in employees %}
+          <option value="{{ employee.pk }}" {% if selected_employee == employee.pk|stringformat:"d" %}selected{% endif %}>{{ employee }}</option>
+        {% endfor %}
+      </select>
+      <noscript><button type="submit" class="btn btn-sm btn-outline-secondary">Pokaż</button></noscript>
+    </form>
+  {% endif %}
+</div>
+
+<div class="d-flex flex-wrap gap-3 small text-muted mb-2" aria-hidden="true">
+  <span><span class="calendar-legend" style="background:#e0a100"></span> oczekująca</span>
+  <span><span class="calendar-legend" style="background:#b07d62"></span> potwierdzona</span>
+  <span><span class="calendar-legend" style="background:#8a9a8b"></span> zrealizowana</span>
+  {% if not is_owner or selected_employee %}
+    <span><span class="calendar-legend" style="background:#d1e7dd"></span> godziny pracy</span>
+    <span><span class="calendar-legend" style="background:#adb5bd"></span> blokada</span>
+  {% endif %}
+  <span>Wiersz „Grafik”: kto pracuje i w jakich godzinach, blokady (⊘).</span>
+</div>
+
+<div class="card panel-card">
+  <div class="card-body">
+    <div id="calendar"
+         data-events-url="{% url 'panel:calendar_events' %}"
+         data-create-url="{% url 'panel:appointment_create' %}"
+         data-csrf-token="{{ csrf_token }}"
+         data-employee="{% if is_owner %}{{ selected_employee }}{% endif %}"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.15/locales/pl.global.min.js"></script>
+<script src="{% static 'js/panel-calendar.js' %}"></script>
+{% endblock %}
