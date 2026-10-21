@@ -3,15 +3,17 @@ import logging
 from django.conf import settings
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
+from django.utils import timezone
 
 logger = logging.getLogger(__name__)
 
 
 def _send_to_client(appointment, *, template, subject, message, kind):
+    """Returns True when the e-mail went out."""
     # Appointments added in the panel (e.g. booked by phone) may have no e-mail address
     if not appointment.client_email:
         logger.info(f"Skipped {kind} email for reservation({appointment.id}): client has no e-mail address")
-        return
+        return False
     try:
         html_message = render_to_string(
             template,
@@ -29,10 +31,12 @@ def _send_to_client(appointment, *, template, subject, message, kind):
             fail_silently=False,
         )
         logger.info(f"Sent {kind} email to client: {appointment.client_email} for reservation({appointment.id})")
+        return True
     except Exception as e:
         logger.error(
             f"Error sending {kind} email to the client {appointment.client_email}, reservation({appointment.id}): {e}"
         )
+        return False
 
 
 def _send_to_salon(appointment, *, template, subject, message, kind):
@@ -110,6 +114,16 @@ def send_rescheduled_email(appointment):
         subject='Zmiana terminu Twojej wizyty — Royal Beauty',
         message='Termin Twojej wizyty został zmieniony. Szczegóły w załączonym e-mailu.',
         kind='rescheduled',
+    )
+
+
+def send_reminder_email(appointment):
+    return _send_to_client(
+        appointment,
+        template='emails/booking_reminder_client.html',
+        subject=f'Przypomnienie o wizycie {timezone.localtime(appointment.date_time):%d.%m, %H:%M} — Royal Beauty',
+        message='Przypominamy o Twojej wizycie w Royal Beauty. Szczegóły w załączonym e-mailu.',
+        kind='reminder',
     )
 
 

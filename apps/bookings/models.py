@@ -119,6 +119,8 @@ class Appointment(models.Model):
     notes = models.TextField(blank=True)
 
     cancellation_token = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    # Set by the send_reminders command; cleared on reschedule so the new date gets its own reminder
+    reminder_sent_at = models.DateTimeField(null=True, blank=True, editable=False)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -179,6 +181,7 @@ class Appointment(models.Model):
         if not self.can_be_rescheduled:
             raise ValueError("Only pending or confirmed appointments can be rescheduled.")
         self.date_time = new_date_time
+        self.reminder_sent_at = None
         if employee is not None:
             self.employee = employee
         self.save()

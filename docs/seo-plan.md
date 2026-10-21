@@ -105,6 +105,7 @@ Produkcja (`main` = 50421fc) przeskakuje naraz o ~40 commitów i 15 migracji, w 
 - [x] Zdjęcie Pauliny (`static/img/paulina.webp`, 480×640) w profilu, gdy jest jedna aktywna osoba; przy kilku zostają inicjały. Docelowo `Employee.photo` wgrywane w panelu, gdy salon kogoś zatrudni.
 - [x] Data „Obowiązuje od” w `templates/legal/_page.html` = 21 października 2026 (dzień deployu).
 - [x] Paulina przeczytała politykę prywatności i regulamin (2026-10-21).
+- [ ] **Przypomnienie o wizycie** (mail ok. 24 h przed): komenda `send_reminders` (`apps/bookings/reminders.py`) co godzinę z crona. Reguły: tylko wizyty potwierdzone, z e-mailem, w ciągu najbliższych 24 h, zarezerwowane co najmniej 24 h przed terminem; raz na wizytę (`Appointment.reminder_sent_at`, zerowane przy zmianie terminu); nieudana wysyłka = ponowna próba za godzinę. Paulina musi potwierdzać wizyty ze strony na czas, bo oczekujące nie dostają przypomnienia.
 - [ ] Na stagingu pełna ścieżka: rezerwacja ze strony → mail → link „odwołaj” → mail; panel: potwierdzenie, przeniesienie w kalendarzu, laser tylko w dni wynajmu.
 
 **6b. Próba generalna migracji (lokalnie, na kopii produkcji)**
@@ -127,6 +128,9 @@ Produkcja (`main` = 50421fc) przeskakuje naraz o ~40 commitów i 15 migracji, w 
 - [ ] Paulina: szablon tygodnia + generowanie grafiku (bez tego formularz nie pokazuje terminów), terminy lasera w „Urządzenia”: 8–9.11 i 14–15.12.
 - [ ] Rezerwacja testowa na produkcji na własny e-mail → odwołanie linkiem z maila (sprawdza Resend, `SITE_URL`, `SALON_EMAIL`).
 - [ ] Cron z `backup_db.sh` na Droplecie dalej działa (`crontab -l`, data najnowszego pliku w `backups/`).
+- [ ] Cron z przypomnieniami na Droplecie (`crontab -e`), potem po godzinie sprawdzić `logs/reminders.log`:
+  `0 * * * * cd ~/projects/salon-manager && docker compose -f docker-compose.prod.yml exec -T web uv run python manage.py send_reminders >> logs/reminders.log 2>&1`
+  Na stagingu cronu nie zakładamy (tam ręcznie: `… exec web uv run python manage.py send_reminders`).
 
 **6e. Po publikacji**
 - [ ] Wizytówka Google: godziny pn–nd 9–21 i opis „wyłącznie po wcześniejszym umówieniu”, link do strony, link do rezerwacji.
