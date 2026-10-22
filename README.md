@@ -1,10 +1,10 @@
 # Salon Manager
 
-Aplikacja webowa do zarządzania rezerwacjami w salonie kosmetycznym — strona wizytówkowa z katalogiem usług, wyborem specjalistki i terminu oraz automatycznymi powiadomieniami mailowymi o rezerwacji.
+Aplikacja webowa salonu kosmetycznego Royal Beauty Studio Urody we Wrocławiu: strona wizytówkowa z cennikiem, rezerwacją online i przypomnieniami e-mail oraz własny panel do prowadzenia salonu (wizyty, grafik, kalendarz, zespół, usługi, klientki).
 
-🌐 **Aplikacja działa na produkcji:** [royalbeauty-studiourody.pl](https://royalbeauty-studiourody.pl)
+🌐 **Produkcja:** [royalbeauty-studiourody.pl](https://royalbeauty-studiourody.pl) · **Staging:** [dev.royalbeauty-studiourody.pl](https://dev.royalbeauty-studiourody.pl)
 
-> **Status projektu:** aktywnie rozwijany. Część funkcji i usprawnień (m.in. panel klienta, rozbudowa API, dalsze pokrycie testami) jest jeszcze w planach — patrz sekcja [Roadmapa](#roadmapa).
+> **Status projektu:** działa na produkcji od 21.10.2026 (nowa strona + panel). Dalszy rozwój (SEO, podstrony usług, opinie) — patrz [Roadmapa](#roadmapa).
 
 ## Spis treści
 
@@ -15,167 +15,182 @@ Aplikacja webowa do zarządzania rezerwacjami w salonie kosmetycznym — strona 
 - [Uruchomienie lokalne](#uruchomienie-lokalne)
 - [Uruchomienie przez Docker](#uruchomienie-przez-docker)
 - [Zmienne środowiskowe](#zmienne-środowiskowe)
-- [Testy](#testy)
+- [Lint i testy](#lint-i-testy)
 - [Deployment](#deployment)
-- [Backupy bazy danych](#backupy-bazy-danych)
+- [Zadania cykliczne (cron)](#zadania-cykliczne-cron)
 - [Struktura projektu](#struktura-projektu)
 - [Roadmapa](#roadmapa)
 
 ## Funkcje
 
-- Strona główna z kategoriami usług, galerią i formularzem rezerwacji
-- REST API do pobierania usług, specjalistek oraz dostępnych terminów/godzin
-- Automatyczne wyszukiwanie wolnej specjalistki dla wybranej usługi i terminu
-- Statusy rezerwacji (oczekująca / potwierdzona / zrealizowana / anulowana) z akcjami w panelu admina
-- E-mail z potwierdzeniem rezerwacji do klienta oraz powiadomieniem dla salonu
-- Panel administracyjny Django do zarządzania usługami, specjalistkami, grafikami i rezerwacjami
-- Mapa strony (`sitemap.xml`) i `robots.txt` pod SEO
+**Strona dla klientek**
+- Cennik renderowany po stronie serwera (zakładki kategorii, opisy, ceny, czas trwania) — widoczny dla Google i botów AI bez JavaScriptu
+- Rezerwacja online: wybór zabiegu, dnia i wolnej godziny; specjalistka do wyboru tylko, gdy w salonie pracuje więcej niż jedna osoba
+- „Najbliższy wolny termin” liczony z grafiku; zabiegi wymagające wynajmowanego sprzętu (laser) tylko w dni wynajmu
+- E-maile: potwierdzenie rezerwacji, potwierdzenie przez salon, zmiana terminu, odwołanie, **przypomnienie ok. 24 h przed wizytą**
+- Samodzielne odwołanie wizyty linkiem z maila
+- Profil salonu i właścicielki, FAQ, dojazd, polityka prywatności i regulamin rezerwacji
+- SEO: jeden H1, Open Graph, JSON-LD (`BeautySalon`, `FAQPage`), `sitemap.xml`, `robots.txt`, obrazy WebP, fonty hostowane lokalnie, polskie strony 404/500
+
+**Panel salonu (`/panel/`)**
+- Logowanie, reset hasła, zaproszenia do panelu dla nowych specjalistek
+- Wizyty: lista z filtrami, potwierdzanie, realizacja, odwołanie, zmiana terminu, dodawanie wizyt telefonicznych (z podpowiedziami z kartoteki klientek)
+- Kalendarz (FullCalendar) z przeciąganiem wizyt i grafikiem w tle
+- Grafik: szablon tygodnia → generowanie grafiku na wybrany okres, blokady (urlopy, przerwy)
+- Zespół, usługi, klientki, wynajem urządzeń — tylko dla właścicielki
+- Specjalistka widzi i zmienia wyłącznie swoje dane
 
 ## Stack technologiczny
 
-- **Backend:** Django 6, Django REST Framework
-- **Baza danych:** PostgreSQL (Docker/produkcja), SQLite (opcjonalnie lokalnie)
+- **Backend:** Django 6, Django REST Framework, Python 3.14
+- **Baza danych:** PostgreSQL 16 (Docker), SQLite w testach
 - **E-mail:** django-anymail (Resend)
-- **Frontend:** Django Templates, Bootstrap 5, vanilla JS
-- **Zależności:** zarządzane przez [uv](https://docs.astral.sh/uv/)
-- **Serwer aplikacji:** Gunicorn + Nginx (produkcja)
+- **Frontend:** Django Templates, Bootstrap 5, vanilla JS, FullCalendar v6 (panel) — bez osobnego builda
+- **Zależności:** [uv](https://docs.astral.sh/uv/)
+- **Lint/format:** Ruff
 - **Testy:** pytest / pytest-django
-- **CI/CD:** GitHub Actions (testy + automatyczny deployment środowiska deweloperskiego po SSH)
-- **Hosting:** Digital Ocean Droplet (produkcja), VPS Mikrus (środowisko deweloperskie/staging)
+- **Serwer:** Gunicorn + Nginx w Docker Compose, Cloudflare przed produkcją
+- **CI/CD:** GitHub Actions (lint + testy, automatyczny deploy stagingu)
+- **Hosting:** DigitalOcean Droplet (produkcja), VPS Mikrus (staging)
 
 ## Architektura
 
-Projekt jest podzielony na niezależne aplikacje Django w katalogu `apps/`:
+Aplikacje Django w katalogu `apps/`:
 
-| Aplikacja  | Odpowiedzialność                                                             |
-| ---------- | ----------------------------------------------------------------------------- |
-| `accounts` | Własny model użytkownika (`AbstractUser` + numer telefonu)                    |
-| `services` | Kategorie usług, usługi, specjalistki (`Employee`), grafiki i bloki czasowe   |
-| `bookings` | Model `Appointment`, formularz i widok rezerwacji, e-maile, logika dostępności |
-| `api`      | Endpointy DRF (usługi, specjalistki, dostępne terminy/godziny)               |
+| Aplikacja  | Odpowiedzialność |
+| ---------- | ---------------- |
+| `accounts` | Własny model `User` (`AbstractUser` + telefon), role (`roles.py`) |
+| `services` | Kategorie, usługi, specjalistki (`Employee`), grafik (`Schedule`, `WeeklyScheduleEntry`, `TimeBlock`), sprzęt i jego wynajem, FAQ, generowanie grafiku |
+| `bookings` | `Appointment`, `Client`, formularz i widok rezerwacji, logika dostępności (`utils.py`), e-maile, przypomnienia (`reminders.py` + komenda `send_reminders`) |
+| `panel`    | Panel salonu: widoki, formularze, mixiny dostępu, zaproszenia |
+| `api`      | Endpointy DRF: usługi, specjalistki, wolne godziny i dni |
 
-Kluczowe relacje danych:
+**Role:** *właścicielka* (grupa `Właściciel`) zarządza całym salonem w `/panel/`; *specjalistka* (`User` powiązany z `Employee`) widzi tylko swoje wizyty i grafik. `/admin/` służy wyłącznie developerowi.
 
-- `Employee` ↔ `Service` — relacja M2M (specjalistka może wykonywać wiele usług)
-- `Schedule` / `TimeBlock` → `Employee` — godziny pracy i blokady terminów
-- `Appointment` → `Service` + `Employee` + dane klienta + status
+**Kluczowe relacje danych:**
+- `Employee` ↔ `Service` — M2M; `Employee.user` — opcjonalne konto w panelu
+- `Schedule` / `TimeBlock` → `Employee` — godziny pracy i blokady; `WeeklyScheduleEntry` to szablon, z którego powstają wpisy `Schedule`
+- `Service.required_equipment` → `Equipment` + `EquipmentRental` — usługa dostępna tylko w dni wynajmu sprzętu
+- `Appointment` → `Service` + `Employee` + `Client` (jedna karta na numer telefonu) + status (`pending` / `confirmed` / `completed` / `cancelled`)
 
-Konfiguracja Django (`config/`) rozdziela ustawienia na `base.py`, `development.py`, `production.py` i `test.py`.
+Ustawienia (`config/settings/`) są rozdzielone na `base.py`, `development.py`, `production.py` i samodzielny `test.py` (SQLite, e-maile w pamięci). Szczegóły architektury i przepływu rezerwacji: [CLAUDE.md](CLAUDE.md).
 
 ## Wymagania
 
 - Python 3.14+
 - [uv](https://docs.astral.sh/uv/getting-started/installation/)
-- PostgreSQL (lub SQLite do szybkich testów lokalnych)
-- Docker + Docker Compose (opcjonalnie, do uruchomienia w kontenerach)
+- PostgreSQL (lokalnie albo z `docker-compose.dev.yml`)
+- Docker + Docker Compose (opcjonalnie lokalnie, wymagane na serwerach)
 
 ## Uruchomienie lokalne
 
 ```bash
-# Instalacja zależności z lockfile'a
-uv sync
-
-# Skopiuj przykładowy plik i uzupełnij realnymi wartościami
-cp .env.example .env.dev
-
-# Migracje bazy danych
+uv sync                                   # zależności z lockfile'a
+cp .env.example .env.dev                  # i uzupełnij wartości
 uv run python manage.py migrate
-
-# Utworzenie konta administratora
-uv run python manage.py createsuperuser
-
-# Uruchomienie serwera deweloperskiego
+uv run python manage.py createsuperuser   # konto developera (/admin/ i /panel/)
 uv run python manage.py runserver
 ```
 
-Aplikacja będzie dostępna pod `http://localhost:8000`, panel admina pod `http://localhost:8000/admin/`.
+Strona: `http://localhost:8000`, panel: `http://localhost:8000/panel/`, admin: `http://localhost:8000/admin/`.
 
 ## Uruchomienie przez Docker
 
-**Development** (hot-reload, wolumen z kodem):
-
 ```bash
-docker compose -f docker-compose.dev.yml up --build
+docker compose -f docker-compose.dev.yml up --build      # development (hot-reload)
+docker compose -f docker-compose.prod.yml up -d --build  # produkcja / staging (Gunicorn + Nginx)
 ```
 
-**Produkcja** (Gunicorn + Nginx, statyki i media w wolumenach):
-
-```bash
-docker compose -f docker-compose.prod.yml up -d --build
-```
+Kontener `web` w obu wariantach uruchamia `migrate` przy starcie.
 
 ## Zmienne środowiskowe
 
-Konfiguracja wczytywana jest z plików `.env.dev` / `.env.prod` (django-environ). Wzór ze wszystkimi zmiennymi znajduje się w [.env.example](.env.example) — skopiuj go jako `.env.dev` lub `.env.prod` i uzupełnij realnymi wartościami (nigdy nie commituj tych plików). Wymagane zmienne:
+Wzór: [.env.example](.env.example) — skopiuj jako `.env.dev` (lokalnie) lub `.env.prod` (serwery). Nigdy nie commituj tych plików. Django czyta z dysku tylko `.env.dev`; `.env.prod` trafia do kontenerów przez `env_file` w `docker-compose.prod.yml`.
 
-| Zmienna                | Opis                                                    |
-| ----------------------- | -------------------------------------------------------- |
-| `DJANGO_SETTINGS_MODULE`| Moduł ustawień (`config.settings.development`/`production`) |
-| `SECRET_KEY`            | Klucz Django                                            |
-| `ALLOWED_HOSTS`         | Lista dozwolonych hostów                                |
-| `DATABASE_URL`          | Connection string do bazy danych                        |
-| `POSTGRES_DB/USER/PASSWORD` | Dane bazy PostgreSQL (Docker)                       |
-| `DB_HOST` / `DB_PORT`   | Host i port bazy danych                                 |
-| `RESEND_API_KEY`        | Klucz API Resend do wysyłki e-maili                     |
-| `DEFAULT_FROM_EMAIL`    | Adres nadawcy e-maili                                   |
-| `SALON_EMAIL`           | Adres, na który przychodzą powiadomienia o rezerwacjach |
+| Zmienna | Opis |
+| ------- | ---- |
+| `DJANGO_SETTINGS_MODULE` | `config.settings.development` / `config.settings.production` |
+| `SECRET_KEY` | Klucz Django |
+| `ALLOWED_HOSTS` | Dozwolone hosty |
+| `DATABASE_URL` | Connection string do bazy |
+| `POSTGRES_DB/USER/PASSWORD` | Dane bazy PostgreSQL (Docker) |
+| `DB_HOST` / `DB_PORT` | Host i port bazy |
+| `RESEND_API_KEY` | Klucz API Resend |
+| `DEFAULT_FROM_EMAIL` | Nadawca e-maili |
+| `SALON_EMAIL` | Adres salonu na powiadomienia o rezerwacjach i odwołaniach |
+| `SITE_URL` | Bazowy adres **ze schematem** (`https://…`): linki w mailach, canonical, Open Graph, JSON-LD |
+| `NGINX_CONF` | Tylko staging: `dev.conf` w pliku `.env` w katalogu projektu (nie w `.env.prod`) — compose czyta go przy interpolacji |
 
-## Testy
+## Lint i testy
 
 ```bash
-uv run pytest
+uv run ruff check --fix   # lint + sortowanie importów
+uv run ruff format        # formatowanie
+uv run pytest             # ok. 425 testów
 ```
 
-Konfiguracja testów znajduje się w [pytest.ini](pytest.ini) i korzysta z `config.settings.test`. Testy skupiają się na głównej logice biznesowej aplikacji — modelach, formularzach, widokach, panelu admina i funkcjach pomocnicznych (`tests/`). Nie jest to pełne pokrycie kodu — priorytetem było zabezpieczenie kluczowych ścieżek (rezerwacje, dostępność terminów), a nie 100% coverage.
+Testy (`tests/`, konfiguracja w [pytest.ini](pytest.ini)) pokrywają modele, formularze, widoki, panel, API, e-maile, przypomnienia, logikę dostępności i migracje danych. CI odrzuca zmiany, które nie przechodzą lintu, formatowania lub testów.
 
 ## Deployment
 
-Projekt działa równolegle w dwóch środowiskach, każde na osobnym VPS-ie:
+| Środowisko | Hosting | Branch | Adres | Wdrożenie |
+| ---------- | ------- | ------ | ----- | --------- |
+| **Produkcja** | DigitalOcean Droplet (`~/salon-manager`) | `main` | [royalbeauty-studiourody.pl](https://royalbeauty-studiourody.pl) | Ręcznie po SSH, po sprawdzeniu na stagingu |
+| **Staging** | VPS [Mikrus](https://mikr.us/) (`~/projects/salon-manager`) | `dev` | [dev.royalbeauty-studiourody.pl](https://dev.royalbeauty-studiourody.pl) | Automatycznie przez GitHub Actions po pushu na `dev` |
 
-| Środowisko | Hosting | Branch | Adres | Sposób wdrożenia |
-| ---------- | ------- | ------ | ----- | ------------------ |
-| **Produkcja** | Digital Ocean Droplet | `main` | [royalbeauty-studiourody.pl](https://royalbeauty-studiourody.pl) | Ręcznie — po zmergowaniu do `main` deploy wykonywany jest po SSH na Droplecie (`git pull`, restart kontenerów) |
-| **Development / staging** | VPS [Mikrus](https://mikr.us/) | `dev` | wewnętrzny/testowy | Automatycznie przez GitHub Actions przy każdym pushu na `dev` |
+Przepływ: gałąź od `dev` → PR do `dev` → (CI + staging) → PR `dev` → `main` (merge commit) → ręczny deploy produkcji.
 
-Oba środowiska uruchamiają aplikację w całości przez Docker Compose (Gunicorn + Nginx, patrz [docker-compose.prod.yml](docker-compose.prod.yml)).
+[.github/workflows/deploy.yml](.github/workflows/deploy.yml): na pushu na `dev` i PR-ach do `main` uruchamia Ruff i testy; po pushu na `dev` łączy się po SSH ze stagingiem (`git pull origin dev` + `docker compose -f docker-compose.prod.yml up -d --build`). Zmiany tylko w `*.md` i `docs/` nie uruchamiają CI.
 
-Automatyczny deployment środowiska deweloperskiego skonfigurowany jest w [.github/workflows/deploy.yml](.github/workflows/deploy.yml):
+**Deploy produkcji (skrót):**
+1. Kopia bazy: `./scripts/backup_db.sh --env prod` (jedyny rollback — migracje danych nie mają cofania).
+2. Merge PR `dev` → `main`, na Droplecie `git pull origin main` i `docker compose -f docker-compose.prod.yml up -d --build`.
+3. `docker compose -f docker-compose.prod.yml logs web` — migracje `OK`, Gunicorn uruchomiony.
+4. Cloudflare → Purge cache (pliki bez hasha w nazwie, np. `robots.txt`, są w cache do 4 h).
+5. Smoke test: przekierowania www/http → `https://royalbeauty-studiourody.pl/`, strona, panel, `robots.txt`, `sitemap.xml`.
 
-1. Push/PR uruchamia testy (`uv run pytest`).
-2. Po pushu na `dev` workflow łączy się po SSH z serwerem Mikrus, pobiera zmiany (`git pull origin dev`) i restartuje kontenery (`docker-compose.prod.yml`).
+Pełna checklista z pierwszego wdrożenia: [docs/seo-plan.md](docs/seo-plan.md), etap 6.
 
-Wdrożenie na produkcję (Digital Ocean) nie jest jeszcze zautomatyzowane w CI — wykonywane jest świadomie ręcznie, po zweryfikowaniu zmian na środowisku deweloperskim.
+## Zadania cykliczne (cron)
 
-## Backupy bazy danych
+Na serwerze produkcyjnym (crontab hosta, poza procesem deployu):
 
-Skrypt [scripts/backup_db.sh](scripts/backup_db.sh) tworzy skompresowany zrzut bazy (`.sql.gz`). Na produkcji uruchamiany jest automatycznie przez cron na serwerze (`--env prod`), niezależnie od procesu deployu.
+| Zadanie | Kiedy | Polecenie |
+| ------- | ----- | --------- |
+| Przypomnienia o wizytach | co godzinę | `docker compose -f docker-compose.prod.yml exec -T web uv run python manage.py send_reminders` |
+| Backup bazy | wg crontaba serwera | `./scripts/backup_db.sh --env prod` (`--keep N`, domyślnie 10 kopii) |
+
+Przypomnienie dostają potwierdzone wizyty z e-mailem, zaczynające się w ciągu 24 h i zarezerwowane co najmniej 24 h wcześniej — raz na wizytę (ponownie po zmianie terminu).
 
 ## Struktura projektu
 
 ```
 apps/
-  accounts/     # Model użytkownika
+  accounts/     # Model użytkownika, role
   api/          # Endpointy REST (DRF)
-  bookings/     # Rezerwacje: model, formularz, widok, e-maile
-  services/     # Usługi, specjalistki, grafiki
+  bookings/     # Rezerwacje, klientki, e-maile, przypomnienia, logika dostępności
+  panel/        # Panel salonu (/panel/)
+  services/     # Usługi, specjalistki, grafik, sprzęt, FAQ
 config/
   settings/     # base / development / production / test
-  urls.py, sitemaps.py, asgi.py, wsgi.py
-templates/      # Szablony HTML (w tym e-maile)
-static/         # CSS, JS, obrazy
+  urls.py, sitemaps.py, context_processors.py, asgi.py, wsgi.py
+templates/      # Szablony HTML (strona, panel, e-maile, strony prawne)
+static/         # CSS, JS, fonty, obrazy
 tests/          # Testy pytest
-scripts/        # Skrypty pomocnicze (backup bazy)
-nginx/          # Konfiguracja Nginx (produkcja)
+scripts/        # backup_db.sh
+nginx/          # prod.conf (produkcja), dev.conf (staging)
+docs/           # Plany: panel-plan.md, seo-plan.md, redesign/
 .env.example    # Wzór zmiennych środowiskowych
 ```
 
 ## Roadmapa
 
-Projekt jest w aktywnym rozwoju. Planowane / rozważane usprawnienia:
+Szczegóły: [docs/seo-plan.md](docs/seo-plan.md) (etapy 7–13) i [docs/panel-plan.md](docs/panel-plan.md).
 
-- Panel klienta z historią i zarządzaniem własnymi rezerwacjami
-- Rozszerzenie testów o dodatkowe scenariusze brzegowe i wyższe pokrycie kodu
-- Powiadomienia SMS / przypomnienia o wizytach
-- Kalendarz specjalistki w panelu admina (widok graficzny zamiast listy)
-
-Zgłoszenia i propozycje mile widziane w Issues.
+- SEO quick wins: meta description, `hasOfferCatalog` z cennika, `<lastmod>` w sitemapie, `llms.txt`
+- Rozszerzone FAQ (przeciwwskazania, laser, trwałość zabiegów, dojazd, płatności)
+- Prawdziwe opinie klientek na stronie
+- Podstrony kategorii usług (zaczynając od depilacji laserowej) i poradniki
+- Statystyki dla właścicielki (wizyty, przychód, obłożenie, anulacje)
+- RODO w panelu: usuwanie klientki, automatyczne czyszczenie starych danych
+- Zdjęcia specjalistek wgrywane w panelu

@@ -362,7 +362,8 @@ class TestSeoMeta:
         assert salon['hasMap'] in salon['sameAs']
         assert 'Sunday' in salon['openingHoursSpecification'][0]['dayOfWeek']
         assert 'po wcześniejszym umówieniu' in salon['description']
-        assert salon['founder']['name'] == 'Paulina'
+        assert salon['founder']['name'] == 'Paulina Truszkowska'
+        assert 'https://royalbeauty-studiourody.booksy.com/' in salon['sameAs']
         assert salon['priceRange'] != 'PLN'
         assert salon['geo']['latitude']
 

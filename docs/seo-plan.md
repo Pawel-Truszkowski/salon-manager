@@ -2,7 +2,7 @@
 
 Na podstawie pełnego audytu produkcji (`royalbeauty-studiourody.pl`, 2026-10-16; raport: `~/Downloads/seo-audit-royalbeauty-studiourody-pl-2026-10-16.docx`) i propozycji redesignu (`docs/redesign/`).
 
-**Oceny wyjściowe:** SEO 5/10 · GEO 4/10 · AEO 3/10 (12/30). Cel po etapach 1–6: ok. 7–8 w każdym wymiarze, a po etapach 7–8: 8–9.
+**Oceny wyjściowe:** SEO 5/10 · GEO 4/10 · AEO 3/10 (12/30). Cel po etapach 1–6: ok. 7–8 w każdym wymiarze (osiągnięte: 7/7/7 w audycie z 21.10.2026), a po etapach 7–12: 8–9.
 
 **Główna diagnoza:** najcenniejsza treść, czyli usługi z opisami, cenami i czasem trwania, istnieje tylko po wykonaniu JS (`static/js/script.js` pobiera `/api/services/` i wypełnia pusty `#servicesGrid`). Boty AI zazwyczaj nie wykonują JS. Do tego strona podaje nieprawdziwe informacje: przykładowe opinie, trzy specjalistki, stałe godziny otwarcia.
 
@@ -24,6 +24,14 @@ Na podstawie pełnego audytu produkcji (`royalbeauty-studiourody.pl`, 2026-10-16
 - [x] **Nazwa:** pełna to „Royal Beauty Studio Urody” (schema `name`, nagłówek strony od etapu 2, stopka, wizytówka Google), skrócona to „Royal Beauty” (title, `alternateName`).
 - [x] **Link do wystawienia opinii:** https://g.page/r/CWOM8YrRCi7eEBM/review, do przycisku „Wystaw opinię” w etapie 3.
   - [ ] Jeszcze brakuje: link do wizytówki w Mapach (`hasMap`, `sameAs`, „Zobacz opinie w Google”), a przy Places API też `place_id`. Link do opinii otwiera tylko formularz wystawiania.
+
+- [ ] **Po audycie 21.10 (etapy 7–12):**
+  - [x] Link do profilu salonu na Booksy (`sameAs`).
+  - [ ] Aktualizacja Booksy: tylko Paulina, codziennie 9–21.
+  - [x] Zgoda na pełne imię i nazwisko w danych strukturalnych (`founder`).
+  - [ ] Odpowiedzi do FAQ: przeciwwskazania, liczba i odstęp zabiegów laserem, czy laser boli, trwałość hybrydy i rzęs, parking i dojazd, płatność kartą / BLIK.
+  - [ ] Opinie: którą opcję wybiera (etap 10) i ewentualnie 3–6 ulubionych opinii.
+  - [ ] Tekst o depilacji laserowej na pierwszą podstronę (efekty, przebieg, przygotowanie, przeciwwskazania) + 1–2 zdjęcia z zabiegu.
 
 ## Etapy (każdy jako osobny PR na `dev`, gałąź od `dev`)
 
@@ -101,7 +109,7 @@ Termin docelowy: przed 8 listopada. Jeśli nie zdążymy, laser na pierwszy term
 ### 6. Publikacja na produkcji
 Produkcja (`main` = 50421fc) przeskakuje naraz o ~40 commitów i 15 migracji, w tym trzy migracje danych (`accounts.0002` grupa, `bookings.0005` import klientek, `services.0013` cennik). Migracje danych nie mają cofania, więc **jedynym rollbackiem jest kopia bazy**.
 
-**6a. Ostatni PR na `dev` (przed deployem)**
+**6a. Ostatni PR na `dev` (przed deployem)** ✅
 - [x] Zdjęcie Pauliny (`static/img/paulina.webp`, 480×640) w profilu, gdy jest jedna aktywna osoba; przy kilku zostają inicjały. Docelowo `Employee.photo` wgrywane w panelu, gdy salon kogoś zatrudni.
 - [x] Data „Obowiązuje od” w `templates/legal/_page.html` = 21 października 2026 (dzień deployu).
 - [x] Paulina przeczytała politykę prywatności i regulamin (2026-10-21).
@@ -114,24 +122,24 @@ Produkcja (`main` = 50421fc) przeskakuje naraz o ~40 commitów i 15 migracji, w 
 - [x] **Wykryte:** 14 zabiegów na twarz (cała kategoria „Zabiegi kosmetyczne”, w tym bezpłatna konsultacja) ma przypisaną tylko Marikę → patrz 6d.
 - [x] **Wykryte:** konto `paula` (Paulina) już istnieje: `is_staff` + 44 uprawnienia do `/admin/`, bez grupy, niepowiązane z `Employee` → patrz 6d.
 
-**6c. Deploy**
-- [ ] Na Droplecie: czy `.env.prod` ma `SITE_URL=https://royalbeauty-studiourody.pl` (linki w mailach) i czy w katalogu projektu **nie ma** `.env` z `NGINX_CONF` (na produkcji ma być domyślny `prod.conf`).
-- [ ] Świeża kopia bazy tuż przed deployem (`backup_db.sh --env prod`) + kopia poza serwerem.
-- [ ] PR `dev` → `main` (CI: ruff + testy), merge.
-- [ ] SSH: `git pull origin main`, `docker compose -f docker-compose.prod.yml up -d --build`, `docker compose … logs web | head -80` (migracje OK, gunicorn wstał). Wszystkie kontenery zostaną odtworzone (nowe `logging:`), więc nginx też wczyta nowy `prod.conf`; gdyby nie: `exec nginx nginx -s reload`.
-- [ ] Smoke test: `curl -sI https://www.royalbeauty-studiourody.pl/` i `http://…` → `301` na `https://royalbeauty-studiourody.pl/`; `/robots.txt` ma `Disallow: /panel/`; `/sitemap.xml` ma strony prawne; `/polityka-prywatnosci/`, `/regulamin/`, `/panel/login/` → 200.
-- [ ] **Rollback**, jeśli strona nie wstaje albo migracja się wywali: `git checkout 50421fc`, odtworzenie bazy z kopii z tego dnia, `up -d --build`.
+**6c. Deploy** ✅ 2026-10-21 (PR #40)
+- [x] Na Droplecie (`~/salon-manager`): `.env.prod` miał `SITE_URL` **bez `https://`** (zepsute canonical i linki w mailach) — poprawione 21.10 po deployu, `up -d --force-recreate web`. Sprawdzić też i czy w katalogu projektu **nie ma** `.env` z `NGINX_CONF` (na produkcji ma być domyślny `prod.conf`).
+- [x] Świeża kopia bazy tuż przed deployem (`backup_db.sh --env prod`) + kopia poza serwerem.
+- [x] PR `dev` → `main` (CI: ruff + testy), merge.
+- [x] SSH: `git pull origin main`, `docker compose -f docker-compose.prod.yml up -d --build`, `docker compose … logs web | head -80` (migracje OK, gunicorn wstał). Wszystkie kontenery zostaną odtworzone (nowe `logging:`), więc nginx też wczyta nowy `prod.conf`; gdyby nie: `exec nginx nginx -s reload`.
+- [x] Smoke test: `curl -sI https://www.royalbeauty-studiourody.pl/` i `http://…` → `301` na `https://royalbeauty-studiourody.pl/`; `/robots.txt` ma `Disallow: /panel/`; `/sitemap.xml` ma strony prawne; `/polityka-prywatnosci/`, `/regulamin/`, `/panel/login/` → 200.
+- [x] **Rollback**, jeśli strona nie wstaje albo migracja się wywali: `git checkout 50421fc`, odtworzenie bazy z kopii z tego dnia, `up -d --build`.
 
-**6d. Dane zaraz po deployu (zanim ktoś zarezerwuje)**
-- [ ] **Najpierw** Panel → Zespół → Paulina → Usługi: dodać 14 zabiegów na twarz, które dziś ma tylko Marika (inaczej po jej wyłączeniu zniknie z formularza cała kategoria, łącznie z bezpłatną konsultacją). Sprawdzenie: w formularzu rezerwacji „Bezpłatna konsultacja” pokazuje terminy.
-- [ ] Panel → Zespół: Marika i Wiola → nieaktywne (`0013_catalog` przypisało im zabiegi laserowe, po wyłączeniu nie da się ich zarezerwować). Sprawdzenie: `/api/employees/` zwraca tylko Paulinę.
+**6d. Dane zaraz po deployu (zanim ktoś zarezerwuje)** ✅ 2026-10-21
+- [x] **Najpierw** Panel → Zespół → Paulina → Usługi: dodać 14 zabiegów na twarz, które dziś ma tylko Marika (inaczej po jej wyłączeniu zniknie z formularza cała kategoria, łącznie z bezpłatną konsultacją). Sprawdzenie: w formularzu rezerwacji „Bezpłatna konsultacja” pokazuje terminy.
+- [x] Panel → Zespół: Marika i Wiola → nieaktywne (`0013_catalog` przypisało im zabiegi laserowe, po wyłączeniu nie da się ich zarezerwować). Sprawdzenie: `/api/employees/` zwraca tylko Paulinę.
 - [ ] Bio Pauliny: „paznocki” → „paznokci”.
-- [ ] Konto Pauliny: istniejące `paula` zamiast zaproszenia. W `/admin/`: `Employee` Paulina → `user = paula`; `paula` → grupa „Właściciel”, odznaczyć `is_staff`, usunąć 44 uprawnienia (właścicielka pracuje w `/panel/`, nie w `/admin/`). Sprawdzenie: Paulina loguje się na `/panel/login/` i widzi „Zespół”, „Usługi”, kalendarz.
-- [ ] Paulina: szablon tygodnia + generowanie grafiku (bez tego formularz nie pokazuje terminów), terminy lasera w „Urządzenia”: 8–9.11 i 14–15.12.
-- [ ] Rezerwacja testowa na produkcji na własny e-mail → odwołanie linkiem z maila (sprawdza Resend, `SITE_URL`, `SALON_EMAIL`).
-- [ ] Cron z `backup_db.sh` na Droplecie dalej działa (`crontab -l`, data najnowszego pliku w `backups/`).
-- [ ] Cron z przypomnieniami na Droplecie (`crontab -e`), potem po godzinie sprawdzić `logs/reminders.log`:
-  `0 * * * * cd ~/projects/salon-manager && docker compose -f docker-compose.prod.yml exec -T web uv run python manage.py send_reminders >> logs/reminders.log 2>&1`
+- [x] Konto Pauliny: istniejące `paula` zamiast zaproszenia. W `/admin/`: `Employee` Paulina → `user = paula`; `paula` → grupa „Właściciel”, odznaczyć `is_staff`, usunąć 44 uprawnienia (właścicielka pracuje w `/panel/`, nie w `/admin/`). Sprawdzenie: Paulina loguje się na `/panel/login/` i widzi „Zespół”, „Usługi”, kalendarz.
+- [x] Paulina: szablon tygodnia + generowanie grafiku (bez tego formularz nie pokazuje terminów), terminy lasera w „Urządzenia”: 8–9.11 i 14–15.12.
+- [x] Rezerwacja testowa na produkcji na własny e-mail → odwołanie linkiem z maila (sprawdza Resend, `SITE_URL`, `SALON_EMAIL`).
+- [x] Cron z `backup_db.sh` na Droplecie dalej działa (`crontab -l`, data najnowszego pliku w `backups/`).
+- [x] Cron z przypomnieniami na Droplecie (`crontab -e`), potem po godzinie sprawdzić `logs/reminders.log`:
+  `0 * * * * cd ~/salon-manager && docker compose -f docker-compose.prod.yml exec -T web uv run python manage.py send_reminders >> logs/reminders.log 2>&1`
   Na stagingu cronu nie zakładamy (tam ręcznie: `… exec web uv run python manage.py send_reminders`).
 
 **6e. Po publikacji**
@@ -139,13 +147,65 @@ Produkcja (`main` = 50421fc) przeskakuje naraz o ~40 commitów i 15 migracji, w 
 - [ ] Google Search Console: zgłoszenie sitemapy, „Sprawdź URL” strony głównej → prośba o zaindeksowanie.
 - [ ] Rich Results Test: `BeautySalon` + `FAQPage` bez błędów.
 
-### 7. Podstrony kategorii (SEO long-tail)
-- [ ] `/uslugi/<slug>/` dla każdej kategorii, zaczynając od **depilacji laserowej** (najmocniejsza fraza): własny `title`, H1 „Depilacja laserowa we Wrocławiu”, opis urządzenia, terminy, tabela cen, FAQ kategorii, CTA.
-- [ ] JSON-LD `OfferCatalog` + `BreadcrumbList`, `provider` → `@id` salonu.
-- [ ] `CategorySitemap` w `config/sitemaps.py` z `lastmod`.
+**6f. Wnioski z deployu (małe PR-y)**
+- [ ] System check Django: `SITE_URL` musi zaczynać się od `http://` lub `https://`, inaczej start aplikacji się wywala (21.10 brak schematu po cichu zepsuł canonical i linki w mailach).
+- [ ] `.dockerignore`: `.git`, `.venv`, `.env*`, `backups/`, `certs/`, `logs/` — dziś `COPY . .` wkłada do obrazu sekrety i kopie bazy z danymi klientek.
+- [ ] Po deployu purge cache w Cloudflare (pliki bez hasha, np. `robots.txt`, są trzymane 4 h) — dopisać do checklisty deployu.
+- [ ] Później: `Employee.photo` (ImageField w panelu) zamiast `paulina.webp`, gdy salon kogoś zatrudni.
 
-### 8. Na koniec
+## Po audycie z 21.10.2026 (7/10 w każdym wymiarze, łącznie 21/30)
+
+Raport: `docs/seo-audit-royalbeauty-studiourody-pl-2026-10-21.pdf`. Trzy krytyczne problemy z poprzedniego audytu są rozwiązane, nowych krytycznych nie ma. **Główna luka:** cała oferta jest pod jednym adresem (jedna szansa na ranking dla ok. 80 usług). **Druga:** na stronie nie ma ani jednej treści opinii. Cel: 8–9/10.
+
+Sprawdzone w kodzie, **nie wymaga zmian** (audyt się myli):
+- Data lasera w FAQ i w cenniku nie jest wpisana na sztywno: `apps/services/faq.py` i `next_rentals()` biorą ją z `EquipmentRental`. Audyt widział termin 8–9.11 wpisany w panelu.
+- Kroki rezerwacji są już w `<ol class="rb-steps">`.
+- Nie robimy: `HowTo` i `Speakable` (niski priorytet; `Speakable` działa tylko dla wydawców wiadomości), `<table>` cennika na stronie głównej (tabele dopiero na podstronach kategorii).
+
+### 7. Quick wins (jeden PR)
+- [ ] **Meta description** w `templates/base.html` (max ok. 155 znaków), z depilacją laserową i „codziennie 9–21”, np. „Rzęsy, paznokcie, depilacja laserowa i zabiegi na twarz na Fabrycznej. Codziennie 9–21, bezpłatna konsultacja. Zarezerwuj online!”. *Akceptacja:* test na treść i długość.
+- [x] **`sameAs` + Booksy**: `https://royalbeauty-studiourody.booksy.com/` (uwaga: Booksy zwraca 200 dla każdej subdomeny, także z literówką — sprawdzać `<title>`), link do profilu Booksy w JSON-LD `BeautySalon` (profil ma 90 opinii, silna encja dla AI). Potrzebny dokładny URL od Pauliny.
+- [ ] **`<lastmod>` w sitemapie**: strony prawne = data „Obowiązuje od”, strona główna = ostatnia zmiana cennika. `Service` nie ma `updated_at`, więc albo dodać to pole (migracja), albo przyjąć datę deployu. Do decyzji przy realizacji.
+- [ ] **`hasOfferCatalog`** w `BeautySalon`: `OfferCatalog` per kategoria → `Offer` z `price` + `priceCurrency: PLN` → `itemOffered: Service`, generowane z aktywnych `Service` (te same dane co cennik, jedno zapytanie). **Bez `aggregateRating`**: Google nie pozwala na oceny wystawiane samej sobie w `LocalBusiness`.
+- [ ] **`llms.txt`** (`/llms.txt`, jak `robots.txt` przez szablon): krótki opis salonu, adres, godziny, linki do cennika, FAQ, regulaminu.
+- [x] **Pełne imię i nazwisko** w `founder`: Paulina Truszkowska.
+
+### 8. Spójność poza stroną (bez kodu, Paulina)
+- [ ] **Booksy**: zespół = tylko Paulina (dziś są tam 4 osoby: Paulina, Wiola, Marika, Magdalena), godziny codziennie 9–21. Rozbieżne dane między stroną, Booksy i Google osłabiają zaufanie do encji (GEO i SEO lokalne).
+- [ ] **Wizytówka Google**: te same godziny i opis (patrz 6e).
+- [ ] **Cloudflare**: sprawdzić, czy „Block AI Scrapers / AI bots” jest wyłączone (inaczej GEO nie ma sensu).
+- [ ] Search Console: „Ulepszenia → Często zadawane pytania” i raport Core Web Vitals (po kilku tygodniach ruchu).
+
+### 9. Rozszerzenie FAQ (treść od Pauliny)
+Odpowiedzi w tym samym formacie co dziś: 25–55 słów, zaczynające od konkretu. Te same dane w HTML i w `FAQPage` (`apps/services/faq.py`).
+- [ ] Przeciwwskazania (ogólnie + laser; wciąż brakuje ich w „Do zebrania od Pauliny”).
+- [ ] Ile zabiegów laserem potrzeba i co ile (brakuje „zalecanego odstępu”).
+- [ ] Czy depilacja laserowa boli.
+- [ ] Ile trzyma hybryda, a ile przedłużane rzęsy.
+- [ ] Parking i dojazd (przystanek, tramwaj).
+- [ ] Płatność kartą / BLIK.
+- Przy podstronach (etap 11) pytania przechodzą do FAQ swojej kategorii, a na stronie głównej zostają ogólne.
+
+### 10. Prawdziwe opinie na stronie
+Rekomendacja audytu: 3–6 cytatów z imieniem, datą i źródłem + „4,9/5 · 90 opinii na Booksy”, przy sekcji `#opinie`.
+- [ ] **Decyzja:** ustaliliśmy wcześniej „Places API albo link, bez ręcznego kopiowania”. Opcje: (a) Google Places API (automatycznie, ale klucz API, limit 5 opinii, opinie Google, nie Booksy, warunki wyświetlania); (b) ręcznie wybrane cytaty w bazie (np. model `Review` edytowany w panelu: treść, imię, data, źródło, link), za zgodą autorek albo tylko z imieniem i inicjałem; (c) zostaje link.
+- [ ] Bez `Review`/`aggregateRating` w schema (zasada Google jak wyżej). Cytaty muszą być prawdziwe i datowane.
+
+### 11. Podstrony kategorii (SEO long-tail, największy wpływ)
+Pięć stron, każda z własnym `title` i H1, min. 500 słów, cennikiem kategorii w `<table>`, FAQ kategorii, zdjęciami, CTA do rezerwacji z wybraną kategorią i linkiem ze strony głównej (nagłówek kategorii w cenniku → podstrona). **Zaczynamy od depilacji laserowej** (najwyższe ceny, mała konkurencja lokalna, konkretne urządzenie).
+- [ ] **Decyzja: adresy.** Audyt proponuje `/depilacja-laserowa-wroclaw/`, plan miał `/uslugi/<slug>/`. Rekomendacja: `/uslugi/depilacja-laserowa/` (czysta hierarchia pod `BreadcrumbList`, slug już istnieje, miasto i tak jest w `title` i H1; słowo w URL to dziś słaby sygnał).
+- [ ] Model: `ServiceCategory` + `seo_title`, `meta_description`, `intro` (TextField). FAQ kategorii: osobny model (`FaqItem`, FK do kategorii, kolejność) edytowany w panelu albo w kodzie jak dziś (`faq.py`). Do decyzji przy realizacji.
+- [ ] Widok `DetailView` po slugu (tylko kategorie z aktywnymi usługami), szablon z `base.html`, bloki `meta_description` i JSON-LD.
+- [ ] JSON-LD per podstrona: `Service`/`OfferCatalog` z `provider` → `@id` salonu, `BreadcrumbList`, `FAQPage` z tych samych danych co HTML.
+- [ ] `CategorySitemap` w `config/sitemaps.py` z `lastmod`.
+- [ ] Treść: Paulina (opis zabiegów, efekty, przeciwwskazania, przygotowanie). Developer składa, Paulina zatwierdza, bo to treści o zdrowiu.
+- Kolejność: depilacja laserowa → rzęsy i brwi → dłonie i stopy → zabiegi kosmetyczne → depilacja woskiem.
+
+### 12. Poradniki (GEO)
+2–4 artykuły, które najczęściej trafiają do cytowań AI: „Pielęgnacja rzęs po przedłużaniu”, „Laser diodowy czy wosk?”, „Jak przygotować się do mezoterapii mikroigłowej”.
+- [ ] **Decyzja:** blog w bazie (model `Article` + panel) czy kilka stron w szablonach. Przy 2–4 tekstach wystarczą szablony; model, jeśli Paulina chce pisać sama.
+- [ ] Każdy z autorką (`Article` + `author` → Paulina, `datePublished`), linkiem do podstrony kategorii i w sitemapie.
+
+### 13. Na koniec
 - [ ] RODO w panelu: „Usuń klientkę” (z anonimizacją jej wizyt) oraz komenda czyszcząca karty i wizyty starsze niż 3 lata od ostatniej wizyty (tak obiecuje polityka prywatności; pierwsze dane się „przedawnią” jesienią 2029, ale lepiej zrobić to wcześniej).
-- [ ] Cloudflare: wyłączone „Block AI bots”, jeśli zależy nam na GEO.
-- [ ] Opcjonalnie `llms.txt`.
-- [ ] Ponowny audyt SEO/GEO/AEO.
+- [ ] Ponowny audyt SEO/GEO/AEO po etapach 7–11.
