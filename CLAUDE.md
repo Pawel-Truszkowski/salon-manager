@@ -95,6 +95,8 @@ uv run pytest -k cancel                                                        #
 - `GET /api/available-slots/?date=&service=&employee=` — available time slots for a date/service(/employee)
 - `GET /api/available-dates/?month=YYYY-MM&service=&employee=` — which days in a month have availability
 
+**SEO / structured data:** JSON-LD is generated from the database so it always matches the page: `BeautySalon` (static facts) in `templates/base.html`; `hasOfferCatalog` (price list, same `@id`) and `FAQPage` built on the home page via `apps/services/schema.py` (`jsonld()` does the `<script>`-safe escaping — use it for any new block). No `aggregateRating` (Google forbids self-serving ratings for LocalBusiness). `LEGAL_EFFECTIVE_DATE` in `config/context_processors.py` is both the "Obowiązuje od" date on the legal pages and their sitemap `<lastmod>`; the home page's `<lastmod>` is the latest `Service.updated_at`. `/llms.txt` is a template (`templates/llms.txt`) like `robots.txt`.
+
 **Current state:** The frontend (home page) is fully built with service category tabs, gallery lightbox, and a working reservation form backed by the `bookings` app and `api` app. Sitemap (`/sitemap.xml`) and `robots.txt` are wired up for SEO. The site content is in Polish.
 
 ## CI/CD

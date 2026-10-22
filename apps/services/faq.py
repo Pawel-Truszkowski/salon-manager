@@ -6,11 +6,8 @@ in the panel updates the answers. A question whose services are missing (renamed
 instead of showing a wrong number.
 """
 
-import json
-
-from django.utils.safestring import mark_safe
-
 from apps.services.models import format_price
+from apps.services.schema import jsonld
 
 PHONES = '+48 793 355 756 lub +48 792 646 256'
 
@@ -164,6 +161,4 @@ def faq_jsonld(faq):
             for item in faq
         ],
     }
-    # Same escaping as Django's json_script: "</script>" or "<!--" inside the text can't break out of the tag
-    text = json.dumps(data, ensure_ascii=False, indent=2)
-    return mark_safe(text.replace('<', '\\u003C').replace('>', '\\u003E').replace('&', '\\u0026'))
+    return jsonld(data)

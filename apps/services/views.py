@@ -1,5 +1,6 @@
 from itertools import groupby
 
+from django.conf import settings
 from django.db.models import Prefetch
 from django.shortcuts import render
 
@@ -7,6 +8,7 @@ from apps.bookings.forms import BookingForm
 from apps.bookings.utils import next_available_date
 from apps.services.faq import build_faq, faq_jsonld
 from apps.services.models import Employee, EquipmentRental, Service
+from apps.services.schema import offer_catalog_jsonld
 
 
 def next_rentals():
@@ -63,6 +65,7 @@ def home(request):
     form = BookingForm()
     rentals = next_rentals()
     faq = build_faq(services, rentals)
+    price_list = build_price_list(services, rentals)
     return render(
         request,
         'home.html',
@@ -71,7 +74,8 @@ def home(request):
             # One active employee: owner profile, no specialist picker. Two or more: team list and picker.
             'employees': with_specialties(list(employees)),
             'services': services,
-            'price_list': build_price_list(services, rentals),
+            'price_list': price_list,
+            'offer_catalog_jsonld': offer_catalog_jsonld(price_list, settings.SITE_URL.rstrip('/')),
             'next_date': next_available_date(),
             'faq': faq,
             'faq_jsonld': faq_jsonld(faq),

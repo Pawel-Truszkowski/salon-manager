@@ -355,7 +355,8 @@ class TestSeoMeta:
 
     def test_salon_json_ld(self, client, db):
         html = client.get(reverse('home')).content.decode()
-        (salon,) = [b for b in json_ld_blocks(html) if b['@type'] == 'BeautySalon']
+        # The other BeautySalon block is the price list (hasOfferCatalog) under the same @id
+        (salon,) = [b for b in json_ld_blocks(html) if b['@type'] == 'BeautySalon' and 'name' in b]
         assert salon['@id'] == 'http://testserver/#salon'
         assert (salon['name'], salon['alternateName']) == ('Royal Beauty Studio Urody', 'Royal Beauty')
         assert salon['foundingDate'] == '2023'

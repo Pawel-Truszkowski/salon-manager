@@ -119,6 +119,8 @@ class Service(models.Model):
     required_equipment = models.ForeignKey(
         Equipment, on_delete=models.PROTECT, null=True, blank=True, related_name='services'
     )
+    # Latest change to any service (incl. turning one off) = the price list's <lastmod> in the sitemap
+    updated_at = models.DateTimeField(auto_now=True)
 
     objects = ServiceQuerySet.as_manager()
 

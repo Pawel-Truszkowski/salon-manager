@@ -163,11 +163,11 @@ Sprawdzone w kodzie, **nie wymaga zmian** (audyt się myli):
 - Nie robimy: `HowTo` i `Speakable` (niski priorytet; `Speakable` działa tylko dla wydawców wiadomości), `<table>` cennika na stronie głównej (tabele dopiero na podstronach kategorii).
 
 ### 7. Quick wins (jeden PR)
-- [ ] **Meta description** w `templates/base.html` (max ok. 155 znaków), z depilacją laserową i „codziennie 9–21”, np. „Rzęsy, paznokcie, depilacja laserowa i zabiegi na twarz na Fabrycznej. Codziennie 9–21, bezpłatna konsultacja. Zarezerwuj online!”. *Akceptacja:* test na treść i długość.
+- [x] **Meta description** w `templates/base.html` (max ok. 155 znaków), z depilacją laserową i „codziennie 9–21”, np. „Rzęsy, paznokcie, depilacja laserowa i zabiegi na twarz na Fabrycznej. Codziennie 9–21, bezpłatna konsultacja. Zarezerwuj online!”. *Akceptacja:* test na treść i długość.
 - [x] **`sameAs` + Booksy**: `https://royalbeauty-studiourody.booksy.com/` (uwaga: Booksy zwraca 200 dla każdej subdomeny, także z literówką — sprawdzać `<title>`), link do profilu Booksy w JSON-LD `BeautySalon` (profil ma 90 opinii, silna encja dla AI). Potrzebny dokładny URL od Pauliny.
-- [ ] **`<lastmod>` w sitemapie**: strony prawne = data „Obowiązuje od”, strona główna = ostatnia zmiana cennika. `Service` nie ma `updated_at`, więc albo dodać to pole (migracja), albo przyjąć datę deployu. Do decyzji przy realizacji.
-- [ ] **`hasOfferCatalog`** w `BeautySalon`: `OfferCatalog` per kategoria → `Offer` z `price` + `priceCurrency: PLN` → `itemOffered: Service`, generowane z aktywnych `Service` (te same dane co cennik, jedno zapytanie). **Bez `aggregateRating`**: Google nie pozwala na oceny wystawiane samej sobie w `LocalBusiness`.
-- [ ] **`llms.txt`** (`/llms.txt`, jak `robots.txt` przez szablon): krótki opis salonu, adres, godziny, linki do cennika, FAQ, regulaminu.
+- [x] **`<lastmod>` w sitemapie**: strony prawne = `LEGAL_EFFECTIVE_DATE` (`config/context_processors.py`, ta sama stała co „Obowiązuje od”), strona główna = ostatnia zmiana cennika (nowe pole `Service.updated_at`, migracja `services.0014`).
+- [x] **`hasOfferCatalog`** (`apps/services/schema.py`, osobny blok z tym samym `@id` co salon w `base.html`): `OfferCatalog` per kategoria → `Offer` z `price` + `priceCurrency: PLN` → `itemOffered: Service`, generowane z aktywnych `Service` (te same dane co cennik, jedno zapytanie). **Bez `aggregateRating`**: Google nie pozwala na oceny wystawiane samej sobie w `LocalBusiness`.
+- [x] **`llms.txt`** (`/llms.txt`, jak `robots.txt` przez szablon): krótki opis salonu, adres, godziny, linki do cennika, FAQ, regulaminu.
 - [x] **Pełne imię i nazwisko** w `founder`: Paulina Truszkowska.
 
 ### 8. Spójność poza stroną (bez kodu, Paulina)
