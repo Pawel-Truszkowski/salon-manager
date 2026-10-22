@@ -85,11 +85,16 @@ def _hybrid_manicure(services):
     return 'Ile trwa manicure hybrydowy i ile kosztuje?', answer
 
 
+def _laser_services(services):
+    """Services done with rented laser equipment (laser hair removal)."""
+    return [s for s in services if s.required_equipment_id and 'laser' in s.category.name.lower()]
+
+
 def _laser(services, rentals):
     """Next laser days from the rentals of the equipment that laser services need; phone when none is planned."""
-    laser_equipment = {
-        s.required_equipment_id for s in services if s.required_equipment_id and 'laser' in s.category.name.lower()
-    }
+    laser_equipment = {s.required_equipment_id for s in _laser_services(services)}
+    if not laser_equipment:
+        return None
     upcoming = sorted((rentals[pk] for pk in laser_equipment if pk in rentals), key=lambda r: r.date_from)
     answer = (
         'Depilację wykonujemy laserem diodowym LightSheer DUET firmy Lumenis. '
@@ -108,6 +113,65 @@ def _laser(services, rentals):
     return 'Kiedy mogę zrobić depilację laserową?', answer
 
 
+def _laser_sessions(services):
+    if not _laser_services(services):
+        return None
+    return (
+        'Ile zabiegów depilacji laserowej potrzeba?',
+        'Depilacja laserowa to seria zabiegów: na jedną partię ciała zwykle 6–8, w odstępach około 6 tygodni. '
+        'Laser działa tylko na włosy w fazie wzrostu, a rosną one cyklicznie. Liczba zabiegów zależy od koloru '
+        'i grubości włosów, gęstości owłosienia i partii ciała. Ile potrzebujesz Ty, ocenimy na pierwszej wizycie.',
+    )
+
+
+def _laser_pain(services):
+    if not _laser_services(services):
+        return None
+    return (
+        'Czy depilacja laserowa boli?',
+        'To kwestia indywidualna. Najczęściej czuć ciepło i krótkie ukłucie, podobne do pstryknięcia gumką. '
+        'Laser LightSheer DUET ma głowicę z podciśnieniem lub chłodzeniem, które zmniejsza dyskomfort. '
+        'Najbardziej wrażliwe bywają bikini i pachy. Jeśli coś będzie nieprzyjemne, powiedz od razu, '
+        'a dopasujemy ustawienia.',
+    )
+
+
+def _laser_contraindications(services):
+    if not _laser_services(services):
+        return None
+    return (
+        'Kto nie może zrobić depilacji laserowej?',
+        'Przeciwwskazania to m.in. ciąża i karmienie piersią, świeża opalenizna lub samoopalacz, leki '
+        'światłouczulające (np. izotretynoina), stany zapalne, rany lub opryszczka w miejscu zabiegu, choroba '
+        'nowotworowa, padaczka i skłonność do bliznowców. Laser nie usuwa jasnych, siwych ani rudych włosów. '
+        'Przed pierwszym zabiegiem przeprowadzimy krótki wywiad.',
+    )
+
+
+def _lash_refills(services):
+    if not _named(services, 'Przedłużanie rzęs'):
+        return None
+    answer = (
+        'Rzęsy naturalnie wypadają i odrastają, więc przedłużone najlepiej uzupełniać mniej więcej co 2–3 tygodnie. '
+        'Po dłuższej przerwie zostaje zbyt mało rzęs do uzupełnienia i trzeba założyć je od nowa.'
+    )
+    refills = _named(services, 'Uzupełnianie rzęs')
+    if refills:
+        answer += f' Uzupełnianie kosztuje {_prices([s.price for s in refills])}.'
+    return 'Jak często trzeba uzupełniać przedłużone rzęsy?', answer
+
+
+def _hybrid_lasts(services):
+    if not _named(services, 'Manicure hybrydowy'):
+        return None
+    return (
+        'Jak długo utrzymuje się manicure hybrydowy?',
+        'Hybryda utrzymuje się zwykle 3–4 tygodnie, zależnie od tempa wzrostu paznokci i tego, jak dbasz o dłonie. '
+        'Potem paznokieć odrasta przy skórkach i warto umówić kolejną wizytę. Hybrydy nie zrywaj samodzielnie, '
+        'bo osłabia to płytkę paznokcia.',
+    )
+
+
 def build_faq(services, rentals=None):
     """[{'question', 'answer'}, ...] for the home page.
 
@@ -117,6 +181,7 @@ def build_faq(services, rentals=None):
     services = list(services)
     items = [
         _lashes(services),
+        _lash_refills(services),
         _consultation(services),
         (
             'Kiedy mogę się umówić?',
@@ -125,6 +190,9 @@ def build_faq(services, rentals=None):
             'Wolne godziny widzisz w formularzu rezerwacji. Jeśli żadna nie pasuje, zadzwoń.',
         ),
         _laser(services, rentals or {}),
+        _laser_sessions(services),
+        _laser_pain(services),
+        _laser_contraindications(services),
         (
             'Jak zarezerwować wizytę?',
             'Wybierz zabieg, dzień i godzinę w formularzu rezerwacji. Pokazujemy tylko wolne terminy. '
@@ -137,12 +205,25 @@ def build_faq(services, rentals=None):
             'Salon jest na 1. piętrze, w budynku jest winda.',
         ),
         (
+            'Jak dojechać do salonu i gdzie zaparkować?',
+            'Samochodem: na osiedlu pod blokiem jest bezpłatny parking. Tramwajem lub autobusem: najbliższy '
+            'przystanek to Małopanewska, a kilka minut dalej jest przystanek Niedźwiedzia przy Magnolia Park. '
+            'Trasę z Twojego miejsca pokaże link do mapy w sekcji Kontakt.',
+        ),
+        (
+            'Jak mogę zapłacić za zabieg?',
+            'Za zabieg płacisz w salonie po jego wykonaniu, gotówką lub BLIK-iem. Rezerwacja jest bezpłatna, '
+            'nie pobieramy zadatków. Cenę każdego zabiegu znajdziesz w cenniku, a przy zabiegach z ceną „od” '
+            'ostateczną kwotę ustalimy przed rozpoczęciem.',
+        ),
+        (
             'Jak odwołać lub przełożyć wizytę?',
             'W e-mailu z potwierdzeniem rezerwacji jest link do odwołania wizyty. Wystarczy go kliknąć '
             'i potwierdzić. Jeśli chcesz przełożyć termin, zadzwoń do salonu, a razem znajdziemy nowy. '
             'Prosimy o odwołanie najpóźniej 24 godziny przed wizytą.',
         ),
         _hybrid_manicure(services),
+        _hybrid_lasts(services),
     ]
     return [{'question': q, 'answer': a} for q, a in filter(None, items)]
 

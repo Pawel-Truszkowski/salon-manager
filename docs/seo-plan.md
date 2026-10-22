@@ -29,7 +29,7 @@ Na podstawie pełnego audytu produkcji (`royalbeauty-studiourody.pl`, 2026-10-16
   - [x] Link do profilu salonu na Booksy (`sameAs`).
   - [ ] Aktualizacja Booksy: tylko Paulina, codziennie 9–21.
   - [x] Zgoda na pełne imię i nazwisko w danych strukturalnych (`founder`).
-  - [ ] Odpowiedzi do FAQ: przeciwwskazania, liczba i odstęp zabiegów laserem, czy laser boli, trwałość hybrydy i rzęs, parking i dojazd, płatność kartą / BLIK.
+  - [x] Odpowiedzi do FAQ (22.10): trwałość hybrydy i rzęs, dojazd i parking; laser opisany z ogólnej wiedzy — do akceptacji przez Paulinę (etap 9).
   - [ ] Opinie: którą opcję wybiera (etap 10) i ewentualnie 3–6 ulubionych opinii.
   - [ ] Tekst o depilacji laserowej na pierwszą podstronę (efekty, przebieg, przygotowanie, przeciwwskazania) + 1–2 zdjęcia z zabiegu.
 
@@ -170,20 +170,21 @@ Sprawdzone w kodzie, **nie wymaga zmian** (audyt się myli):
 - [x] **`llms.txt`** (`/llms.txt`, jak `robots.txt` przez szablon): krótki opis salonu, adres, godziny, linki do cennika, FAQ, regulaminu.
 - [x] **Pełne imię i nazwisko** w `founder`: Paulina Truszkowska.
 
-### 8. Spójność poza stroną (bez kodu, Paulina)
-- [ ] **Booksy**: zespół = tylko Paulina (dziś są tam 4 osoby: Paulina, Wiola, Marika, Magdalena), godziny codziennie 9–21. Rozbieżne dane między stroną, Booksy i Google osłabiają zaufanie do encji (GEO i SEO lokalne).
-- [ ] **Wizytówka Google**: te same godziny i opis (patrz 6e).
-- [ ] **Cloudflare**: sprawdzić, czy „Block AI Scrapers / AI bots” jest wyłączone (inaczej GEO nie ma sensu).
-- [ ] Search Console: „Ulepszenia → Często zadawane pytania” i raport Core Web Vitals (po kilku tygodniach ruchu).
+### 8. Spójność poza stroną (bez kodu, Paulina) ✅ 2026-10-22
+- [x] **Booksy**: tylko Paulina (Wiola, Marika, Magdalena usunięte), godziny codziennie 9–21.
+- [x] **Wizytówka Google**: godziny i opis. Opis nie musi być kopią tekstu ze strony (Google: max 750 znaków, bez linków i promocji); muszą się zgadzać **fakty**: kto, gdzie, kiedy, co.
+- [x] **Cloudflare (AI Crawl Control)**, sprawdzone 22.10 testem z nagłówkiem `User-Agent`: blokowane są tylko boty **trenujące** modele (`GPTBot`, `ClaudeBot`, `CCBot`, `Bytespider` → 403); boty **wyszukiwarek AI i odpowiedzi na żywo** przechodzą (`OAI-SearchBot`, `ChatGPT-User`, `Claude-SearchBot`, `Claude-User`, `PerplexityBot`, `Perplexity-User`, `Bingbot`, `Applebot` → 200). Dla GEO liczą się te drugie, więc **zostawiamy**. `robots.txt` nie jest modyfikowany przez Cloudflare. Sprawdzenie po zmianach w Cloudflare: `curl -so /dev/null -w '%{http_code}' -A 'Mozilla/5.0 (compatible; OAI-SearchBot/1.0)' https://royalbeauty-studiourody.pl/`.
+- [ ] Search Console: sekcja „Ulepszenia” pojawia się w menu dopiero, gdy Google znajdzie na stronie obsługiwane dane strukturalne, i dopiero po ponownym przetworzeniu strony (dni–tygodnie). Do tego czasu: „Sprawdzanie adresu URL” → strona główna → „Przetestuj wersję opublikowaną” (pokazuje wykryte dane strukturalne) + Rich Results Test. Raport Core Web Vitals — po kilku tygodniach ruchu. FAQ jako wynik rozszerzony Google pokazuje od 2023 r. głównie stronom rządowym i medycznym, więc raport FAQ może się nie pojawić wcale; znacznik i tak służy AI.
 
-### 9. Rozszerzenie FAQ (treść od Pauliny)
-Odpowiedzi w tym samym formacie co dziś: 25–55 słów, zaczynające od konkretu. Te same dane w HTML i w `FAQPage` (`apps/services/faq.py`).
-- [ ] Przeciwwskazania (ogólnie + laser; wciąż brakuje ich w „Do zebrania od Pauliny”).
-- [ ] Ile zabiegów laserem potrzeba i co ile (brakuje „zalecanego odstępu”).
-- [ ] Czy depilacja laserowa boli.
-- [ ] Ile trzyma hybryda, a ile przedłużane rzęsy.
-- [ ] Parking i dojazd (przystanek, tramwaj).
-- [ ] Płatność kartą / BLIK.
+### 9. Rozszerzenie FAQ ✅ 2026-10-22 (8 → 15 pytań)
+Odpowiedzi w tym samym formacie co dotąd (25–55 słów, od konkretu), te same dane w HTML i w `FAQPage` (`apps/services/faq.py`). Pytania o laser i o trwałość zabiegów pokazują się tylko, gdy odpowiednie usługi są w cenniku (dotyczy też starego „Kiedy mogę zrobić depilację laserową?”).
+- [x] Kto nie może zrobić depilacji laserowej (przeciwwskazania).
+- [x] Ile zabiegów laserem potrzeba (zwykle 6–8 na partię, co ok. 6 tygodni; zależy od włosów i partii).
+- [x] Czy depilacja laserowa boli.
+- [x] Jak często uzupełniać rzęsy (co 2–3 tygodnie) i jak długo trzyma hybryda (3–4 tygodnie).
+- [x] Dojazd i parking (bezpłatny parking pod blokiem; przystanki Małopanewska i Niedźwiedzia przy Magnolia Park).
+- [x] Płatność: gotówka lub BLIK po zabiegu, bez zadatków (jak w § 3 regulaminu).
+- [ ] **Paulina czyta pytania o laser na stagingu przed wdrożeniem na produkcję** — przeciwwskazania i liczba zabiegów to treści o zdrowiu, napisane z ogólnej wiedzy, nie z jej słów.
 - Przy podstronach (etap 11) pytania przechodzą do FAQ swojej kategorii, a na stronie głównej zostają ogólne.
 
 ### 10. Prawdziwe opinie na stronie

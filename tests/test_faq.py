@@ -6,7 +6,7 @@ import pytest
 from django.urls import reverse
 
 from apps.services.faq import build_faq, faq_jsonld
-from apps.services.models import Service, format_price
+from apps.services.models import Service, ServiceCategory, format_price
 
 
 def svc(name, price, duration=60):
@@ -106,3 +106,50 @@ class TestFaqOnHomePage:
         html = client.get(reverse('home')).content.decode()
         assert 'href="/#faq"' in html
         assert 'id="faq"' in html
+
+
+LASER_QUESTIONS = [
+    'Kiedy mogę zrobić depilację laserową?',
+    'Ile zabiegów depilacji laserowej potrzeba?',
+    'Czy depilacja laserowa boli?',
+    'Kto nie może zrobić depilacji laserowej?',
+]
+
+
+def laser_svc():
+    return Service(
+        name='Depilacja laserowa – pachy',
+        price=Decimal('170'),
+        price_is_from=True,
+        duration=30,
+        category=ServiceCategory(name='Depilacja laserowa'),
+        required_equipment_id=1,
+    )
+
+
+class TestFaqAfterAudit:
+    """Questions added after the 21.10.2026 audit: laser, durability, getting there, payment."""
+
+    def test_laser_questions_only_when_laser_services_are_offered(self):
+        assert set(LASER_QUESTIONS) <= set(answers([laser_svc()]))
+        assert not set(LASER_QUESTIONS) & set(answers([svc('Manicure hybrydowy', '120')]))
+
+    def test_durability_follows_the_services(self):
+        faq = answers([svc('Przedłużanie rzęs 1:1', '150'), svc('Uzupełnianie rzęs 1:1', '130')])
+        assert '2–3 tygodnie' in faq['Jak często trzeba uzupełniać przedłużone rzęsy?']
+        assert 'Uzupełnianie kosztuje 130 zł.' in faq['Jak często trzeba uzupełniać przedłużone rzęsy?']
+        assert 'Jak długo utrzymuje się manicure hybrydowy?' not in faq
+        assert (
+            '3–4 tygodnie' in answers([svc('Manicure hybrydowy', '120')])['Jak długo utrzymuje się manicure hybrydowy?']
+        )
+
+    def test_getting_there_and_payment_match_the_terms(self):
+        faq = answers([])
+        assert 'bezpłatny parking' in faq['Jak dojechać do salonu i gdzie zaparkować?']
+        assert 'Małopanewska' in faq['Jak dojechać do salonu i gdzie zaparkować?']
+        assert 'gotówką lub BLIK-iem' in faq['Jak mogę zapłacić za zabieg?']  # same wording as § 3 of the terms
+
+    @pytest.mark.parametrize('question', [*LASER_QUESTIONS[1:], 'Jak mogę zapłacić za zabieg?'])
+    def test_answers_fit_a_featured_snippet(self, question):
+        words = len(answers([laser_svc()])[question].split())
+        assert 25 <= words <= 55
