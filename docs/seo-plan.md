@@ -148,9 +148,9 @@ Produkcja (`main` = 50421fc) przeskakuje naraz o ~40 commitów i 15 migracji, w 
 - [ ] Rich Results Test: `BeautySalon` + `FAQPage` bez błędów.
 
 **6f. Wnioski z deployu (małe PR-y)**
-- [ ] System check Django: `SITE_URL` musi zaczynać się od `http://` lub `https://`, inaczej start aplikacji się wywala (21.10 brak schematu po cichu zepsuł canonical i linki w mailach).
-- [ ] `.dockerignore`: `.git`, `.venv`, `.env*`, `backups/`, `certs/`, `logs/` — dziś `COPY . .` wkłada do obrazu sekrety i kopie bazy z danymi klientek.
-- [ ] Po deployu purge cache w Cloudflare (pliki bez hasha, np. `robots.txt`, są trzymane 4 h) — dopisać do checklisty deployu.
+- [x] System check Django (`bookings.E001`, `apps/bookings/checks.py`): `SITE_URL` musi zaczynać się od `http://` lub `https://`, inaczej start aplikacji się wywala (21.10 brak schematu po cichu zepsuł canonical i linki w mailach).
+- [x] `.dockerignore`: `.git`, `.venv`, `.env*`, `backups/`, `certs/`, `logs/` — do tej pory `COPY . .` wkłada do obrazu sekrety i kopie bazy z danymi klientek.
+- [x] Po deployu purge cache w Cloudflare (pliki bez hasha, np. `robots.txt`, są trzymane 4 h) — punkt 4 checklisty w README.
 - [ ] Później: `Employee.photo` (ImageField w panelu) zamiast `paulina.webp`, gdy salon kogoś zatrudni.
 
 ## Po audycie z 21.10.2026 (7/10 w każdym wymiarze, łącznie 21/30)
@@ -187,10 +187,15 @@ Odpowiedzi w tym samym formacie co dotąd (25–55 słów, od konkretu), te same
 - [ ] **Paulina czyta pytania o laser na stagingu przed wdrożeniem na produkcję** — przeciwwskazania i liczba zabiegów to treści o zdrowiu, napisane z ogólnej wiedzy, nie z jej słów.
 - Przy podstronach (etap 11) pytania przechodzą do FAQ swojej kategorii, a na stronie głównej zostają ogólne.
 
-### 10. Prawdziwe opinie na stronie
+### 10. Prawdziwe opinie na stronie ✅ 2026-10-26 (kod; czeka na deploy)
 Rekomendacja audytu: 3–6 cytatów z imieniem, datą i źródłem + „4,9/5 · 90 opinii na Booksy”, przy sekcji `#opinie`.
-- [ ] **Decyzja:** ustaliliśmy wcześniej „Places API albo link, bez ręcznego kopiowania”. Opcje: (a) Google Places API (automatycznie, ale klucz API, limit 5 opinii, opinie Google, nie Booksy, warunki wyświetlania); (b) ręcznie wybrane cytaty w bazie (np. model `Review` edytowany w panelu: treść, imię, data, źródło, link), za zgodą autorek albo tylko z imieniem i inicjałem; (c) zostaje link.
-- [ ] Bez `Review`/`aggregateRating` w schema (zasada Google jak wyżej). Cytaty muszą być prawdziwe i datowane.
+- [x] **Decyzja:** Google przez Places API (New), do 5 opinii wybranych przez Google; Booksy (brak publicznego API) tylko ocena + liczba + link, przepisywane przez Paulinę w panelu.
+- [x] **Google:** `apps/services/google_reviews.py`. Warunki Google zabraniają przechowywania treści (poza place ID), więc opinie są tylko w cache Django (6 h, porażki 15 min), nie w bazie. Wymagane oznaczenia: avatar, imię i link do profilu autora, link do opinii w Google Maps, „Google Maps” jako źródło. Opinie bez tekstu pomijane, niższe oceny zostają, kolejność Google.
+  - Klucz w Google Cloud: tylko Places API (New), ograniczony do **IP Dropletu** (Mac wychodzi przez iCloud Private Relay, staging Mikrus przez współdzielone IPv4), więc lokalnie i na stagingu widać fallback z linkami. Limit dzienny GetPlace + alert budżetowy ustawione. Darmowe 1000 zapytań/mies. (SKU Enterprise + Atmosphere), u nas ok. 12/dzień.
+  - Odpowiedź z 26.10: 5,0 · 16 opinii w Google.
+- [x] **Booksy:** model `BooksyRating` (wpis na każdą aktualizację), `/panel/reviews/` dla właścicielki; formularz odrzuca datę z przyszłości, starszą niż ostatni wpis i mniejszą liczbę opinii niż ostatnio.
+- [x] Bez `Review`/`aggregateRating` w schema (zasada Google jak wyżej), testy to pilnują.
+- [ ] Po deployu: Paulina wpisuje pierwsze liczby z Booksy; obejrzeć sekcję na telefonie (karty widać tylko na produkcji).
 
 ### 11. Podstrony kategorii (SEO long-tail, największy wpływ)
 Pięć stron, każda z własnym `title` i H1, min. 500 słów, cennikiem kategorii w `<table>`, FAQ kategorii, zdjęciami, CTA do rezerwacji z wybraną kategorią i linkiem ze strony głównej (nagłówek kategorii w cenniku → podstrona). **Zaczynamy od depilacji laserowej** (najwyższe ceny, mała konkurencja lokalna, konkretne urządzenie).
