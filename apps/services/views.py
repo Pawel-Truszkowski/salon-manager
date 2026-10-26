@@ -7,6 +7,7 @@ from django.shortcuts import render
 from apps.bookings.forms import BookingForm
 from apps.bookings.utils import next_available_date
 from apps.services.faq import build_faq, faq_jsonld
+from apps.services.google_reviews import get_google_reviews
 from apps.services.models import Employee, EquipmentRental, Service
 from apps.services.schema import offer_catalog_jsonld
 
@@ -79,5 +80,6 @@ def home(request):
             'next_date': next_available_date(),
             'faq': faq,
             'faq_jsonld': faq_jsonld(faq),
+            'google_reviews': get_google_reviews(),
         },
     )

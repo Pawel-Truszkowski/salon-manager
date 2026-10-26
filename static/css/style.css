@@ -435,7 +435,7 @@ body {
   }
 }
 
-/* ---------- reviews: no quotes of our own, the Google profile is the source ---------- */
+/* ---------- reviews: read live from Google (apps/services/google_reviews.py), never typed in by us ---------- */
 .rb-reviews-box {
   max-width: 40rem;
 }
@@ -443,6 +443,57 @@ body {
   margin: 1.25rem 0 2rem;
   font-weight: 300;
   line-height: 1.75;
+}
+.rb-reviews-box .rb-reviews-summary strong {
+  font-weight: 500;
+  color: var(--rb-gold-ink);
+}
+.rb-review-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
+  gap: 1.5rem;
+  margin: 3rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.rb-review figure {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  margin: 0;
+  padding: 1.5rem;
+  border: 1px solid var(--rb-border);
+  background: var(--rb-bg);
+}
+.rb-review-text {
+  margin: 0 0 1.25rem;
+  font-weight: 300;
+  line-height: 1.7;
+}
+.rb-review-meta {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  font-size: 0.875rem;
+}
+.rb-review-meta img {
+  flex: none;
+  border-radius: 50%;
+}
+.rb-review-meta > span {
+  display: flex;
+  flex-direction: column;
+}
+.rb-review-meta a {
+  color: inherit;
+}
+.rb-review-stars {
+  color: var(--rb-gold);
+  letter-spacing: 0.1em;
+}
+.rb-review-source {
+  color: #6b5a45 !important;
 }
 
 /* ---------- FAQ: question in <summary>, answer 40–60 words ---------- */

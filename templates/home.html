@@ -168,12 +168,38 @@
   <div class="container-xl px-4 px-lg-5">
     <div class="rb-reviews-box">
       <h2 id="opinie-heading" class="rb-heading">Opinie klientek</h2>
-      <p>Opinie zbieramy w wizytówce Google. Przeczytasz tam, co klientki piszą o zabiegach, a po wizycie możesz dodać własną.</p>
+      {% if google_reviews %}
+        <p class="rb-reviews-summary">
+          <strong>{{ google_reviews.rating|rating }}/5</strong> · {{ google_reviews.count }} {{ google_reviews.count|pl_plural:"opinia,opinie,opinii" }} w Google Maps
+        </p>
+      {% else %}
+        <p>Opinie zbieramy w wizytówce Google. Przeczytasz tam, co klientki piszą o zabiegach, a po wizycie możesz dodać własną.</p>
+      {% endif %}
       <div class="rb-hero-actions">
         <a class="btn rb-btn rb-btn-solid" href="{{ google_maps_url }}" target="_blank" rel="noopener">Zobacz opinie w Google</a>
         <a class="btn rb-btn rb-btn-quiet" href="{{ google_review_url }}" target="_blank" rel="noopener">Wystaw opinię</a>
       </div>
     </div>
+    {% if google_reviews.reviews %}
+      {# Google's terms: author's avatar + name + profile link, a link to the review itself, "Google Maps" as source #}
+      <ul class="rb-review-list">
+        {% for review in google_reviews.reviews %}
+          <li class="rb-review">
+            <figure>
+              <blockquote class="rb-review-text">{{ review.text|linebreaksbr }}</blockquote>
+              <figcaption class="rb-review-meta">
+                {% if review.photo_url %}<img src="{{ review.photo_url }}" alt="" width="40" height="40" loading="lazy" referrerpolicy="no-referrer">{% endif %}
+                <span>
+                  <a href="{{ review.author_url }}" target="_blank" rel="noopener nofollow">{{ review.author }}</a>
+                  <span class="rb-review-stars" aria-label="Ocena {{ review.rating }} na 5">{% for _ in "12345" %}{% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}{% endfor %}</span>
+                  <a class="rb-review-source" href="{{ review.url }}" target="_blank" rel="noopener nofollow">{{ review.when }} w Google Maps</a>
+                </span>
+              </figcaption>
+            </figure>
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
   </div>
 </section>
 

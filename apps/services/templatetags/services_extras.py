@@ -25,3 +25,21 @@ def description_html(text):
     if items:
         html.append(f'<ul>{"".join(items)}</ul>')
     return mark_safe(''.join(html))
+
+
+@register.filter
+def pl_plural(count, forms):
+    """Polish noun form for a count: `{{ 16|pl_plural:"opinia,opinie,opinii" }}` -> "opinii"."""
+    one, few, many = forms.split(',')
+    count = int(count)
+    if count == 1:
+        return one
+    if count % 10 in (2, 3, 4) and count % 100 not in (12, 13, 14):
+        return few
+    return many
+
+
+@register.filter
+def rating(value):
+    """A star rating the Polish way, with a decimal comma: 4.9 -> "4,9", 5 -> "5,0"."""
+    return f'{float(value):.1f}'.replace('.', ',')

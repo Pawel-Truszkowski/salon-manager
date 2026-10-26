@@ -73,6 +73,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
 DEFAULT_FROM_EMAIL = 'test@example.com'
 SALON_EMAIL = 'salon@example.com'
 SITE_URL = 'http://testserver'
+GOOGLE_PLACES_API_KEY = ''  # tests never call Google; they mock the request
+GOOGLE_PLACE_ID = 'test-place-id'
 
 LOGIN_URL = 'panel:login'
 LOGIN_REDIRECT_URL = 'panel:dashboard'
