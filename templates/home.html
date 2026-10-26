@@ -168,10 +168,16 @@
   <div class="container-xl px-4 px-lg-5">
     <div class="rb-reviews-box">
       <h2 id="opinie-heading" class="rb-heading">Opinie klientek</h2>
-      {% if google_reviews %}
-        <p class="rb-reviews-summary">
-          <strong>{{ google_reviews.rating|rating }}/5</strong> · {{ google_reviews.count }} {{ google_reviews.count|pl_plural:"opinia,opinie,opinii" }} w Google Maps
-        </p>
+      {% if google_reviews or booksy_rating %}
+        <ul class="rb-reviews-summary">
+          {% if google_reviews %}
+            <li><strong>{{ google_reviews.rating|rating }}/5</strong> · {{ google_reviews.count }} {{ google_reviews.count|pl_plural:"opinia,opinie,opinii" }} w <a href="{{ google_maps_url }}" target="_blank" rel="noopener">Google Maps</a></li>
+          {% endif %}
+          {% if booksy_rating %}
+            {# Copied from Booksy by the owner (no API), hence the date #}
+            <li><strong>{{ booksy_rating.rating|rating }}/5</strong> · {{ booksy_rating.count }} {{ booksy_rating.count|pl_plural:"opinia,opinie,opinii" }} na <a href="{{ booksy_url }}" target="_blank" rel="noopener">Booksy</a> <span class="rb-reviews-asof">(stan na {{ booksy_rating.as_of|date:"j.m.Y" }})</span></li>
+          {% endif %}
+        </ul>
       {% else %}
         <p>Opinie zbieramy w wizytówce Google. Przeczytasz tam, co klientki piszą o zabiegach, a po wizycie możesz dodać własną.</p>
       {% endif %}

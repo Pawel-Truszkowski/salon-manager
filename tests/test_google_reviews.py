@@ -188,7 +188,7 @@ class TestHomeReviews:
             html = client.get(reverse('home')).content.decode()
 
         assert '4,8/5' in html
-        assert '16 opinii w Google Maps' in html
+        assert '16 opinii w <a href="https://maps.google.com/?cid=16009745620444220515"' in html
         assert 'Piękne paznokcie,<br>polecam!' in html
         # attribution required by Google: author's profile and the review on Google Maps
         assert 'https://www.google.com/maps/contrib/Ola/reviews' in html

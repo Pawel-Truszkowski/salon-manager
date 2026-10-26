@@ -444,9 +444,23 @@ body {
   font-weight: 300;
   line-height: 1.75;
 }
-.rb-reviews-box .rb-reviews-summary strong {
+.rb-reviews-summary {
+  margin: 1.25rem 0 2rem;
+  padding: 0;
+  list-style: none;
+  font-weight: 300;
+  line-height: 2;
+}
+.rb-reviews-summary strong {
   font-weight: 500;
   color: var(--rb-gold-ink);
+}
+.rb-reviews-summary a {
+  color: inherit;
+}
+.rb-reviews-asof {
+  color: #6b5a45;
+  font-size: 0.875rem;
 }
 .rb-review-list {
   display: grid;
