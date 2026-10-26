@@ -145,7 +145,7 @@ Przepływ: gałąź od `dev` → PR do `dev` → (CI + staging) → PR `dev` →
 **Deploy produkcji (skrót):**
 1. Kopia bazy: `./scripts/backup_db.sh --env prod` (jedyny rollback — migracje danych nie mają cofania).
 2. Merge PR `dev` → `main`, na Droplecie `git pull origin main` i `docker compose -f docker-compose.prod.yml up -d --build`.
-3. `docker compose -f docker-compose.prod.yml logs web` — migracje `OK`, Gunicorn uruchomiony.
+3. `docker compose -f docker-compose.prod.yml logs web` — migracje `OK`, Gunicorn uruchomiony. Błąd `bookings.E001` = `SITE_URL` w `.env.prod` bez `https://` (kontener celowo nie startuje).
 4. Cloudflare → Purge cache (pliki bez hasha w nazwie, np. `robots.txt`, są w cache do 4 h).
 5. Smoke test: przekierowania www/http → `https://royalbeauty-studiourody.pl/`, strona, panel, `robots.txt`, `sitemap.xml`.
 

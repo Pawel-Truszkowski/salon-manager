@@ -1,0 +1,35 @@
+# Keeps secrets, database dumps and local junk out of the image built by `COPY . .`.
+# The containers get their settings from `env_file` and nginx mounts ./certs at runtime,
+# so none of this is needed inside the image. Dev compose mounts the project anyway.
+
+# Secrets: env files (env_file passes them in), TLS keys (mounted into nginx only)
+.env*
+certs/
+
+# Database dumps with client data (scripts/backup_db.sh) and logs
+backups/
+logs/
+*.log
+*.sql
+*.sql.gz
+db.sqlite3
+
+# The image builds its own Linux .venv with `uv sync`; a host one (macOS) would overwrite it
+.venv/
+
+# Uploads live in the media_files volume
+media/
+
+# Repo and tooling
+.git/
+.github/
+.claude/
+.playwright-mcp/
+.pytest_cache/
+.ruff_cache/
+**/__pycache__/
+**/*.pyc
+.DS_Store
+.idea/
+docs/
+tests/
