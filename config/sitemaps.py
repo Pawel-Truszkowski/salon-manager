@@ -3,6 +3,7 @@ from django.db.models import Max
 from django.urls import reverse
 from django.utils import timezone
 
+from apps.services.category_pages import page_categories
 from apps.services.models import Service
 from config.context_processors import LEGAL_EFFECTIVE_DATE
 
@@ -26,3 +27,16 @@ class StaticViewSitemap(Sitemap):
             last = Service.objects.aggregate(last=Max('updated_at'))['last']
             return timezone.localdate(last) if last else None
         return LEGAL_EFFECTIVE_DATE
+
+
+class CategorySitemap(Sitemap):
+    """/uslugi/<slug>/ pages; <lastmod> = the latest change of their services (price list, descriptions)."""
+
+    changefreq = 'monthly'
+    priority = 0.8
+
+    def items(self):
+        return page_categories().annotate(last_change=Max('services__updated_at')).order_by('order')
+
+    def lastmod(self, category):
+        return timezone.localdate(category.last_change) if category.last_change else None

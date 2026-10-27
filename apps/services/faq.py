@@ -1,4 +1,4 @@
-"""Frequently asked questions on the home page.
+"""Frequently asked questions on the home page and on the category pages (`category_pages.py`).
 
 The same list feeds the visible `#faq` section and the `FAQPage` JSON-LD, so search engines and AI answer engines
 read exactly what clients see. Prices and durations come from `Service`, never typed into the text: a price change
@@ -189,10 +189,9 @@ def build_faq(services, rentals=None):
             'Termin dopasowujemy do Ciebie, więc łatwo umówić się po pracy albo w weekend. '
             'Wolne godziny widzisz w formularzu rezerwacji. Jeśli żadna nie pasuje, zadzwoń.',
         ),
+        # The detailed laser questions are on /uslugi/depilacja-laserowa/ (`laser_page_faq`): Google wants
+        # a question marked up as FAQPage on one page only
         _laser(services, rentals or {}),
-        _laser_sessions(services),
-        _laser_pain(services),
-        _laser_contraindications(services),
         (
             'Jak zarezerwować wizytę?',
             'Wybierz zabieg, dzień i godzinę w formularzu rezerwacji. Pokazujemy tylko wolne terminy. '
@@ -224,6 +223,54 @@ def build_faq(services, rentals=None):
         ),
         _hybrid_manicure(services),
         _hybrid_lasts(services),
+    ]
+    return [{'question': q, 'answer': a} for q, a in filter(None, items)]
+
+
+def _laser_price(services):
+    laser = _laser_services(services)
+    if not laser:
+        return None
+    return (
+        'Ile kosztuje depilacja laserowa?',
+        f'Cena zależy od partii ciała: {_prices([s.price for s in laser])} za jeden zabieg. '
+        'Pełny cennik partii jest wyżej na tej stronie. Płacisz po zabiegu, gotówką lub BLIK-iem, '
+        'bez zadatków i bez kupowania pakietu z góry.',
+    )
+
+
+def _laser_preparation(services):
+    if not _laser_services(services):
+        return None
+    return (
+        'Jak przygotować się do depilacji laserowej?',
+        'Na dzień lub dwa przed zabiegiem ogól miejsce zabiegu maszynką. Na 4 tygodnie przed nie depiluj go '
+        'woskiem, pastą ani depilatorem, bo laser potrzebuje cebulki włosa. Przez 2–4 tygodnie unikaj słońca, '
+        'solarium i samoopalacza. W dniu zabiegu nie nakładaj na to miejsce kremów ani dezodorantu.',
+    )
+
+
+def _laser_aftercare(services):
+    if not _laser_services(services):
+        return None
+    return (
+        'Co robić po depilacji laserowej?',
+        'Zaczerwienienie po zabiegu zwykle mija w ciągu kilku godzin. Przez 2 dni unikaj sauny, basenu i gorących '
+        'kąpieli, a przez 2 tygodnie słońca: na odsłonięte miejsca nakładaj krem z filtrem SPF 50. Nie rób '
+        'peelingu przez kilka dni. Włosy wypadają same w ciągu 1–3 tygodni, nie wyrywaj ich.',
+    )
+
+
+def laser_page_faq(services, rentals=None):
+    """FAQ of /uslugi/depilacja-laserowa/: the laser questions that aren't on the home page."""
+    services = list(services)
+    items = [
+        _laser_price(services),
+        _laser_sessions(services),
+        _laser_pain(services),
+        _laser_preparation(services),
+        _laser_aftercare(services),
+        _laser_contraindications(services),
     ]
     return [{'question': q, 'answer': a} for q, a in filter(None, items)]
 

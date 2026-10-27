@@ -2,14 +2,15 @@ from itertools import groupby
 
 from django.conf import settings
 from django.db.models import Prefetch
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 
 from apps.bookings.forms import BookingForm
 from apps.bookings.utils import next_available_date
+from apps.services.category_pages import CATEGORY_PAGES, page_categories
 from apps.services.faq import build_faq, faq_jsonld
 from apps.services.google_reviews import get_google_reviews
 from apps.services.models import BooksyRating, Employee, EquipmentRental, Service
-from apps.services.schema import offer_catalog_jsonld
+from apps.services.schema import category_page_jsonld, offer_catalog_jsonld
 
 
 def next_rentals():
@@ -54,6 +55,11 @@ def with_specialties(employees):
     return employees
 
 
+def category_page_urls():
+    """{category_id: URL of its landing page} for the categories that have one (links from the home price list)."""
+    return {category.pk: category.get_absolute_url() for category in page_categories()}
+
+
 def home(request):
     services = list(
         Service.objects.active()
@@ -67,6 +73,9 @@ def home(request):
     rentals = next_rentals()
     faq = build_faq(services, rentals)
     price_list = build_price_list(services, rentals)
+    page_urls = category_page_urls()
+    for group in price_list:
+        group['page_url'] = page_urls.get(group['category'].pk)
     return render(
         request,
         'home.html',
@@ -82,5 +91,36 @@ def home(request):
             'faq_jsonld': faq_jsonld(faq),
             'google_reviews': get_google_reviews(),
             'booksy_rating': BooksyRating.objects.first(),
+        },
+    )
+
+
+def category_detail(request, slug):
+    """/uslugi/<slug>/: a category's landing page (content in `category_pages.py` + its template)."""
+    category = get_object_or_404(page_categories(), slug=slug)
+    page = CATEGORY_PAGES[slug]
+    services = list(
+        Service.objects.active()
+        .filter(category=category)
+        .select_related('category', 'required_equipment')
+        .order_by('name')
+    )
+    rentals = next_rentals()
+    [group] = build_price_list(services, rentals)
+    faq = page.faq(services, rentals)
+    site_url = settings.SITE_URL.rstrip('/')
+    return render(
+        request,
+        'services/category_detail.html',
+        {
+            'category': category,
+            'page': page,
+            'group': group,
+            'content_template': f'services/categories/{slug}.html',
+            'faq': faq,
+            'faq_jsonld': faq_jsonld(faq),
+            'page_jsonld': category_page_jsonld(
+                category, services, site_url, f'{site_url}{category.get_absolute_url()}'
+            ),
         },
     )

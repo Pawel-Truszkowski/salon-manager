@@ -676,6 +676,110 @@ body {
   overflow-wrap: anywhere;
 }
 
+.rb-menu-group-more {
+  margin: -0.25rem 0 1rem;
+  font-size: 0.95rem;
+}
+
+/* ---------- category landing pages (/uslugi/<slug>/): one reading column like the legal pages ---------- */
+.rb-category > div > * {
+  max-width: 46rem;
+}
+.rb-breadcrumb ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0 0 1.5rem;
+  padding: 0;
+  list-style: none;
+  font-size: 0.875rem;
+  color: #6b5a45;
+}
+.rb-breadcrumb li + li::before {
+  content: "›";
+  margin-right: 0.5rem;
+}
+.rb-breadcrumb a {
+  color: inherit;
+}
+.rb-category-title {
+  font-size: clamp(2rem, 5vw, 3rem);
+  margin-bottom: 1rem;
+}
+.rb-category-body,
+.rb-category-prices,
+.rb-category-faq {
+  font-weight: 300;
+  line-height: 1.75;
+  color: var(--rb-body);
+}
+.rb-category-lead {
+  margin-top: 2rem;
+  font-size: 1.125rem;
+}
+.rb-category-body strong {
+  font-weight: 500;
+}
+.rb-category h2 {
+  font-family: var(--ff-display);
+  font-weight: 400;
+  font-size: 1.5rem;
+  color: var(--rb-dark);
+  margin: 2.5rem 0 1rem;
+}
+.rb-category-body ul {
+  padding-left: 1.25rem;
+}
+.rb-category-body li {
+  margin-bottom: 0.5rem;
+}
+.rb-price-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.rb-price-table th,
+.rb-price-table td {
+  padding: 0.6rem 0.5rem 0.6rem 0;
+  border-bottom: 1px solid var(--rb-border);
+  text-align: left;
+  vertical-align: baseline;
+}
+.rb-price-table thead th {
+  font-weight: 500;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #6b5a45;
+}
+.rb-price-table tbody th {
+  font-weight: 400;
+}
+.rb-price-table td:nth-child(2),
+.rb-price-table td:nth-child(3) {
+  white-space: nowrap;
+}
+.rb-price-table td:last-child {
+  text-align: right;
+}
+.rb-category-note {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: #6b5a45;
+}
+.rb-category-cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 3rem;
+}
+@media (max-width: 575.98px) {
+  /* Phone: the row's own "Zarezerwuj" link would squeeze the name; the CTA below books */
+  .rb-price-table td:last-child,
+  .rb-price-table thead td {
+    display: none;
+  }
+}
+
 /* ---------- contact: NAP + by appointment ---------- */
 .rb-contact-grid {
   display: grid;

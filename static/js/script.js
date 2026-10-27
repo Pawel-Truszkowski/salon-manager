@@ -228,6 +228,15 @@ if (serviceSelect) serviceSelect.addEventListener("change", function () {
   }
 });
 
+// "Zarezerwuj" on a category page links to /?usluga=<id>#rezerwacja: preselect that service here
+if (serviceSelect) {
+  var preselected = new URLSearchParams(location.search).get("usluga");
+  if (preselected && serviceSelect.querySelector('option[value="' + CSS.escape(preselected) + '"]')) {
+    serviceSelect.value = preselected;
+    serviceSelect.dispatchEvent(new Event("change"));
+  }
+}
+
 if (employeeSelect) employeeSelect.addEventListener("change", function () {
   var serviceId = document.getElementById("bookingService").value;
   bookingPicker.clear();

@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% load services_extras %}
+{# Category landing page: body from services/categories/<slug>.html, title/description/FAQ from category_pages.py #}
+{% block title %}{{ page.title }}{% endblock %}
+{% block meta_description %}{{ page.meta_description }}{% endblock %}
+{% block og_title %}{{ page.h1 }} | Royal Beauty{% endblock %}
+{% block og_description %}{{ page.meta_description }}{% endblock %}
+{% block content %}
+<script type="application/ld+json">{{ page_jsonld }}</script>
+
+<article class="rb-section rb-category">
+  <div class="container-xl px-4 px-lg-5">
+    <nav class="rb-breadcrumb" aria-label="Okruszki">
+      <ol>
+        <li><a href="{% url 'home' %}">Royal Beauty</a></li>
+        <li aria-current="page">{{ category.name }}</li>
+      </ol>
+    </nav>
+    <h1 class="rb-heading rb-category-title">{{ page.h1 }}</h1>
+
+    {% if group.equipment %}
+      <div class="rb-equipment-note">
+        {% if group.next_rental %}
+          <p class="rb-equipment-when">Laser jest w salonie w wybrane dni. Najbliżej: <strong>{{ group.next_rental.label }}</strong>.</p>
+        {% else %}
+          <p class="rb-equipment-when">Kolejny termin wkrótce. Zadzwoń, zapiszemy Cię jako pierwszą: <a class="rb-tel" href="tel:+48793355756">793 355 756</a>.</p>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    <div class="rb-category-body">
+      {% include content_template %}
+    </div>
+
+    <section class="rb-category-prices" aria-labelledby="cennik-heading">
+      <h2 id="cennik-heading">Cennik: {{ category.name|lower }}</h2>
+      <table class="rb-price-table">
+        <thead>
+          <tr><th scope="col">{{ page.price_column }}</th><th scope="col">Czas</th><th scope="col">Cena</th><td></td></tr>
+        </thead>
+        <tbody>
+          {% for service in group.services %}
+            <tr>
+              <th scope="row">{{ service.name|without_category:category.name }}</th>
+              <td>{{ service.duration }} min</td>
+              <td>{{ service.price_label }}</td>
+              <td><a class="rb-text-link" href="{% url 'home' %}?usluga={{ service.pk }}#rezerwacja">Zarezerwuj<span class="visually-hidden">: {{ service.name }}</span></a></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <p class="rb-category-note">Płacisz po zabiegu, gotówką lub BLIK-iem. Rezerwacja jest bezpłatna.</p>
+    </section>
+
+    {% if faq %}
+      <section class="rb-category-faq" aria-labelledby="faq-heading">
+        <h2 id="faq-heading">Częste pytania</h2>
+        {% for item in faq %}
+          <details class="rb-faq-item">
+            <summary><h3 class="rb-faq-question">{{ item.question }}</h3></summary>
+            <p>{{ item.answer }}</p>
+          </details>
+        {% endfor %}
+      </section>
+      <script type="application/ld+json">{{ faq_jsonld }}</script>
+    {% endif %}
+
+    <div class="rb-category-cta">
+      <a class="btn rb-btn rb-btn-solid" href="{% url 'home' %}#rezerwacja">Zarezerwuj termin</a>
+      <a class="btn rb-btn rb-btn-quiet" href="tel:+48793355756">Zadzwoń: 793 355 756</a>
+    </div>
+  </div>
+</article>
+{% endblock %}

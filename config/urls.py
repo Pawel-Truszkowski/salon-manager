@@ -4,10 +4,10 @@ from django.urls import include, path
 from django.views.generic import TemplateView
 
 from apps.bookings.views import cancel_booking, submit_booking
-from apps.services.views import home
-from config.sitemaps import StaticViewSitemap
+from apps.services.views import category_detail, home
+from config.sitemaps import CategorySitemap, StaticViewSitemap
 
-sitemaps = {'static': StaticViewSitemap}
+sitemaps = {'static': StaticViewSitemap, 'categories': CategorySitemap}
 
 urlpatterns = [
     path('robots.txt', TemplateView.as_view(template_name="robots.txt", content_type="text/plain")),
@@ -17,6 +17,7 @@ urlpatterns = [
     path('api/', include('apps.api.urls')),
     path('panel/', include('apps.panel.urls')),
     path('', home, name='home'),
+    path('uslugi/<slug:slug>/', category_detail, name='category_detail'),
     path('bookings/', submit_booking, name='submit_booking'),
     path('bookings/cancel/<uuid:token>/', cancel_booking, name='cancel_booking'),
     path('polityka-prywatnosci/', TemplateView.as_view(template_name='legal/privacy.html'), name='privacy'),

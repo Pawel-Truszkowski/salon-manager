@@ -93,6 +93,9 @@
         {% for group in price_list %}
           <section class="rb-menu-group" id="{{ group.category.slug }}" aria-labelledby="{{ group.category.slug }}-heading">
             <h3 class="rb-menu-group-title" id="{{ group.category.slug }}-heading">{{ group.category.name }}</h3>
+            {% if group.page_url %}
+              <p class="rb-menu-group-more"><a class="rb-text-link" href="{{ group.page_url }}">Jak wygląda zabieg, przygotowanie, przeciwwskazania</a></p>
+            {% endif %}
             {% if group.equipment %}
               {# Services that need rented equipment (the laser): bookable only on its days #}
               <div class="rb-equipment-note">

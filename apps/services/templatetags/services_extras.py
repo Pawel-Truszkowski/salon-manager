@@ -43,3 +43,16 @@ def pl_plural(count, forms):
 def rating(value):
     """A star rating the Polish way, with a decimal comma: 4.9 -> "4,9", 5 -> "5,0"."""
     return f'{float(value):.1f}'.replace('.', ',')
+
+
+@register.filter
+def without_category(name, category_name):
+    """Service name without its repeated category: "Depilacja laserowa – pachy" -> "Pachy" (category pages).
+
+    Names that don't start with "<category> – " stay as they are ("Henna brwi" in "Rzęsy i brwi").
+    """
+    prefix = f'{category_name} – '
+    if name.lower().startswith(prefix.lower()) and len(name) > len(prefix):
+        rest = name[len(prefix) :]
+        return rest[0].upper() + rest[1:]
+    return name

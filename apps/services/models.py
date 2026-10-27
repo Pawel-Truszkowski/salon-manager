@@ -2,6 +2,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.urls import reverse
 from django.utils import timezone
 
 
@@ -43,6 +44,10 @@ class ServiceCategory(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        # Only categories in `category_pages.CATEGORY_PAGES` have a page; others 404 here
+        return reverse('category_detail', args=[self.slug])
 
 
 class Equipment(models.Model):

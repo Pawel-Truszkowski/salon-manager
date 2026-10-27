@@ -52,3 +52,34 @@ def offer_catalog_jsonld(price_list, site_url):
         },
     }
     return jsonld(data)
+
+
+def category_page_jsonld(category, services, site_url, page_url):
+    """`Service` (with its price list, provided by the salon from base.html) and `BreadcrumbList` of a category page."""
+    data = {
+        '@context': 'https://schema.org',
+        '@graph': [
+            {
+                '@type': 'Service',
+                '@id': f'{page_url}#service',
+                'name': category.name,
+                'serviceType': category.name,
+                'url': page_url,
+                'provider': {'@id': f'{site_url}/#salon'},
+                'areaServed': {'@type': 'City', 'name': 'Wrocław'},
+                'hasOfferCatalog': {
+                    '@type': 'OfferCatalog',
+                    'name': f'Cennik: {category.name}',
+                    'itemListElement': [service_offer(service) for service in services],
+                },
+            },
+            {
+                '@type': 'BreadcrumbList',
+                'itemListElement': [
+                    {'@type': 'ListItem', 'position': 1, 'name': 'Royal Beauty', 'item': f'{site_url}/'},
+                    {'@type': 'ListItem', 'position': 2, 'name': category.name, 'item': page_url},
+                ],
+            },
+        ],
+    }
+    return jsonld(data)

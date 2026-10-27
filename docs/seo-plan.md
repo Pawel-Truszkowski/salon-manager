@@ -197,14 +197,15 @@ Rekomendacja audytu: 3–6 cytatów z imieniem, datą i źródłem + „4,9/5 ·
 - [x] Bez `Review`/`aggregateRating` w schema (zasada Google jak wyżej), testy to pilnują.
 - [ ] Po deployu: Paulina wpisuje pierwsze liczby z Booksy; obejrzeć sekcję na telefonie (karty widać tylko na produkcji).
 
-### 11. Podstrony kategorii (SEO long-tail, największy wpływ)
+### 11. Podstrony kategorii (SEO long-tail, największy wpływ) — laser ✅ 2026-10-27 (kod; treść czeka na Paulinę)
 Pięć stron, każda z własnym `title` i H1, min. 500 słów, cennikiem kategorii w `<table>`, FAQ kategorii, zdjęciami, CTA do rezerwacji z wybraną kategorią i linkiem ze strony głównej (nagłówek kategorii w cenniku → podstrona). **Zaczynamy od depilacji laserowej** (najwyższe ceny, mała konkurencja lokalna, konkretne urządzenie).
-- [ ] **Decyzja: adresy.** Audyt proponuje `/depilacja-laserowa-wroclaw/`, plan miał `/uslugi/<slug>/`. Rekomendacja: `/uslugi/depilacja-laserowa/` (czysta hierarchia pod `BreadcrumbList`, slug już istnieje, miasto i tak jest w `title` i H1; słowo w URL to dziś słaby sygnał).
-- [ ] Model: `ServiceCategory` + `seo_title`, `meta_description`, `intro` (TextField). FAQ kategorii: osobny model (`FaqItem`, FK do kategorii, kolejność) edytowany w panelu albo w kodzie jak dziś (`faq.py`). Do decyzji przy realizacji.
-- [ ] Widok `DetailView` po slugu (tylko kategorie z aktywnymi usługami), szablon z `base.html`, bloki `meta_description` i JSON-LD.
-- [ ] JSON-LD per podstrona: `Service`/`OfferCatalog` z `provider` → `@id` salonu, `BreadcrumbList`, `FAQPage` z tych samych danych co HTML.
-- [ ] `CategorySitemap` w `config/sitemaps.py` z `lastmod`.
-- [ ] Treść: Paulina (opis zabiegów, efekty, przeciwwskazania, przygotowanie). Developer składa, Paulina zatwierdza, bo to treści o zdrowiu.
+- [x] **Decyzja: adresy** → `/uslugi/<slug>/`. Audyt proponował `/depilacja-laserowa-wroclaw/`, plan miał `/uslugi/<slug>/`. Rekomendacja: `/uslugi/depilacja-laserowa/` (czysta hierarchia pod `BreadcrumbList`, slug już istnieje, miasto i tak jest w `title` i H1; słowo w URL to dziś słaby sygnał).
+- [x] Treść w repo, nie w panelu: `apps/services/category_pages.py` (title, meta, H1, FAQ) + `templates/services/categories/<slug>.html`. Strona istnieje tylko z treścią i aktywną usługą.
+- [x] Widok po slugu (tylko kategorie z aktywnymi usługami), szablon z `base.html`, bloki `meta_description` i JSON-LD.
+- [x] JSON-LD per podstrona: `Service`/`OfferCatalog` z `provider` → `@id` salonu, `BreadcrumbList`, `FAQPage` z tych samych danych co HTML.
+- [x] `CategorySitemap` w `config/sitemaps.py` z `lastmod` (uwaga: zmiana samego szablonu treści nie zmienia `lastmod`).
+- [x] 3 szczegółowe pytania o laser przeniesione ze strony głównej na podstronę (+3 nowe: cena, przygotowanie, po zabiegu); Google: to samo pytanie w FAQPage tylko na jednej stronie.
+- [ ] Treść lasera (ok. 515 słów) do akceptacji Pauliny: szczególnie „próba na małym fragmencie skóry”, preparat po zabiegu, czasy przygotowania i pielęgnacji. Ogólnie: Paulina (opis zabiegów, efekty, przeciwwskazania, przygotowanie). Developer składa, Paulina zatwierdza, bo to treści o zdrowiu.
 - Kolejność: depilacja laserowa → rzęsy i brwi → dłonie i stopy → zabiegi kosmetyczne → depilacja woskiem.
 
 ### 12. Poradniki (GEO)
