@@ -197,7 +197,7 @@ Rekomendacja audytu: 3–6 cytatów z imieniem, datą i źródłem + „4,9/5 ·
 - [x] Bez `Review`/`aggregateRating` w schema (zasada Google jak wyżej), testy to pilnują.
 - [ ] Po deployu: Paulina wpisuje pierwsze liczby z Booksy; obejrzeć sekcję na telefonie (karty widać tylko na produkcji).
 
-### 11. Podstrony kategorii (SEO long-tail, największy wpływ) — laser ✅ 2026-10-27 (kod; treść czeka na Paulinę)
+### 11. Podstrony kategorii (SEO long-tail, największy wpływ) ✅ 2026-10-27 (laser zatwierdzony; pozostałe cztery czekają na Paulinę)
 Pięć stron, każda z własnym `title` i H1, min. 500 słów, cennikiem kategorii w `<table>`, FAQ kategorii, zdjęciami, CTA do rezerwacji z wybraną kategorią i linkiem ze strony głównej (nagłówek kategorii w cenniku → podstrona). **Zaczynamy od depilacji laserowej** (najwyższe ceny, mała konkurencja lokalna, konkretne urządzenie).
 - [x] **Decyzja: adresy** → `/uslugi/<slug>/`. Audyt proponował `/depilacja-laserowa-wroclaw/`, plan miał `/uslugi/<slug>/`. Rekomendacja: `/uslugi/depilacja-laserowa/` (czysta hierarchia pod `BreadcrumbList`, slug już istnieje, miasto i tak jest w `title` i H1; słowo w URL to dziś słaby sygnał).
 - [x] Treść w repo, nie w panelu: `apps/services/category_pages.py` (title, meta, H1, FAQ) + `templates/services/categories/<slug>.html`. Strona istnieje tylko z treścią i aktywną usługą.
@@ -206,7 +206,15 @@ Pięć stron, każda z własnym `title` i H1, min. 500 słów, cennikiem kategor
 - [x] `CategorySitemap` w `config/sitemaps.py` z `lastmod` (uwaga: zmiana samego szablonu treści nie zmienia `lastmod`).
 - [x] 3 szczegółowe pytania o laser przeniesione ze strony głównej na podstronę (+3 nowe: cena, przygotowanie, po zabiegu); Google: to samo pytanie w FAQPage tylko na jednej stronie.
 - [x] Treść lasera i jej FAQ zatwierdzone przez Paulinę (2026-10-27), z dwiema poprawkami: salon nie nakłada preparatu po zabiegu, a pierwsza wizyta to rozmowa i ankieta. Ogólnie: Paulina (opis zabiegów, efekty, przeciwwskazania, przygotowanie). Developer składa, Paulina zatwierdza, bo to treści o zdrowiu.
-- Kolejność: depilacja laserowa → rzęsy i brwi → dłonie i stopy → zabiegi kosmetyczne → depilacja woskiem.
+- [x] Pozostałe cztery strony (2026-10-27): rzęsy i brwi, dłonie i stopy, zabiegi kosmetyczne, depilacja woskiem, każda ok. 510 słów + 4 pytania FAQ z cenami z bazy. Na stronie głównej zostaje jedno pytanie na kategorię; „Jak często uzupełniać rzęsy?” i „Jak długo utrzymuje się hybryda?” przeszły na podstrony. Strona wosku linkuje do lasera.
+- [ ] **Paulina czyta cztery nowe strony i ich FAQ** (staging, `/uslugi/<slug>/`), szczególnie:
+  - rzęsy: „klej nie dotyka skóry”, pielęgnacja (doba bez wody, płyny bez olejów), henna 2–4 tygodnie na brwiach, próba uczuleniowa przed pierwszą henną, przeciwwskazania;
+  - paznokcie: pedicure z kwasami („callus”), rady dla trwałości hybrydy, przeciwwskazania (grzybica, stany zapalne);
+  - twarz: opis oczyszczania wodorowego i kawitacji, mezoterapia (seria 3–6 co 2–4 tygodnie, 24 h bez makijażu, SPF 50 przez 2 tygodnie, retinoidy i kwasy tydzień przed i po), lista przeciwwskazań;
+  - wosk: włosy ok. 5 mm, efekt 3–4 tygodnie, doba bez sauny i słońca, przeciwwskazania, sekcja dla mężczyzn (przycinanie długich włosów);
+  - czego brakuje, a warto napisać: sterylizacja narzędzi (autoklaw?), marki kosmetyków i wosku, rodzaj kleju do rzęs.
+- [ ] Dane dla Pauliny (panel): „Pedicure naturalny + kwasy” ma 30 min, a „Pedicure naturalny” 60 min. Literówka?
+- [ ] Zdjęcia na podstronach (plan zakładał), gdy będą zdjęcia prac.
 
 ### 12. Poradniki (GEO)
 2–4 artykuły, które najczęściej trafiają do cytowań AI: „Pielęgnacja rzęs po przedłużaniu”, „Laser diodowy czy wosk?”, „Jak przygotować się do mezoterapii mikroigłowej”.

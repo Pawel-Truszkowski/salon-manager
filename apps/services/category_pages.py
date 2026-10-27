@@ -10,7 +10,7 @@ from dataclasses import dataclass
 
 from django.db.models import Exists, OuterRef
 
-from apps.services.faq import laser_page_faq
+from apps.services.faq import face_page_faq, laser_page_faq, lash_brow_page_faq, nails_page_faq, wax_page_faq
 from apps.services.models import Service, ServiceCategory
 
 
@@ -32,6 +32,43 @@ CATEGORY_PAGES = {
         ),
         h1='Depilacja laserowa we Wrocławiu',
         faq=laser_page_faq,
+        price_column='Partia ciała',
+    ),
+    'rzesy-i-brwi': CategoryPage(
+        title='Przedłużanie rzęs i henna brwi Wrocław — Fabryczna | Royal Beauty',
+        meta_description=(
+            'Przedłużanie rzęs 1:1 i objętościowe, uzupełnianie, henna i regulacja brwi na Fabrycznej '
+            'we Wrocławiu. Ceny, metody i pielęgnacja. Zarezerwuj online.'
+        ),
+        h1='Przedłużanie rzęs i stylizacja brwi we Wrocławiu',
+        faq=lash_brow_page_faq,
+    ),
+    'dlonie-i-stopy': CategoryPage(
+        title='Manicure i pedicure hybrydowy Wrocław — Fabryczna | Royal Beauty',
+        meta_description=(
+            'Manicure hybrydowy, klasyczny i męski, paznokcie żelowe oraz pedicure z kwasami na Fabrycznej '
+            'we Wrocławiu. Ceny i czas zabiegów. Zarezerwuj online.'
+        ),
+        h1='Manicure i pedicure we Wrocławiu',
+        faq=nails_page_faq,
+    ),
+    'zabiegi-kosmetyczne': CategoryPage(
+        title='Zabiegi na twarz Wrocław — mezoterapia, oczyszczanie | Royal Beauty',
+        meta_description=(
+            'Mezoterapia mikroigłowa, oczyszczanie wodorowe i manualne, mikrodermabrazja i peeling kawitacyjny '
+            'na Fabrycznej we Wrocławiu. Bezpłatna konsultacja.'
+        ),
+        h1='Zabiegi kosmetyczne na twarz we Wrocławiu',
+        faq=face_page_faq,
+    ),
+    'depilacja-woskiem': CategoryPage(
+        title='Depilacja woskiem Wrocław — Fabryczna | Royal Beauty',
+        meta_description=(
+            'Depilacja woskiem nóg, pach, rąk, pleców, torsu i twarzy na Fabrycznej we Wrocławiu. Ceny partii '
+            'ciała, przygotowanie i pielęgnacja. Zarezerwuj online.'
+        ),
+        h1='Depilacja woskiem we Wrocławiu',
+        faq=wax_page_faq,
         price_column='Partia ciała',
     ),
 }

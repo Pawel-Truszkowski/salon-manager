@@ -5,7 +5,7 @@ from decimal import Decimal
 import pytest
 from django.urls import reverse
 
-from apps.services.faq import build_faq, faq_jsonld, laser_page_faq
+from apps.services.faq import build_faq, faq_jsonld, laser_page_faq, lash_brow_page_faq, nails_page_faq
 from apps.services.models import Service, ServiceCategory, format_price
 
 
@@ -158,13 +158,17 @@ class TestFaqAfterAudit:
         assert 'od 170 do 320 zł' in laser_answers([bikini, legs])['Ile kosztuje depilacja laserowa?']
 
     def test_durability_follows_the_services(self):
-        faq = answers([svc('Przedłużanie rzęs 1:1', '150'), svc('Uzupełnianie rzęs 1:1', '130')])
-        assert '2–3 tygodnie' in faq['Jak często trzeba uzupełniać przedłużone rzęsy?']
-        assert 'Uzupełnianie kosztuje 130 zł.' in faq['Jak często trzeba uzupełniać przedłużone rzęsy?']
-        assert 'Jak długo utrzymuje się manicure hybrydowy?' not in faq
-        assert (
-            '3–4 tygodnie' in answers([svc('Manicure hybrydowy', '120')])['Jak długo utrzymuje się manicure hybrydowy?']
+        def page_answers(faq):
+            return {item['question']: item['answer'] for item in faq}
+
+        lashes = page_answers(
+            lash_brow_page_faq([svc('Przedłużanie rzęs 1:1', '150'), svc('Uzupełnianie rzęs 1:1', '130')])
         )
+        assert '2–3 tygodnie' in lashes['Jak często trzeba uzupełniać przedłużone rzęsy?']
+        assert 'Uzupełnianie kosztuje 130 zł.' in lashes['Jak często trzeba uzupełniać przedłużone rzęsy?']
+        assert 'Jak długo utrzymuje się manicure hybrydowy?' not in page_answers(nails_page_faq([]))
+        nails = page_answers(nails_page_faq([svc('Manicure hybrydowy', '120')]))
+        assert '3–4 tygodnie' in nails['Jak długo utrzymuje się manicure hybrydowy?']
 
     def test_getting_there_and_payment_match_the_terms(self):
         faq = answers([])
