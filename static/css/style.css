@@ -772,6 +772,50 @@ body {
   gap: 1rem;
   margin-top: 3rem;
 }
+/* guides (/poradniki/): the category page's reading column + author line and a list of articles */
+.rb-byline {
+  font-size: 0.9rem;
+  color: #6b5a45;
+}
+.rb-byline a {
+  color: inherit;
+}
+.rb-guide-list {
+  padding: 0;
+  list-style: none;
+  font-weight: 300;
+  line-height: 1.75;
+  color: var(--rb-body);
+}
+.rb-guide-list li {
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--rb-border);
+}
+.rb-guide-list li > a,
+.rb-guide-list h2 a {
+  color: var(--rb-dark);
+}
+.rb-guide-list h2 {
+  margin: 0 0 0.25rem;
+}
+.rb-guide-list p {
+  margin: 0;
+}
+.rb-category-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+.rb-category-body th,
+.rb-category-body td {
+  padding: 0.5rem 0.5rem 0.5rem 0;
+  border-bottom: 1px solid var(--rb-border);
+  text-align: left;
+  vertical-align: top;
+}
+.rb-category-body thead th {
+  font-weight: 500;
+}
 @media (max-width: 575.98px) {
   /* Phone: the row's own "Zarezerwuj" link would squeeze the name; the CTA below books */
   .rb-price-table td:last-child,

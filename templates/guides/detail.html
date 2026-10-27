@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{# Guide: body from guides/<slug>.html, metadata from apps/services/guides.py #}
+{% block title %}{{ guide.title }}{% endblock %}
+{% block meta_description %}{{ guide.meta_description }}{% endblock %}
+{% block og_type %}article{% endblock %}
+{% block og_title %}{{ guide.h1 }} | Royal Beauty{% endblock %}
+{% block og_description %}{{ guide.meta_description }}{% endblock %}
+{% block content %}
+<script type="application/ld+json">{{ page_jsonld }}</script>
+
+<article class="rb-section rb-category rb-guide">
+  <div class="container-xl px-4 px-lg-5">
+    <nav class="rb-breadcrumb" aria-label="Okruszki">
+      <ol>
+        <li><a href="{% url 'home' %}">Royal Beauty</a></li>
+        <li><a href="{% url 'guide_list' %}">Poradniki</a></li>
+        <li aria-current="page">{{ guide.h1 }}</li>
+      </ol>
+    </nav>
+    <h1 class="rb-heading rb-category-title">{{ guide.h1 }}</h1>
+    <p class="rb-byline">
+      <a href="{% url 'home' %}#o-nas">Paulina Truszkowska</a>, magister kosmetologii ·
+      <time datetime="{{ guide.updated|date:'Y-m-d' }}">{% if guide.modified %}zaktualizowano {% endif %}{{ guide.updated|date:'j E Y' }}</time>
+    </p>
+
+    <div class="rb-category-body">
+      <p class="rb-category-lead">{{ guide.lead }}</p>
+      {% include content_template %}
+    </div>
+
+    <div class="rb-category-cta">
+      {% if category %}
+        <a class="btn rb-btn rb-btn-solid" href="{{ category.get_absolute_url }}">Cennik: {{ category.name|lower }}</a>
+      {% else %}
+        <a class="btn rb-btn rb-btn-solid" href="{% url 'home' %}#rezerwacja">Zarezerwuj termin</a>
+      {% endif %}
+      <a class="btn rb-btn rb-btn-quiet" href="tel:+48793355756">Zadzwoń: 793 355 756</a>
+    </div>
+  </div>
+</article>
+{% endblock %}

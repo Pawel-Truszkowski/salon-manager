@@ -4,6 +4,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from apps.services.category_pages import page_categories
+from apps.services.guides import GUIDES
 from apps.services.models import Service
 from config.context_processors import LEGAL_EFFECTIVE_DATE
 
@@ -40,3 +41,20 @@ class CategorySitemap(Sitemap):
 
     def lastmod(self, category):
         return timezone.localdate(category.last_change) if category.last_change else None
+
+
+class GuideSitemap(Sitemap):
+    """/poradniki/ and its guides; <lastmod> from `Guide.modified`/`published`, not the file date (each deploy
+    would bump it)."""
+
+    changefreq = 'monthly'
+    priority = 0.6
+
+    def items(self):
+        return [None, *GUIDES.values()]  # None = the list page
+
+    def location(self, guide):
+        return reverse('guide_detail', args=[guide.slug]) if guide else reverse('guide_list')
+
+    def lastmod(self, guide):
+        return guide.updated if guide else max(g.updated for g in GUIDES.values())

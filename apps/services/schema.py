@@ -2,6 +2,8 @@
 
 import json
 
+from django.templatetags.static import static
+from django.urls import reverse
 from django.utils.safestring import mark_safe
 
 
@@ -81,5 +83,41 @@ def category_page_jsonld(category, services, site_url, page_url):
                 ],
             },
         ],
+    }
+    return jsonld(data)
+
+
+def guide_jsonld(guide, site_url, page_url, category_page_url=None):
+    """`BlogPosting` by Paulina (the same `@id` as `founder` in base.html) and `BreadcrumbList` of a guide."""
+    breadcrumbs = [
+        {'@type': 'ListItem', 'position': 1, 'name': 'Royal Beauty', 'item': f'{site_url}/'},
+        {'@type': 'ListItem', 'position': 2, 'name': 'Poradniki', 'item': f'{site_url}{reverse("guide_list")}'},
+        {'@type': 'ListItem', 'position': 3, 'name': guide.h1, 'item': page_url},
+    ]
+    article = {
+        '@type': 'BlogPosting',
+        '@id': f'{page_url}#article',
+        'headline': guide.h1,
+        'description': guide.meta_description,
+        'url': page_url,
+        'mainEntityOfPage': page_url,
+        'inLanguage': 'pl-PL',
+        'datePublished': guide.published.isoformat(),
+        'dateModified': guide.updated.isoformat(),
+        'image': f'{site_url}{static("img/og-salon.jpg")}',
+        'author': {
+            '@type': 'Person',
+            '@id': f'{site_url}/#paulina',
+            'name': 'Paulina Truszkowska',
+            'jobTitle': 'Kosmetolog',
+            'url': f'{site_url}/#o-nas',
+        },
+        'publisher': {'@id': f'{site_url}/#salon'},
+    }
+    if category_page_url:
+        article['about'] = {'@id': f'{category_page_url}#service'}
+    data = {
+        '@context': 'https://schema.org',
+        '@graph': [article, {'@type': 'BreadcrumbList', 'itemListElement': breadcrumbs}],
     }
     return jsonld(data)

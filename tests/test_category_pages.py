@@ -140,9 +140,8 @@ class TestCategorySitemap:
     def test_lists_the_page_with_lastmod(self, client, laser_services, no_page_service):
         xml = client.get('/sitemap.xml').content.decode()
 
-        assert f'<loc>http://testserver{URL}</loc>' in xml
+        assert re.search(rf'<loc>http://testserver{URL}</loc><lastmod>\d{{4}}-\d{{2}}-\d{{2}}</lastmod>', xml)
         assert '/uslugi/masaze/' not in xml
-        assert xml.count('<lastmod>') == 4  # home, two legal pages, the laser page
 
 
 @pytest.mark.django_db

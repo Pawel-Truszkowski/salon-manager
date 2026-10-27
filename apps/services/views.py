@@ -2,15 +2,18 @@ from itertools import groupby
 
 from django.conf import settings
 from django.db.models import Prefetch
+from django.http import Http404
 from django.shortcuts import get_object_or_404, render
+from django.urls import reverse
 
 from apps.bookings.forms import BookingForm
 from apps.bookings.utils import next_available_date
 from apps.services.category_pages import CATEGORY_PAGES, page_categories
 from apps.services.faq import build_faq, faq_jsonld
 from apps.services.google_reviews import get_google_reviews
+from apps.services.guides import GUIDES, guides_for
 from apps.services.models import BooksyRating, Employee, EquipmentRental, Service
-from apps.services.schema import category_page_jsonld, offer_catalog_jsonld
+from apps.services.schema import category_page_jsonld, guide_jsonld, offer_catalog_jsonld
 
 
 def next_rentals():
@@ -119,8 +122,53 @@ def category_detail(request, slug):
             'content_template': f'services/categories/{slug}.html',
             'faq': faq,
             'faq_jsonld': faq_jsonld(faq),
+            'guides': guides_for(slug),
             'page_jsonld': category_page_jsonld(
                 category, services, site_url, f'{site_url}{category.get_absolute_url()}'
             ),
         },
+    )
+
+
+def guide_list(request):
+    """/poradniki/: all guides, newest first."""
+    guides = sorted(GUIDES.values(), key=lambda g: g.published, reverse=True)
+    return render(request, 'guides/list.html', {'guides': guides})
+
+
+def guide_detail(request, slug):
+    """/poradniki/<slug>/: one guide (metadata in `guides.py`, text in `guides/<slug>.html`)."""
+    guide = GUIDES.get(slug)
+    if guide is None:
+        raise Http404
+    # The link to the category page only while that page exists (it needs an active service)
+    category = page_categories().filter(slug=guide.category_slug).first()
+    site_url = settings.SITE_URL.rstrip('/')
+    category_url = f'{site_url}{category.get_absolute_url()}' if category else None
+    return render(
+        request,
+        'guides/detail.html',
+        {
+            'guide': guide,
+            'category': category,
+            'content_template': f'guides/{slug}.html',
+            'page_jsonld': guide_jsonld(
+                guide, site_url, f'{site_url}{reverse("guide_detail", args=[slug])}', category_url
+            ),
+        },
+    )
+
+
+def llms_txt(request):
+    """/llms.txt (llmstxt.org): a map of the site for AI answer engines, with the pages that exist right now."""
+    return render(
+        request,
+        'llms.txt',
+        {
+            'category_pages': [
+                (category, CATEGORY_PAGES[category.slug]) for category in page_categories().order_by('order', 'name')
+            ],
+            'guides': GUIDES.values(),
+        },
+        content_type='text/plain; charset=utf-8',
     )

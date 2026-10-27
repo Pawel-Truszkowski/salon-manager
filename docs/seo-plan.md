@@ -216,10 +216,16 @@ Pięć stron, każda z własnym `title` i H1, min. 500 słów, cennikiem kategor
 - [ ] Dane dla Pauliny (panel): „Pedicure naturalny + kwasy” ma 30 min, a „Pedicure naturalny” 60 min. Literówka?
 - [ ] Zdjęcia na podstronach (plan zakładał), gdy będą zdjęcia prac.
 
-### 12. Poradniki (GEO)
+### 12. Poradniki (GEO) ✅ 2026-10-27 (kod; treść czeka na Paulinę)
 2–4 artykuły, które najczęściej trafiają do cytowań AI: „Pielęgnacja rzęs po przedłużaniu”, „Laser diodowy czy wosk?”, „Jak przygotować się do mezoterapii mikroigłowej”.
-- [ ] **Decyzja:** blog w bazie (model `Article` + panel) czy kilka stron w szablonach. Przy 2–4 tekstach wystarczą szablony; model, jeśli Paulina chce pisać sama.
-- [ ] Każdy z autorką (`Article` + `author` → Paulina, `datePublished`), linkiem do podstrony kategorii i w sitemapie.
+- [x] **Decyzja:** szablony (`apps/services/guides.py` + `templates/guides/<slug>.html`), jak podstrony. Model `Article` z panelem dopiero, gdy Paulina zechce pisać sama.
+- [x] Trzy poradniki (540–700 słów): krótka odpowiedź na początku, nagłówki-pytania, w „laser czy wosk” tabela porównawcza. `BlogPosting` z autorką (`@id` `#paulina`, to samo co `founder` salonu), `datePublished`, `BreadcrumbList`, `og:type=article`.
+- [x] Linki: poradnik → cennik kategorii (tylko gdy podstrona istnieje), podstrona kategorii → jej poradniki, stopka → `/poradniki/`, sitemap (`GuideSitemap`, `lastmod` z `Guide.modified`), `/llms.txt` (teraz widok: wypisuje istniejące podstrony i poradniki).
+- [ ] **Paulina czyta trzy poradniki** (staging, `/poradniki/`), szczególnie:
+  - laser czy wosk: „po kilku latach laser zwykle wychodzi taniej”, wosk co 3–4 tygodnie, przed laserem 4 tygodnie bez wosku;
+  - rzęsy: mycie rzęs kilka razy w tygodniu, płyny dwufazowe na liście zakazanych, objawy reakcji na klej, „jak zdjąć rzęsy” (w cenniku nie ma takiej usługi; czy ją dodać?);
+  - mezoterapia: lista przeciwwskazań, odstęp od botoksu/wypełniaczy, „preparat kojący” na koniec zabiegu (czy salon go nakłada, jak przy laserze — nie?), efekty po kilku dniach, zabieg przypominający co kilka miesięcy.
+- [ ] Data `published` = 27.10.2026. Jeśli produkcja wejdzie dużo później, przestawić na dzień deployu (jak „Obowiązuje od” na stronach prawnych).
 
 ### 13. Na koniec
 - [ ] RODO w panelu: „Usuń klientkę” (z anonimizacją jej wizyt) oraz komenda czyszcząca karty i wizyty starsze niż 3 lata od ostatniej wizyty (tak obiecuje polityka prywatności; pierwsze dane się „przedawnią” jesienią 2029, ale lepiej zrobić to wcześniej).

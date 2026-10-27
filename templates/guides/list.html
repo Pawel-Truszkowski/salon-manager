@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Poradniki kosmetologa | Royal Beauty Wrocław{% endblock %}
+{% block meta_description %}Poradniki Pauliny, magister kosmetologii z Royal Beauty we Wrocławiu: depilacja laserowa i woskiem, pielęgnacja rzęs, przygotowanie do zabiegów na twarz.{% endblock %}
+{% block og_title %}Poradniki | Royal Beauty{% endblock %}
+{% block content %}
+<section class="rb-section rb-category">
+  <div class="container-xl px-4 px-lg-5">
+    <nav class="rb-breadcrumb" aria-label="Okruszki">
+      <ol>
+        <li><a href="{% url 'home' %}">Royal Beauty</a></li>
+        <li aria-current="page">Poradniki</li>
+      </ol>
+    </nav>
+    <h1 class="rb-heading rb-category-title">Poradniki</h1>
+    <p class="rb-category-lead rb-category-body">
+      Odpowiedzi na pytania, które słyszymy w salonie najczęściej. Pisze Paulina, magister kosmetologii.
+    </p>
+    <ul class="rb-guide-list">
+      {% for guide in guides %}
+        <li>
+          <h2><a href="{% url 'guide_detail' guide.slug %}">{{ guide.h1 }}</a></h2>
+          <p>{{ guide.lead }}</p>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+</section>
+{% endblock %}

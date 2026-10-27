@@ -8,7 +8,7 @@
   <meta name="description" content="{% block meta_description %}Rzęsy, paznokcie, depilacja laserowa i zabiegi na twarz we Wrocławiu (Fabryczna). Codziennie 9–21, bezpłatna konsultacja. Zarezerwuj online!{% endblock %}" />
   <link rel="canonical" href="{{ site_url }}{{ request.path }}" />
   {# Open Graph / Twitter: link previews in Messenger, WhatsApp, Facebook. Pages override the og_* blocks. #}
-  <meta property="og:type" content="website" />
+  <meta property="og:type" content="{% block og_type %}website{% endblock %}" />
   <meta property="og:locale" content="pl_PL" />
   <meta property="og:site_name" content="Royal Beauty Studio Urody" />
   <meta property="og:url" content="{{ site_url }}{{ request.path }}" />
@@ -68,6 +68,7 @@
     ],
     "founder": {
       "@type": "Person",
+      "@id": "{{ site_url }}/#paulina",
       "name": "Paulina Truszkowska",
       "jobTitle": "Kosmetolog",
       "hasCredential": {
@@ -128,7 +129,7 @@
             <li><a href="{{ home_url }}#cennik">Cennik</a></li><li><a href="{{ home_url }}#o-nas">O salonie</a></li>
             <li><a href="{{ home_url }}#galeria">Galeria</a></li><li><a href="{{ home_url }}#opinie">Opinie</a></li>
             <li><a href="{{ home_url }}#faq">Częste pytania</a></li><li><a href="{{ home_url }}#kontakt">Kontakt</a></li>
-            <li><a href="{{ home_url }}#rezerwacja">Rezerwacja</a></li>
+            <li><a href="{{ home_url }}#rezerwacja">Rezerwacja</a></li><li><a href="{% url 'guide_list' %}">Poradniki</a></li>
           </ul>
         </div>
         <div class="col-md-4">
