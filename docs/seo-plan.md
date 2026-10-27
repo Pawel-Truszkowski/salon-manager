@@ -29,7 +29,7 @@ Na podstawie pełnego audytu produkcji (`royalbeauty-studiourody.pl`, 2026-10-16
   - [x] Link do profilu salonu na Booksy (`sameAs`).
   - [ ] Aktualizacja Booksy: tylko Paulina, codziennie 9–21.
   - [x] Zgoda na pełne imię i nazwisko w danych strukturalnych (`founder`).
-  - [x] Odpowiedzi do FAQ (22.10): trwałość hybrydy i rzęs, dojazd i parking; laser opisany z ogólnej wiedzy — do akceptacji przez Paulinę (etap 9).
+  - [x] Odpowiedzi do FAQ (22.10): trwałość hybrydy i rzęs, dojazd i parking; laser opisany z ogólnej wiedzy; Paulina zatwierdziła FAQ strony głównej (2026-10-27).
   - [ ] Opinie: którą opcję wybiera (etap 10) i ewentualnie 3–6 ulubionych opinii.
   - [ ] Tekst o depilacji laserowej na pierwszą podstronę (efekty, przebieg, przygotowanie, przeciwwskazania) + 1–2 zdjęcia z zabiegu.
 
@@ -205,7 +205,7 @@ Pięć stron, każda z własnym `title` i H1, min. 500 słów, cennikiem kategor
 - [x] JSON-LD per podstrona: `Service`/`OfferCatalog` z `provider` → `@id` salonu, `BreadcrumbList`, `FAQPage` z tych samych danych co HTML.
 - [x] `CategorySitemap` w `config/sitemaps.py` z `lastmod` (uwaga: zmiana samego szablonu treści nie zmienia `lastmod`).
 - [x] 3 szczegółowe pytania o laser przeniesione ze strony głównej na podstronę (+3 nowe: cena, przygotowanie, po zabiegu); Google: to samo pytanie w FAQPage tylko na jednej stronie.
-- [ ] Treść lasera (ok. 515 słów) do akceptacji Pauliny: szczególnie „próba na małym fragmencie skóry”, preparat po zabiegu, czasy przygotowania i pielęgnacji. Ogólnie: Paulina (opis zabiegów, efekty, przeciwwskazania, przygotowanie). Developer składa, Paulina zatwierdza, bo to treści o zdrowiu.
+- [x] Treść lasera i jej FAQ zatwierdzone przez Paulinę (2026-10-27), z dwiema poprawkami: salon nie nakłada preparatu po zabiegu, a pierwsza wizyta to rozmowa i ankieta. Ogólnie: Paulina (opis zabiegów, efekty, przeciwwskazania, przygotowanie). Developer składa, Paulina zatwierdza, bo to treści o zdrowiu.
 - Kolejność: depilacja laserowa → rzęsy i brwi → dłonie i stopy → zabiegi kosmetyczne → depilacja woskiem.
 
 ### 12. Poradniki (GEO)
