@@ -144,7 +144,7 @@ def _laser_contraindications(services):
         'Przeciwwskazania to m.in. ciąża i karmienie piersią, świeża opalenizna lub samoopalacz, leki '
         'światłouczulające (np. izotretynoina), stany zapalne, rany lub opryszczka w miejscu zabiegu, choroba '
         'nowotworowa, padaczka i skłonność do bliznowców. Laser nie usuwa jasnych, siwych ani rudych włosów. '
-        'Przed pierwszym zabiegiem przeprowadzimy krótki wywiad.',
+        'Przed pierwszym zabiegiem porozmawiamy i poprosimy o wypełnienie ankiety.',
     )
 
 
