@@ -27,7 +27,7 @@ Na podstawie pełnego audytu produkcji (`royalbeauty-studiourody.pl`, 2026-10-16
 
 - [ ] **Po audycie 21.10 (etapy 7–12):**
   - [x] Link do profilu salonu na Booksy (`sameAs`).
-  - [ ] Aktualizacja Booksy: tylko Paulina, codziennie 9–21.
+  - [x] Aktualizacja Booksy: tylko Paulina, codziennie 9–21.
   - [x] Zgoda na pełne imię i nazwisko w danych strukturalnych (`founder`).
   - [x] Odpowiedzi do FAQ (22.10): trwałość hybrydy i rzęs, dojazd i parking; laser opisany z ogólnej wiedzy; Paulina zatwierdziła FAQ strony głównej (2026-10-27).
   - [ ] Opinie: którą opcję wybiera (etap 10) i ewentualnie 3–6 ulubionych opinii.
@@ -93,7 +93,7 @@ Termin docelowy: przed 8 listopada. Jeśli nie zdążymy, laser na pierwszy term
 - [x] `next_available_date`: dla każdego dnia najkrótsza usługa **możliwa tego dnia** (laser poza dniami wynajmu nie zasłania wolnego dnia).
 - [x] Panel (właścicielka): „Urządzenia” — terminy wynajmu (dodawanie z walidacją: przeszłość, nakładanie się; usuwanie zablokowane, gdy są zapisane wizyty), edycja urządzenia; przy usłudze pole „Wymaga urządzenia”.
 - [x] Strona: w kategorii z urządzeniem „Zabiegi wykonujemy w wybrane dni. Najbliżej: 8–9 listopada” + opis urządzenia; bez terminu: „Kolejny termin wkrótce. Zadzwoń, zapiszemy Cię jako pierwszą”. FAQ o laserze z datą najbliższego wynajmu.
-- [ ] **Dane (Paulina / panel):** usługi laserowe w kategorii „Depilacja laserowa” z „Wymaga urządzenia: LightSheer DUET” (partie ciała, ceny, czas z wizytówki Google), termin wynajmu 8–9.11, grafik na te dni.
+- [x] **Dane (Paulina / panel):** usługi laserowe w kategorii „Depilacja laserowa” z „Wymaga urządzenia: LightSheer DUET” (partie ciała, ceny, czas z wizytówki Google), termin wynajmu 8–9.11, grafik na te dni.
 - [ ] Schema `Offer` z `availabilityStarts` / `availabilityEnds`: przeniesione do etapu 7 (podstrona depilacji laserowej z `OfferCatalog`).
 - [ ] Na później (gdy będą pracownice): sprawdzanie, czy urządzenie nie jest zajęte przez inną wizytę w tym samym czasie.
 
@@ -113,8 +113,8 @@ Produkcja (`main` = 50421fc) przeskakuje naraz o ~40 commitów i 15 migracji, w 
 - [x] Zdjęcie Pauliny (`static/img/paulina.webp`, 480×640) w profilu, gdy jest jedna aktywna osoba; przy kilku zostają inicjały. Docelowo `Employee.photo` wgrywane w panelu, gdy salon kogoś zatrudni.
 - [x] Data „Obowiązuje od” w `templates/legal/_page.html` = 21 października 2026 (dzień deployu).
 - [x] Paulina przeczytała politykę prywatności i regulamin (2026-10-21).
-- [ ] **Przypomnienie o wizycie** (mail ok. 24 h przed): komenda `send_reminders` (`apps/bookings/reminders.py`) co godzinę z crona. Reguły: tylko wizyty potwierdzone, z e-mailem, w ciągu najbliższych 24 h, zarezerwowane co najmniej 24 h przed terminem; raz na wizytę (`Appointment.reminder_sent_at`, zerowane przy zmianie terminu); nieudana wysyłka = ponowna próba za godzinę. Paulina musi potwierdzać wizyty ze strony na czas, bo oczekujące nie dostają przypomnienia.
-- [ ] Na stagingu pełna ścieżka: rezerwacja ze strony → mail → link „odwołaj” → mail; panel: potwierdzenie, przeniesienie w kalendarzu, laser tylko w dni wynajmu.
+- [x] **Przypomnienie o wizycie** (mail ok. 24 h przed): komenda `send_reminders` (`apps/bookings/reminders.py`) co godzinę z crona. Reguły: tylko wizyty potwierdzone, z e-mailem, w ciągu najbliższych 24 h, zarezerwowane co najmniej 24 h przed terminem; raz na wizytę (`Appointment.reminder_sent_at`, zerowane przy zmianie terminu); nieudana wysyłka = ponowna próba za godzinę. Paulina musi potwierdzać wizyty ze strony na czas, bo oczekujące nie dostają przypomnienia.
+- [x] Na stagingu pełna ścieżka: rezerwacja ze strony → mail → link „odwołaj” → mail; panel: potwierdzenie, przeniesienie w kalendarzu, laser tylko w dni wynajmu.
 
 **6b. Próba generalna migracji (lokalnie, na kopii produkcji)** ✅ 2026-10-21, kopia `salon_prod_20261021_082201`
 - [x] Wszystkie 16 migracji OK. Cennik: 64 → 73 usługi (12 laserowych, 3 usunięte), wszystkie z opisami, 5 kategorii w kolejności; grupa „Właściciel” jest; `send_reminders` → 0.
@@ -133,7 +133,7 @@ Produkcja (`main` = 50421fc) przeskakuje naraz o ~40 commitów i 15 migracji, w 
 **6d. Dane zaraz po deployu (zanim ktoś zarezerwuje)** ✅ 2026-10-21
 - [x] **Najpierw** Panel → Zespół → Paulina → Usługi: dodać 14 zabiegów na twarz, które dziś ma tylko Marika (inaczej po jej wyłączeniu zniknie z formularza cała kategoria, łącznie z bezpłatną konsultacją). Sprawdzenie: w formularzu rezerwacji „Bezpłatna konsultacja” pokazuje terminy.
 - [x] Panel → Zespół: Marika i Wiola → nieaktywne (`0013_catalog` przypisało im zabiegi laserowe, po wyłączeniu nie da się ich zarezerwować). Sprawdzenie: `/api/employees/` zwraca tylko Paulinę.
-- [ ] Bio Pauliny: „paznocki” → „paznokci”.
+- [x] Bio Pauliny: „paznocki” → „paznokci”.
 - [x] Konto Pauliny: istniejące `paula` zamiast zaproszenia. W `/admin/`: `Employee` Paulina → `user = paula`; `paula` → grupa „Właściciel”, odznaczyć `is_staff`, usunąć 44 uprawnienia (właścicielka pracuje w `/panel/`, nie w `/admin/`). Sprawdzenie: Paulina loguje się na `/panel/login/` i widzi „Zespół”, „Usługi”, kalendarz.
 - [x] Paulina: szablon tygodnia + generowanie grafiku (bez tego formularz nie pokazuje terminów), terminy lasera w „Urządzenia”: 8–9.11 i 14–15.12.
 - [x] Rezerwacja testowa na produkcji na własny e-mail → odwołanie linkiem z maila (sprawdza Resend, `SITE_URL`, `SALON_EMAIL`).
@@ -197,7 +197,7 @@ Rekomendacja audytu: 3–6 cytatów z imieniem, datą i źródłem + „4,9/5 ·
 - [x] Bez `Review`/`aggregateRating` w schema (zasada Google jak wyżej), testy to pilnują.
 - [ ] Po deployu: Paulina wpisuje pierwsze liczby z Booksy; obejrzeć sekcję na telefonie (karty widać tylko na produkcji).
 
-### 11. Podstrony kategorii (SEO long-tail, największy wpływ) ✅ 2026-10-27 (laser zatwierdzony; pozostałe cztery czekają na Paulinę)
+### 11. Podstrony kategorii (SEO long-tail, największy wpływ) ✅ 2026-10-27, treść zatwierdzona przez Paulinę 2026-10-28
 Pięć stron, każda z własnym `title` i H1, min. 500 słów, cennikiem kategorii w `<table>`, FAQ kategorii, zdjęciami, CTA do rezerwacji z wybraną kategorią i linkiem ze strony głównej (nagłówek kategorii w cenniku → podstrona). **Zaczynamy od depilacji laserowej** (najwyższe ceny, mała konkurencja lokalna, konkretne urządzenie).
 - [x] **Decyzja: adresy** → `/uslugi/<slug>/`. Audyt proponował `/depilacja-laserowa-wroclaw/`, plan miał `/uslugi/<slug>/`. Rekomendacja: `/uslugi/depilacja-laserowa/` (czysta hierarchia pod `BreadcrumbList`, slug już istnieje, miasto i tak jest w `title` i H1; słowo w URL to dziś słaby sygnał).
 - [x] Treść w repo, nie w panelu: `apps/services/category_pages.py` (title, meta, H1, FAQ) + `templates/services/categories/<slug>.html`. Strona istnieje tylko z treścią i aktywną usługą.
@@ -207,24 +207,24 @@ Pięć stron, każda z własnym `title` i H1, min. 500 słów, cennikiem kategor
 - [x] 3 szczegółowe pytania o laser przeniesione ze strony głównej na podstronę (+3 nowe: cena, przygotowanie, po zabiegu); Google: to samo pytanie w FAQPage tylko na jednej stronie.
 - [x] Treść lasera i jej FAQ zatwierdzone przez Paulinę (2026-10-27), z dwiema poprawkami: salon nie nakłada preparatu po zabiegu, a pierwsza wizyta to rozmowa i ankieta. Ogólnie: Paulina (opis zabiegów, efekty, przeciwwskazania, przygotowanie). Developer składa, Paulina zatwierdza, bo to treści o zdrowiu.
 - [x] Pozostałe cztery strony (2026-10-27): rzęsy i brwi, dłonie i stopy, zabiegi kosmetyczne, depilacja woskiem, każda ok. 510 słów + 4 pytania FAQ z cenami z bazy. Na stronie głównej zostaje jedno pytanie na kategorię; „Jak często uzupełniać rzęsy?” i „Jak długo utrzymuje się hybryda?” przeszły na podstrony. Strona wosku linkuje do lasera.
-- [ ] **Paulina czyta cztery nowe strony i ich FAQ** (staging, `/uslugi/<slug>/`), szczególnie:
+- [x] **Paulina czyta cztery nowe strony i ich FAQ** (2026-10-28: bez poprawek) (staging, `/uslugi/<slug>/`), szczególnie:
   - rzęsy: „klej nie dotyka skóry”, pielęgnacja (doba bez wody, płyny bez olejów), henna 2–4 tygodnie na brwiach, próba uczuleniowa przed pierwszą henną, przeciwwskazania;
   - paznokcie: pedicure z kwasami („callus”), rady dla trwałości hybrydy, przeciwwskazania (grzybica, stany zapalne);
   - twarz: opis oczyszczania wodorowego i kawitacji, mezoterapia (seria 3–6 co 2–4 tygodnie, 24 h bez makijażu, SPF 50 przez 2 tygodnie, retinoidy i kwasy tydzień przed i po), lista przeciwwskazań;
   - wosk: włosy ok. 5 mm, efekt 3–4 tygodnie, doba bez sauny i słońca, przeciwwskazania, sekcja dla mężczyzn (przycinanie długich włosów);
-  - czego brakuje, a warto napisać: sterylizacja narzędzi (autoklaw?), marki kosmetyków i wosku, rodzaj kleju do rzęs.
-- [ ] Dane dla Pauliny (panel): „Pedicure naturalny + kwasy” ma 30 min, a „Pedicure naturalny” 60 min. Literówka?
+  - czego brakuje: sterylizacja narzędzi → dopisana (autoklaw Embio S: paznokcie, pęsety do rzęs); marek kosmetyków, wosku i kleju nie publikujemy (Paulina ewentualnie dopyta).
+- [x] „Pedicure naturalny + kwasy”: 30 → 60 min (Paulina poprawiła w panelu; `0013_catalog.json` też, dla świeżych baz).
 - [ ] Zdjęcia na podstronach (plan zakładał), gdy będą zdjęcia prac.
 
-### 12. Poradniki (GEO) ✅ 2026-10-27 (kod; treść czeka na Paulinę)
+### 12. Poradniki (GEO) ✅ 2026-10-27, treść zatwierdzona przez Paulinę 2026-10-28
 2–4 artykuły, które najczęściej trafiają do cytowań AI: „Pielęgnacja rzęs po przedłużaniu”, „Laser diodowy czy wosk?”, „Jak przygotować się do mezoterapii mikroigłowej”.
 - [x] **Decyzja:** szablony (`apps/services/guides.py` + `templates/guides/<slug>.html`), jak podstrony. Model `Article` z panelem dopiero, gdy Paulina zechce pisać sama.
 - [x] Trzy poradniki (540–700 słów): krótka odpowiedź na początku, nagłówki-pytania, w „laser czy wosk” tabela porównawcza. `BlogPosting` z autorką (`@id` `#paulina`, to samo co `founder` salonu), `datePublished`, `BreadcrumbList`, `og:type=article`.
 - [x] Linki: poradnik → cennik kategorii (tylko gdy podstrona istnieje), podstrona kategorii → jej poradniki, stopka → `/poradniki/`, sitemap (`GuideSitemap`, `lastmod` z `Guide.modified`), `/llms.txt` (teraz widok: wypisuje istniejące podstrony i poradniki).
-- [ ] **Paulina czyta trzy poradniki** (staging, `/poradniki/`), szczególnie:
+- [x] **Paulina czyta trzy poradniki** (2026-10-28: bez poprawek) (staging, `/poradniki/`), szczególnie:
   - laser czy wosk: „po kilku latach laser zwykle wychodzi taniej”, wosk co 3–4 tygodnie, przed laserem 4 tygodnie bez wosku;
-  - rzęsy: mycie rzęs kilka razy w tygodniu, płyny dwufazowe na liście zakazanych, objawy reakcji na klej, „jak zdjąć rzęsy” (w cenniku nie ma takiej usługi; czy ją dodać?);
-  - mezoterapia: lista przeciwwskazań, odstęp od botoksu/wypełniaczy, „preparat kojący” na koniec zabiegu (czy salon go nakłada, jak przy laserze — nie?), efekty po kilku dniach, zabieg przypominający co kilka miesięcy.
+  - rzęsy: mycie rzęs kilka razy w tygodniu, płyny dwufazowe na liście zakazanych, objawy reakcji na klej, „jak zdjąć rzęsy” (osobnej usługi nie ma: resztki zdejmuje przy nowej stylizacji, w jej cenie; dopisane na podstronie rzęs);
+  - mezoterapia: lista przeciwwskazań, odstęp od botoksu/wypełniaczy, „preparat kojący” na koniec zabiegu (tak, przy mezoterapii salon go nakłada), efekty po kilku dniach, zabieg przypominający co kilka miesięcy.
 - [ ] Data `published` = 27.10.2026. Jeśli produkcja wejdzie dużo później, przestawić na dzień deployu (jak „Obowiązuje od” na stronach prawnych).
 
 ### 13. Na koniec
