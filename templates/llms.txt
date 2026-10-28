@@ -1,0 +1,30 @@
+# Royal Beauty Studio Urody
+
+> Kameralny salon kosmetyczny we Wrocławiu (ul. Małopanewska 24B/5, 54-212 Wrocław, Fabryczna; 1. piętro, winda). Prowadzi go od 2023 roku Paulina Truszkowska, magister kosmetologii z ponad 10-letnim doświadczeniem. Wizyty wyłącznie po wcześniejszym umówieniu, codziennie 9:00–21:00, także w weekendy. Rezerwacja online lub telefonicznie: +48 793 355 756, +48 792 646 256.
+
+Oferta: przedłużanie rzęs (1:1 do 5/6:1), henna i regulacja brwi, manicure i pedicure (klasyczny, hybrydowy, żelowy), zabiegi na twarz (oczyszczanie wodorowe, mezoterapia mikroigłowa, mikrodermabrazja, peeling kawitacyjny), depilacja woskiem i depilacja laserowa laserem diodowym LightSheer DUET (Lumenis). Laser jest w salonie przez dwa dni mniej więcej co 6 tygodni. Bezpłatna konsultacja z kosmetologiem. Płatność gotówką lub BLIK-iem.
+
+## Strona
+
+- [Cennik]({{ site_url }}/#cennik): wszystkie zabiegi z opisem, ceną i czasem trwania
+- [Częste pytania]({{ site_url }}/#faq): ceny, terminy, laser, dojazd, odwoływanie wizyt
+- [Rezerwacja]({{ site_url }}/#rezerwacja): wolne terminy i formularz rezerwacji
+- [Kontakt i dojazd]({{ site_url }}/#kontakt): adres, telefony, mapa
+{% if category_pages %}
+## Usługi
+
+{% for category, page in category_pages %}- [{{ page.h1 }}]({{ site_url }}{{ category.get_absolute_url }}): {{ page.meta_description }}
+{% endfor %}{% endif %}{% if guides %}
+## Poradniki
+
+{% for guide in guides %}- [{{ guide.h1 }}]({{ site_url }}{% url 'guide_detail' guide.slug %}): {{ guide.lead }}
+{% endfor %}{% endif %}
+## Zasady
+
+- [Regulamin rezerwacji]({{ site_url }}/regulamin/): odwoływanie (najpóźniej 24 h przed), spóźnienia, płatności
+- [Polityka prywatności]({{ site_url }}/polityka-prywatnosci/)
+
+## Optional
+
+- [Opinie w Google]({{ google_maps_url }})
+- [Profil na Booksy](https://royalbeauty-studiourody.booksy.com/)

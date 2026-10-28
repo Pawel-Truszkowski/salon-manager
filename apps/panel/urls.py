@@ -41,6 +41,7 @@ urlpatterns = [
     path(
         'equipment/rentals/<int:pk>/delete/', views.EquipmentRentalDeleteView.as_view(), name='equipment_rental_delete'
     ),
+    path('reviews/', views.BooksyRatingView.as_view(), name='reviews'),
     path('schedule/', views.ScheduleView.as_view(), name='schedule'),
     path('schedule/<int:employee_pk>/weekly/', views.WeeklyScheduleEditView.as_view(), name='weekly_schedule'),
     path('schedule/<int:employee_pk>/generate/', views.ScheduleGenerateView.as_view(), name='schedule_generate'),

@@ -25,3 +25,34 @@ def description_html(text):
     if items:
         html.append(f'<ul>{"".join(items)}</ul>')
     return mark_safe(''.join(html))
+
+
+@register.filter
+def pl_plural(count, forms):
+    """Polish noun form for a count: `{{ 16|pl_plural:"opinia,opinie,opinii" }}` -> "opinii"."""
+    one, few, many = forms.split(',')
+    count = int(count)
+    if count == 1:
+        return one
+    if count % 10 in (2, 3, 4) and count % 100 not in (12, 13, 14):
+        return few
+    return many
+
+
+@register.filter
+def rating(value):
+    """A star rating the Polish way, with a decimal comma: 4.9 -> "4,9", 5 -> "5,0"."""
+    return f'{float(value):.1f}'.replace('.', ',')
+
+
+@register.filter
+def without_category(name, category_name):
+    """Service name without its repeated category: "Depilacja laserowa – pachy" -> "Pachy" (category pages).
+
+    Names that don't start with "<category> – " stay as they are ("Henna brwi" in "Rzęsy i brwi").
+    """
+    prefix = f'{category_name} – '
+    if name.lower().startswith(prefix.lower()) and len(name) > len(prefix):
+        rest = name[len(prefix) :]
+        return rest[0].upper() + rest[1:]
+    return name

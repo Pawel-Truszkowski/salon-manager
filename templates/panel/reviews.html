@@ -1,0 +1,41 @@
+{% extends 'panel/base.html' %}
+{% load services_extras %}
+
+{% block title %}Opinie{% endblock %}
+
+{% block content %}
+<h1 class="panel-title mb-2">Opinie</h1>
+<p class="text-muted mb-4" style="max-width: 720px">
+  Opinie z Google strona pobiera sama. Booksy nie udostępnia ich na zewnątrz, więc ocenę i liczbę opinii
+  trzeba przepisać z <a href="{{ booksy_url }}" target="_blank" rel="noopener">profilu na Booksy</a>,
+  np. raz w miesiącu. Strona pokazuje ostatni wpis razem z datą.
+</p>
+
+<form method="post" class="card panel-card mb-4" style="max-width: 720px" novalidate>
+  {% csrf_token %}
+  <div class="card-body">
+    {% if form.non_field_errors %}
+      <div class="alert alert-danger">{% for error in form.non_field_errors %}{{ error }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</div>
+    {% endif %}
+    <div class="row">
+      <div class="col-sm-4">{% include 'panel/_field.html' with field=form.rating %}</div>
+      <div class="col-sm-4">{% include 'panel/_field.html' with field=form.count %}</div>
+      <div class="col-sm-4">{% include 'panel/_field.html' with field=form.as_of %}</div>
+    </div>
+  </div>
+  <div class="card-footer bg-transparent">
+    <button type="submit" class="btn panel-btn-primary">Zapisz</button>
+  </div>
+</form>
+
+{% if history %}
+  <h2 class="h6 text-muted">Ostatnie wpisy</h2>
+  <ul class="list-unstyled small" style="max-width: 720px">
+    {% for entry in history %}
+      <li class="py-1{% if forloop.first %} fw-semibold{% endif %}">
+        {{ entry.as_of|date:"d.m.Y" }}: {{ entry.rating|rating }}/5, {{ entry.count }} {{ entry.count|pl_plural:"opinia,opinie,opinii" }}{% if forloop.first %} (na stronie){% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+{% endif %}
+{% endblock %}

@@ -71,6 +71,7 @@
   </div>
 </section>
 
+<script type="application/ld+json">{{ offer_catalog_jsonld }}</script>
 <section id="cennik" class="rb-section rb-bg-sand rb-menu" aria-labelledby="cennik-heading">
   <div class="container-xl px-4 px-lg-5">
     <div class="rb-menu-grid">
@@ -92,6 +93,9 @@
         {% for group in price_list %}
           <section class="rb-menu-group" id="{{ group.category.slug }}" aria-labelledby="{{ group.category.slug }}-heading">
             <h3 class="rb-menu-group-title" id="{{ group.category.slug }}-heading">{{ group.category.name }}</h3>
+            {% if group.page_url %}
+              <p class="rb-menu-group-more"><a class="rb-text-link" href="{{ group.page_url }}">Jak wygląda zabieg, przygotowanie, przeciwwskazania</a></p>
+            {% endif %}
             {% if group.equipment %}
               {# Services that need rented equipment (the laser): bookable only on its days #}
               <div class="rb-equipment-note">
@@ -167,12 +171,44 @@
   <div class="container-xl px-4 px-lg-5">
     <div class="rb-reviews-box">
       <h2 id="opinie-heading" class="rb-heading">Opinie klientek</h2>
-      <p>Opinie zbieramy w wizytówce Google. Przeczytasz tam, co klientki piszą o zabiegach, a po wizycie możesz dodać własną.</p>
+      {% if google_reviews or booksy_rating %}
+        <ul class="rb-reviews-summary">
+          {% if google_reviews %}
+            <li><strong>{{ google_reviews.rating|rating }}/5</strong> · {{ google_reviews.count }} {{ google_reviews.count|pl_plural:"opinia,opinie,opinii" }} w <a href="{{ google_maps_url }}" target="_blank" rel="noopener">Google Maps</a></li>
+          {% endif %}
+          {% if booksy_rating %}
+            {# Copied from Booksy by the owner (no API), hence the date #}
+            <li><strong>{{ booksy_rating.rating|rating }}/5</strong> · {{ booksy_rating.count }} {{ booksy_rating.count|pl_plural:"opinia,opinie,opinii" }} na <a href="{{ booksy_url }}" target="_blank" rel="noopener">Booksy</a> <span class="rb-reviews-asof">(stan na {{ booksy_rating.as_of|date:"j.m.Y" }})</span></li>
+          {% endif %}
+        </ul>
+      {% else %}
+        <p>Opinie zbieramy w wizytówce Google. Przeczytasz tam, co klientki piszą o zabiegach, a po wizycie możesz dodać własną.</p>
+      {% endif %}
       <div class="rb-hero-actions">
         <a class="btn rb-btn rb-btn-solid" href="{{ google_maps_url }}" target="_blank" rel="noopener">Zobacz opinie w Google</a>
         <a class="btn rb-btn rb-btn-quiet" href="{{ google_review_url }}" target="_blank" rel="noopener">Wystaw opinię</a>
       </div>
     </div>
+    {% if google_reviews.reviews %}
+      {# Google's terms: author's avatar + name + profile link, a link to the review itself, "Google Maps" as source #}
+      <ul class="rb-review-list">
+        {% for review in google_reviews.reviews %}
+          <li class="rb-review">
+            <figure>
+              <blockquote class="rb-review-text">{{ review.text|linebreaksbr }}</blockquote>
+              <figcaption class="rb-review-meta">
+                {% if review.photo_url %}<img src="{{ review.photo_url }}" alt="" width="40" height="40" loading="lazy" referrerpolicy="no-referrer">{% endif %}
+                <span>
+                  <a href="{{ review.author_url }}" target="_blank" rel="noopener nofollow">{{ review.author }}</a>
+                  <span class="rb-review-stars" aria-label="Ocena {{ review.rating }} na 5">{% for _ in "12345" %}{% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}{% endfor %}</span>
+                  <a class="rb-review-source" href="{{ review.url }}" target="_blank" rel="noopener nofollow">{{ review.when }} w Google Maps</a>
+                </span>
+              </figcaption>
+            </figure>
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
   </div>
 </section>
 

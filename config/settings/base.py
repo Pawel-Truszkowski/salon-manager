@@ -141,6 +141,10 @@ SALON_EMAIL = env("SALON_EMAIL")
 # Base URL used to build absolute links (e.g. cancellation links) in outgoing e-mails
 SITE_URL = env("SITE_URL", default="https://royalbeauty-studiourody.pl")
 
+# Google reviews on the home page (Places API (New)); empty key = the section shows only links
+GOOGLE_PLACES_API_KEY = env("GOOGLE_PLACES_API_KEY", default="")
+GOOGLE_PLACE_ID = env("GOOGLE_PLACE_ID", default="")
+
 # Staff panel (/panel/) authentication
 LOGIN_URL = 'panel:login'
 LOGIN_REDIRECT_URL = 'panel:dashboard'

@@ -435,7 +435,7 @@ body {
   }
 }
 
-/* ---------- reviews: no quotes of our own, the Google profile is the source ---------- */
+/* ---------- reviews: read live from Google (apps/services/google_reviews.py), never typed in by us ---------- */
 .rb-reviews-box {
   max-width: 40rem;
 }
@@ -443,6 +443,71 @@ body {
   margin: 1.25rem 0 2rem;
   font-weight: 300;
   line-height: 1.75;
+}
+.rb-reviews-summary {
+  margin: 1.25rem 0 2rem;
+  padding: 0;
+  list-style: none;
+  font-weight: 300;
+  line-height: 2;
+}
+.rb-reviews-summary strong {
+  font-weight: 500;
+  color: var(--rb-gold-ink);
+}
+.rb-reviews-summary a {
+  color: inherit;
+}
+.rb-reviews-asof {
+  color: #6b5a45;
+  font-size: 0.875rem;
+}
+.rb-review-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
+  gap: 1.5rem;
+  margin: 3rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.rb-review figure {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  margin: 0;
+  padding: 1.5rem;
+  border: 1px solid var(--rb-border);
+  background: var(--rb-bg);
+}
+.rb-review-text {
+  margin: 0 0 1.25rem;
+  font-weight: 300;
+  line-height: 1.7;
+}
+.rb-review-meta {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  font-size: 0.875rem;
+}
+.rb-review-meta img {
+  flex: none;
+  border-radius: 50%;
+}
+.rb-review-meta > span {
+  display: flex;
+  flex-direction: column;
+}
+.rb-review-meta a {
+  color: inherit;
+}
+.rb-review-stars {
+  color: var(--rb-gold);
+  letter-spacing: 0.1em;
+}
+.rb-review-source {
+  color: #6b5a45 !important;
 }
 
 /* ---------- FAQ: question in <summary>, answer 40–60 words ---------- */
@@ -609,6 +674,154 @@ body {
   text-decoration: underline;
   text-underline-offset: 0.2em;
   overflow-wrap: anywhere;
+}
+
+.rb-menu-group-more {
+  margin: -0.25rem 0 1rem;
+  font-size: 0.95rem;
+}
+
+/* ---------- category landing pages (/uslugi/<slug>/): one reading column like the legal pages ---------- */
+.rb-category > div > * {
+  max-width: 46rem;
+}
+.rb-breadcrumb ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0 0 1.5rem;
+  padding: 0;
+  list-style: none;
+  font-size: 0.875rem;
+  color: #6b5a45;
+}
+.rb-breadcrumb li + li::before {
+  content: "›";
+  margin-right: 0.5rem;
+}
+.rb-breadcrumb a {
+  color: inherit;
+}
+.rb-category-title {
+  font-size: clamp(2rem, 5vw, 3rem);
+  margin-bottom: 1rem;
+}
+.rb-category-body,
+.rb-category-prices,
+.rb-category-faq {
+  font-weight: 300;
+  line-height: 1.75;
+  color: var(--rb-body);
+}
+.rb-category-lead {
+  margin-top: 2rem;
+  font-size: 1.125rem;
+}
+.rb-category-body strong {
+  font-weight: 500;
+}
+.rb-category h2 {
+  font-family: var(--ff-display);
+  font-weight: 400;
+  font-size: 1.5rem;
+  color: var(--rb-dark);
+  margin: 2.5rem 0 1rem;
+}
+.rb-category-body ul {
+  padding-left: 1.25rem;
+}
+.rb-category-body li {
+  margin-bottom: 0.5rem;
+}
+.rb-price-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.rb-price-table th,
+.rb-price-table td {
+  padding: 0.6rem 0.5rem 0.6rem 0;
+  border-bottom: 1px solid var(--rb-border);
+  text-align: left;
+  vertical-align: baseline;
+}
+.rb-price-table thead th {
+  font-weight: 500;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #6b5a45;
+}
+.rb-price-table tbody th {
+  font-weight: 400;
+}
+.rb-price-table td:nth-child(2),
+.rb-price-table td:nth-child(3) {
+  white-space: nowrap;
+}
+.rb-price-table td:last-child {
+  text-align: right;
+}
+.rb-category-note {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: #6b5a45;
+}
+.rb-category-cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 3rem;
+}
+/* guides (/poradniki/): the category page's reading column + author line and a list of articles */
+.rb-byline {
+  font-size: 0.9rem;
+  color: #6b5a45;
+}
+.rb-byline a {
+  color: inherit;
+}
+.rb-guide-list {
+  padding: 0;
+  list-style: none;
+  font-weight: 300;
+  line-height: 1.75;
+  color: var(--rb-body);
+}
+.rb-guide-list li {
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--rb-border);
+}
+.rb-guide-list li > a,
+.rb-guide-list h2 a {
+  color: var(--rb-dark);
+}
+.rb-guide-list h2 {
+  margin: 0 0 0.25rem;
+}
+.rb-guide-list p {
+  margin: 0;
+}
+.rb-category-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+.rb-category-body th,
+.rb-category-body td {
+  padding: 0.5rem 0.5rem 0.5rem 0;
+  border-bottom: 1px solid var(--rb-border);
+  text-align: left;
+  vertical-align: top;
+}
+.rb-category-body thead th {
+  font-weight: 500;
+}
+@media (max-width: 575.98px) {
+  /* Phone: the row's own "Zarezerwuj" link would squeeze the name; the CTA below books */
+  .rb-price-table td:last-child,
+  .rb-price-table thead td {
+    display: none;
+  }
 }
 
 /* ---------- contact: NAP + by appointment ---------- */

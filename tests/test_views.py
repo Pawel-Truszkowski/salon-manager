@@ -355,14 +355,16 @@ class TestSeoMeta:
 
     def test_salon_json_ld(self, client, db):
         html = client.get(reverse('home')).content.decode()
-        (salon,) = [b for b in json_ld_blocks(html) if b['@type'] == 'BeautySalon']
+        # The other BeautySalon block is the price list (hasOfferCatalog) under the same @id
+        (salon,) = [b for b in json_ld_blocks(html) if b['@type'] == 'BeautySalon' and 'name' in b]
         assert salon['@id'] == 'http://testserver/#salon'
         assert (salon['name'], salon['alternateName']) == ('Royal Beauty Studio Urody', 'Royal Beauty')
         assert salon['foundingDate'] == '2023'
         assert salon['hasMap'] in salon['sameAs']
         assert 'Sunday' in salon['openingHoursSpecification'][0]['dayOfWeek']
         assert 'po wcześniejszym umówieniu' in salon['description']
-        assert salon['founder']['name'] == 'Paulina'
+        assert salon['founder']['name'] == 'Paulina Truszkowska'
+        assert 'https://royalbeauty-studiourody.booksy.com/' in salon['sameAs']
         assert salon['priceRange'] != 'PLN'
         assert salon['geo']['latitude']
 

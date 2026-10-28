@@ -16,11 +16,21 @@ from django.views.generic import CreateView, DetailView, FormView, ListView, Tem
 from apps.bookings.emails import send_confirmation_email
 from apps.bookings.models import Appointment, Client, normalize_phone
 from apps.bookings.utils import get_available_slots
-from apps.services.models import Employee, Equipment, EquipmentRental, Schedule, Service, TimeBlock, WeeklyScheduleEntry
+from apps.services.models import (
+    BooksyRating,
+    Employee,
+    Equipment,
+    EquipmentRental,
+    Schedule,
+    Service,
+    TimeBlock,
+    WeeklyScheduleEntry,
+)
 from apps.services.scheduling import generate_schedules
 
 from .forms import (
     AppointmentCreateForm,
+    BooksyRatingForm,
     ClientForm,
     EmployeeForm,
     EquipmentForm,
@@ -821,6 +831,29 @@ class ServiceToggleActiveView(OwnerRequiredMixin, View):
         service.save(update_fields=['is_active'])
         messages.success(request, f'Usługa „{service}” zniknęła ze strony i z rezerwacji. Historia wizyt zostaje.')
         return redirect(service_list_url(service))
+
+
+class BooksyRatingView(OwnerRequiredMixin, CreateView):
+    """Booksy rating shown on the home page: the form saves a new snapshot, the page lists the last few."""
+
+    template_name = 'panel/reviews.html'
+    form_class = BooksyRatingForm
+    success_url = reverse_lazy('panel:reviews')
+
+    def get_initial(self):
+        # Start from the last numbers: usually only the count changes
+        latest = BooksyRating.objects.first()
+        if latest is None:
+            return {}
+        return {'rating': latest.rating, 'count': latest.count}
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(history=BooksyRating.objects.all()[:5], **kwargs)
+
+    def form_valid(self, form):
+        form.instance.created_by = self.request.user
+        messages.success(self.request, 'Zapisano. Strona główna pokazuje już nowe liczby.')
+        return super().form_valid(form)
 
 
 class EquipmentListView(OwnerRequiredMixin, ListView):

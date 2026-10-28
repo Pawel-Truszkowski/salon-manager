@@ -9,7 +9,15 @@ from django.utils import timezone
 
 from apps.bookings.models import Appointment, Client, normalize_phone
 from apps.bookings.utils import find_available_specialist, get_available_slots
-from apps.services.models import Employee, Equipment, EquipmentRental, Service, TimeBlock, WeeklyScheduleEntry
+from apps.services.models import (
+    BooksyRating,
+    Employee,
+    Equipment,
+    EquipmentRental,
+    Service,
+    TimeBlock,
+    WeeklyScheduleEntry,
+)
 
 FORCE_HELP = 'Pozwala zapisać wizytę poza grafikiem lub na zajęty termin. Używaj świadomie.'
 
@@ -405,6 +413,44 @@ class ServiceForm(forms.ModelForm):
         if duration % 15:
             raise forms.ValidationError('Czas trwania musi być wielokrotnością 15 minut (np. 45, 60, 90).')
         return duration
+
+
+class BooksyRatingForm(forms.ModelForm):
+    """Owner copies the rating and the number of reviews from the salon's Booksy profile."""
+
+    class Meta:
+        model = BooksyRating
+        fields = ['rating', 'count', 'as_of']
+        labels = {'rating': 'Średnia ocena', 'count': 'Liczba opinii', 'as_of': 'Stan na dzień'}
+        help_texts = {
+            'rating': 'Np. 4,9, tak jak na Booksy.',
+            'as_of': 'Dzień, w którym sprawdzono Booksy. Strona pokazuje go obok liczb.',
+        }
+        widgets = {
+            'rating': forms.NumberInput(attrs={'step': '0.1', 'min': '1', 'max': '5'}),
+            'as_of': forms.DateInput(attrs={'type': 'date'}, format='%Y-%m-%d'),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        add_bootstrap_classes(self)
+
+    def clean(self):
+        cleaned = super().clean()
+        as_of, count = cleaned.get('as_of'), cleaned.get('count')
+        if as_of and as_of > timezone.localdate():
+            self.add_error('as_of', 'Ta data jeszcze nie minęła. Wpisz dzień, w którym sprawdzono Booksy.')
+        latest = BooksyRating.objects.first()
+        if latest is None:
+            return cleaned
+        # An older date would never reach the page (the newest one is shown), so it would only look lost
+        if as_of and as_of < latest.as_of:
+            self.add_error('as_of', f'Ostatni wpis jest z {latest.as_of:%d.%m.%Y}. Wpisz tę datę albo późniejszą.')
+        # Reviews on Booksy almost never disappear, so fewer than before is most likely swapped digits (94 -> 49).
+        # A real drop (Booksy removed a review) is rare enough to be fixed in /admin/.
+        if count is not None and count < latest.count:
+            self.add_error('count', f'Ostatnio było {latest.count}. Sprawdź, czy cyfry się nie zamieniły.')
+        return cleaned
 
 
 class EquipmentForm(forms.ModelForm):

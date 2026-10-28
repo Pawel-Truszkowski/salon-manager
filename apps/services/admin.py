@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Employee, Equipment, EquipmentRental, Schedule, Service, ServiceCategory, TimeBlock
+from .models import BooksyRating, Employee, Equipment, EquipmentRental, Schedule, Service, ServiceCategory, TimeBlock
 
 
 @admin.register(ServiceCategory)
@@ -47,3 +47,8 @@ class EquipmentAdmin(admin.ModelAdmin):
 class EquipmentRentalAdmin(admin.ModelAdmin):
     list_display = ('id', 'equipment', 'date_from', 'date_to')
     list_filter = ('equipment',)
+
+
+@admin.register(BooksyRating)
+class BooksyRatingAdmin(admin.ModelAdmin):
+    list_display = ('as_of', 'rating', 'count', 'created_by')

@@ -5,8 +5,8 @@ from decimal import Decimal
 import pytest
 from django.urls import reverse
 
-from apps.services.faq import build_faq, faq_jsonld
-from apps.services.models import Service, format_price
+from apps.services.faq import build_faq, faq_jsonld, laser_page_faq, lash_brow_page_faq, nails_page_faq
+from apps.services.models import Service, ServiceCategory, format_price
 
 
 def svc(name, price, duration=60):
@@ -16,6 +16,10 @@ def svc(name, price, duration=60):
 
 def answers(services):
     return {item['question']: item['answer'] for item in build_faq(services)}
+
+
+def laser_answers(services):
+    return {item['question']: item['answer'] for item in laser_page_faq(services)}
 
 
 LASHES = 'Ile kosztuje przedłużanie rzęs?'
@@ -106,3 +110,77 @@ class TestFaqOnHomePage:
         html = client.get(reverse('home')).content.decode()
         assert 'href="/#faq"' in html
         assert 'id="faq"' in html
+
+
+# On /uslugi/depilacja-laserowa/; the home page keeps only "Kiedy mogę zrobić depilację laserową?"
+LASER_QUESTIONS = [
+    'Ile kosztuje depilacja laserowa?',
+    'Ile zabiegów depilacji laserowej potrzeba?',
+    'Czy depilacja laserowa boli?',
+    'Jak przygotować się do depilacji laserowej?',
+    'Co robić po depilacji laserowej?',
+    'Kto nie może zrobić depilacji laserowej?',
+]
+
+
+def laser_svc():
+    return Service(
+        name='Depilacja laserowa – pachy',
+        price=Decimal('170'),
+        price_is_from=True,
+        duration=30,
+        category=ServiceCategory(name='Depilacja laserowa'),
+        required_equipment_id=1,
+    )
+
+
+class TestFaqAfterAudit:
+    """Questions added after the 21.10.2026 audit: laser, durability, getting there, payment."""
+
+    def test_laser_questions_only_when_laser_services_are_offered(self):
+        assert list(laser_answers([laser_svc()])) == LASER_QUESTIONS
+        assert laser_answers([svc('Manicure hybrydowy', '120')]) == {}
+        assert 'Kiedy mogę zrobić depilację laserową?' in answers([laser_svc()])
+
+    def test_no_question_is_on_both_pages(self):
+        """Google: mark up a repeated FAQ on one page only."""
+        assert not set(answers([laser_svc()])) & set(laser_answers([laser_svc()]))
+
+    def test_laser_price_comes_from_the_services(self):
+        bikini = laser_svc()
+        legs = Service(
+            name='Depilacja laserowa – całe nogi',
+            price=Decimal('320'),
+            duration=60,
+            category=bikini.category,
+            required_equipment_id=1,
+        )
+        assert 'od 170 do 320 zł' in laser_answers([bikini, legs])['Ile kosztuje depilacja laserowa?']
+
+    def test_durability_follows_the_services(self):
+        def page_answers(faq):
+            return {item['question']: item['answer'] for item in faq}
+
+        lashes = page_answers(
+            lash_brow_page_faq([svc('Przedłużanie rzęs 1:1', '150'), svc('Uzupełnianie rzęs 1:1', '130')])
+        )
+        assert '2–3 tygodnie' in lashes['Jak często trzeba uzupełniać przedłużone rzęsy?']
+        assert 'Uzupełnianie kosztuje 130 zł.' in lashes['Jak często trzeba uzupełniać przedłużone rzęsy?']
+        assert 'Jak długo utrzymuje się manicure hybrydowy?' not in page_answers(nails_page_faq([]))
+        nails = page_answers(nails_page_faq([svc('Manicure hybrydowy', '120')]))
+        assert '3–4 tygodnie' in nails['Jak długo utrzymuje się manicure hybrydowy?']
+
+    def test_getting_there_and_payment_match_the_terms(self):
+        faq = answers([])
+        assert 'bezpłatny parking' in faq['Jak dojechać do salonu i gdzie zaparkować?']
+        assert 'Małopanewska' in faq['Jak dojechać do salonu i gdzie zaparkować?']
+        assert 'gotówką lub BLIK-iem' in faq['Jak mogę zapłacić za zabieg?']  # same wording as § 3 of the terms
+
+    @pytest.mark.parametrize('question', LASER_QUESTIONS)
+    def test_laser_answers_fit_a_featured_snippet(self, question):
+        words = len(laser_answers([laser_svc()])[question].split())
+        assert 25 <= words <= 55
+
+    def test_payment_answer_fits_a_featured_snippet(self):
+        words = len(answers([])['Jak mogę zapłacić za zabieg?'].split())
+        assert 25 <= words <= 55

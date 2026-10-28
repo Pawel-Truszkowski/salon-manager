@@ -1,6 +1,8 @@
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.urls import reverse
 from django.utils import timezone
 
 
@@ -42,6 +44,10 @@ class ServiceCategory(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        # Only categories in `category_pages.CATEGORY_PAGES` have a page; others 404 here
+        return reverse('category_detail', args=[self.slug])
 
 
 class Equipment(models.Model):
@@ -119,6 +125,8 @@ class Service(models.Model):
     required_equipment = models.ForeignKey(
         Equipment, on_delete=models.PROTECT, null=True, blank=True, related_name='services'
     )
+    # Latest change to any service (incl. turning one off) = the price list's <lastmod> in the sitemap
+    updated_at = models.DateTimeField(auto_now=True)
 
     objects = ServiceQuerySet.as_manager()
 
@@ -248,3 +256,32 @@ class TimeBlock(models.Model):
 
     def __str__(self):
         return f"{self.employee} - {self.date} {self.start_time}-{self.end_time} (blocked)"
+
+
+class BooksyRating(models.Model):
+    """The salon's rating on Booksy as the owner read it on one day; the home page shows the latest one.
+
+    Booksy has no public API, so the owner copies the two numbers from her profile. Each update is a new
+    row (a short history instead of overwriting), and `as_of` explains why the page may lag behind Booksy.
+    Shown as text only: no aggregateRating in JSON-LD (self-serving ratings are forbidden for a LocalBusiness).
+    """
+
+    rating = models.DecimalField(
+        max_digits=2, decimal_places=1, validators=[MinValueValidator(1), MaxValueValidator(5)]
+    )
+    count = models.PositiveIntegerField()
+    as_of = models.DateField(default=timezone.localdate)
+    created_at = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='+',
+    )
+
+    class Meta:
+        ordering = ['-as_of', '-pk']  # newest first: .first() is what the page shows
+
+    def __str__(self):
+        return f'{self.rating}/5, {self.count} opinii (stan na {self.as_of:%d.%m.%Y})'
