@@ -157,7 +157,7 @@ Flow: branch off `dev` → PR to `dev` → (CI + staging) → PR `dev` → `main
 4. Cloudflare → Purge cache (files without a hash in the name, e.g. `robots.txt`, stay cached for up to 4 h).
 5. Smoke test: www/http redirects → `https://royalbeauty-studiourody.pl/`, website, panel, `robots.txt`, `sitemap.xml`.
 
-Full checklist from the first deploy: [docs/seo-plan.md](docs/seo-plan.md), stage 6.
+Full checklist from the first deploy: [docs/archive/seo-plan.md](docs/archive/seo-plan.md), stage 6.
 
 ## Scheduled jobs (cron)
 
@@ -187,13 +187,13 @@ static/         # CSS, JS, fonts, images
 tests/          # pytest tests
 scripts/        # backup_db.sh
 nginx/          # prod.conf (production), dev.conf (staging)
-docs/           # Plans: panel-plan.md, seo-plan.md, redesign/ (in Polish)
+docs/           # roadmap.md (open work), archive/ (finished plans, redesign prototype) — in Polish
 .env.example    # Environment variable template
 ```
 
 ## Roadmap
 
-Details (in Polish): [docs/seo-plan.md](docs/seo-plan.md) and [docs/panel-plan.md](docs/panel-plan.md).
+Details and the full task list (in Polish): [docs/roadmap.md](docs/roadmap.md). History of finished stages: [docs/archive/](docs/archive/).
 
 Done (in production since 28 Oct 2026): SEO quick wins, extended FAQ, Google and Booksy reviews, category pages, guides.
 

@@ -155,7 +155,7 @@ Przepływ: gałąź od `dev` → PR do `dev` → (CI + staging) → PR `dev` →
 4. Cloudflare → Purge cache (pliki bez hasha w nazwie, np. `robots.txt`, są w cache do 4 h).
 5. Smoke test: przekierowania www/http → `https://royalbeauty-studiourody.pl/`, strona, panel, `robots.txt`, `sitemap.xml`.
 
-Pełna checklista z pierwszego wdrożenia: [docs/seo-plan.md](docs/seo-plan.md), etap 6.
+Pełna checklista z pierwszego wdrożenia: [docs/archive/seo-plan.md](docs/archive/seo-plan.md), etap 6.
 
 ## Zadania cykliczne (cron)
 
@@ -185,13 +185,13 @@ static/         # CSS, JS, fonty, obrazy
 tests/          # Testy pytest
 scripts/        # backup_db.sh
 nginx/          # prod.conf (produkcja), dev.conf (staging)
-docs/           # Plany: panel-plan.md, seo-plan.md, redesign/
+docs/           # roadmap.md (otwarte zadania), archive/ (zamknięte plany, prototyp redesignu)
 .env.example    # Wzór zmiennych środowiskowych
 ```
 
 ## Roadmapa
 
-Szczegóły: [docs/seo-plan.md](docs/seo-plan.md) i [docs/panel-plan.md](docs/panel-plan.md).
+Szczegóły i pełna lista zadań: [docs/roadmap.md](docs/roadmap.md). Historia zamkniętych etapów: [docs/archive/](docs/archive/).
 
 Zrobione (produkcja 28.10.2026): quick wins SEO, rozszerzone FAQ, opinie Google i Booksy, podstrony kategorii, poradniki.
 
