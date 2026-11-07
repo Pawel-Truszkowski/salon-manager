@@ -10,8 +10,8 @@ media
 *.bak 
 
 # SEO audit reports (kept locally, not in the repo)
-docs/seo-audit-*.pdf
-docs/seo-audit-*.docx
+docs/**/seo-audit-*.pdf
+docs/**/seo-audit-*.docx
 
 # If you are using PyCharm # 
 # User-specific stuff
