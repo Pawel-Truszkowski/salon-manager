@@ -1,10 +1,12 @@
 # Salon Manager
 
-Aplikacja webowa salonu kosmetycznego Royal Beauty Studio Urody we Wrocławiu: strona wizytówkowa z cennikiem, rezerwacją online i przypomnieniami e-mail oraz własny panel do prowadzenia salonu (wizyty, grafik, kalendarz, zespół, usługi, klientki).
+🇵🇱 Polski · [🇬🇧 English](README.en.md)
+
+Aplikacja webowa salonu kosmetycznego Royal Beauty Studio Urody we Wrocławiu: strona wizytówkowa z cennikiem, rezerwacją online i przypomnieniami e-mail oraz własny panel do prowadzenia salonu (wizyty, grafik, kalendarz, zespół, usługi, klientki, opinie).
 
 🌐 **Produkcja:** [royalbeauty-studiourody.pl](https://royalbeauty-studiourody.pl) · **Staging:** [dev.royalbeauty-studiourody.pl](https://dev.royalbeauty-studiourody.pl)
 
-> **Status projektu:** działa na produkcji od 21.10.2026 (nowa strona + panel). Dalszy rozwój (SEO, podstrony usług, opinie) — patrz [Roadmapa](#roadmapa).
+> **Status projektu:** działa na produkcji od 21.10.2026 (nowa strona + panel). 28.10.2026 doszły etapy SEO 7–12: podstrony kategorii, poradniki, opinie Google i Booksy, `llms.txt`. Dalszy rozwój — patrz [Roadmapa](#roadmapa).
 
 ## Spis treści
 
@@ -30,14 +32,17 @@ Aplikacja webowa salonu kosmetycznego Royal Beauty Studio Urody we Wrocławiu: s
 - E-maile: potwierdzenie rezerwacji, potwierdzenie przez salon, zmiana terminu, odwołanie, **przypomnienie ok. 24 h przed wizytą**
 - Samodzielne odwołanie wizyty linkiem z maila
 - Profil salonu i właścicielki, FAQ, dojazd, polityka prywatności i regulamin rezerwacji
-- SEO: jeden H1, Open Graph, JSON-LD (`BeautySalon`, `FAQPage`), `sitemap.xml`, `robots.txt`, obrazy WebP, fonty hostowane lokalnie, polskie strony 404/500
+- **Podstrony kategorii** (`/uslugi/<slug>/`, pięć kategorii): opis zabiegów, cennik kategorii w tabeli, własne FAQ
+- **Poradniki** (`/poradniki/`): artykuły kosmetolożki, podlinkowane z podstronami kategorii
+- **Opinie:** ocena i do 5 opinii z Google (Places API, tylko w cache — warunki Google zabraniają zapisu) oraz ocena z Booksy wpisywana w panelu
+- SEO/GEO: jeden H1, meta description, Open Graph, JSON-LD generowany z bazy (`BeautySalon`, `hasOfferCatalog` z cennika, `FAQPage`, `BreadcrumbList`, `BlogPosting`), `sitemap.xml` z `<lastmod>`, `robots.txt`, `llms.txt`, obrazy WebP, fonty hostowane lokalnie, polskie strony 404/500
 
 **Panel salonu (`/panel/`)**
 - Logowanie, reset hasła, zaproszenia do panelu dla nowych specjalistek
 - Wizyty: lista z filtrami, potwierdzanie, realizacja, odwołanie, zmiana terminu, dodawanie wizyt telefonicznych (z podpowiedziami z kartoteki klientek)
 - Kalendarz (FullCalendar) z przeciąganiem wizyt i grafikiem w tle
 - Grafik: szablon tygodnia → generowanie grafiku na wybrany okres, blokady (urlopy, przerwy)
-- Zespół, usługi, klientki, wynajem urządzeń — tylko dla właścicielki
+- Zespół, usługi, klientki, wynajem urządzeń, ocena z Booksy (`/panel/reviews/`) — tylko dla właścicielki
 - Specjalistka widzi i zmienia wyłącznie swoje dane
 
 ## Stack technologiczny
@@ -60,7 +65,7 @@ Aplikacje Django w katalogu `apps/`:
 | Aplikacja  | Odpowiedzialność |
 | ---------- | ---------------- |
 | `accounts` | Własny model `User` (`AbstractUser` + telefon), role (`roles.py`) |
-| `services` | Kategorie, usługi, specjalistki (`Employee`), grafik (`Schedule`, `WeeklyScheduleEntry`, `TimeBlock`), sprzęt i jego wynajem, FAQ, generowanie grafiku |
+| `services` | Kategorie, usługi, specjalistki (`Employee`), grafik (`Schedule`, `WeeklyScheduleEntry`, `TimeBlock`), sprzęt i jego wynajem, generowanie grafiku, FAQ, podstrony kategorii (`category_pages.py`), poradniki (`guides.py`), JSON-LD (`schema.py`), opinie Google (`google_reviews.py`) i `BooksyRating` |
 | `bookings` | `Appointment`, `Client`, formularz i widok rezerwacji, logika dostępności (`utils.py`), e-maile, przypomnienia (`reminders.py` + komenda `send_reminders`) |
 | `panel`    | Panel salonu: widoki, formularze, mixiny dostępu, zaproszenia |
 | `api`      | Endpointy DRF: usługi, specjalistki, wolne godziny i dni |
@@ -118,7 +123,8 @@ Wzór: [.env.example](.env.example) — skopiuj jako `.env.dev` (lokalnie) lub `
 | `RESEND_API_KEY` | Klucz API Resend |
 | `DEFAULT_FROM_EMAIL` | Nadawca e-maili |
 | `SALON_EMAIL` | Adres salonu na powiadomienia o rezerwacjach i odwołaniach |
-| `SITE_URL` | Bazowy adres **ze schematem** (`https://…`): linki w mailach, canonical, Open Graph, JSON-LD |
+| `SITE_URL` | Bazowy adres **ze schematem** (`https://…`): linki w mailach, canonical, Open Graph, JSON-LD. Bez schematu kontener nie wystartuje (system check `bookings.E001`) |
+| `GOOGLE_PLACES_API_KEY` / `GOOGLE_PLACE_ID` | Opinie Google na stronie głównej. Klucz ograniczony do IP Dropletu, więc lokalnie i na stagingu widać tylko linki (fallback) |
 | `NGINX_CONF` | Tylko staging: `dev.conf` w pliku `.env` w katalogu projektu (nie w `.env.prod`) — compose czyta go przy interpolacji |
 
 ## Lint i testy
@@ -126,10 +132,10 @@ Wzór: [.env.example](.env.example) — skopiuj jako `.env.dev` (lokalnie) lub `
 ```bash
 uv run ruff check --fix   # lint + sortowanie importów
 uv run ruff format        # formatowanie
-uv run pytest             # ok. 425 testów
+uv run pytest             # ok. 550 testów
 ```
 
-Testy (`tests/`, konfiguracja w [pytest.ini](pytest.ini)) pokrywają modele, formularze, widoki, panel, API, e-maile, przypomnienia, logikę dostępności i migracje danych. CI odrzuca zmiany, które nie przechodzą lintu, formatowania lub testów.
+Testy (`tests/`, konfiguracja w [pytest.ini](pytest.ini)) pokrywają modele, formularze, widoki, panel, API, e-maile, przypomnienia, logikę dostępności, migracje danych, JSON-LD, sitemapę, podstrony, poradniki i opinie. Nie potrzebują Postgresa, Resend ani klucza Google. CI odrzuca zmiany, które nie przechodzą lintu, formatowania lub testów.
 
 ## Deployment
 
@@ -170,11 +176,11 @@ apps/
   api/          # Endpointy REST (DRF)
   bookings/     # Rezerwacje, klientki, e-maile, przypomnienia, logika dostępności
   panel/        # Panel salonu (/panel/)
-  services/     # Usługi, specjalistki, grafik, sprzęt, FAQ
+  services/     # Usługi, specjalistki, grafik, sprzęt, FAQ, podstrony, poradniki, opinie
 config/
   settings/     # base / development / production / test
   urls.py, sitemaps.py, context_processors.py, asgi.py, wsgi.py
-templates/      # Szablony HTML (strona, panel, e-maile, strony prawne)
+templates/      # Szablony HTML (strona, podstrony, poradniki, panel, e-maile, strony prawne, llms.txt)
 static/         # CSS, JS, fonty, obrazy
 tests/          # Testy pytest
 scripts/        # backup_db.sh
@@ -185,12 +191,13 @@ docs/           # Plany: panel-plan.md, seo-plan.md, redesign/
 
 ## Roadmapa
 
-Szczegóły: [docs/seo-plan.md](docs/seo-plan.md) (etapy 7–13) i [docs/panel-plan.md](docs/panel-plan.md).
+Szczegóły: [docs/seo-plan.md](docs/seo-plan.md) i [docs/panel-plan.md](docs/panel-plan.md).
 
-- SEO quick wins: meta description, `hasOfferCatalog` z cennika, `<lastmod>` w sitemapie, `llms.txt`
-- Rozszerzone FAQ (przeciwwskazania, laser, trwałość zabiegów, dojazd, płatności)
-- Prawdziwe opinie klientek na stronie
-- Podstrony kategorii usług (zaczynając od depilacji laserowej) i poradniki
-- Statystyki dla właścicielki (wizyty, przychód, obłożenie, anulacje)
-- RODO w panelu: usuwanie klientki, automatyczne czyszczenie starych danych
+Zrobione (produkcja 28.10.2026): quick wins SEO, rozszerzone FAQ, opinie Google i Booksy, podstrony kategorii, poradniki.
+
+Dalej:
+- RODO w panelu: usuwanie klientki (z anonimizacją wizyt), automatyczne czyszczenie danych starszych niż 3 lata
+- Ponowny audyt SEO/GEO/AEO
+- Zdjęcia prac na podstronach kategorii
+- Zapamiętywanie ceny i czasu trwania w wizycie (snapshot), potem statystyki dla właścicielki (wizyty, przychód, obłożenie, anulacje)
 - Zdjęcia specjalistek wgrywane w panelu
